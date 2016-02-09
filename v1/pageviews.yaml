@@ -3,7 +3,6 @@ info:
   version: '1.0.0-beta'
   title: Analytics Pageview API
   description: Analytics Pageview API
-  termsofservice: https://github.com/wikimedia/restbase#restbase
   contact:
     name: Analytics
     email: analytics@lists.wikimedia.org

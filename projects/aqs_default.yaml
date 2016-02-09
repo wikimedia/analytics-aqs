@@ -7,7 +7,7 @@ paths:
       version: 1.0.0-beta
       title: Analytics REST API
       description: >
-          AQS RESTBase setup
+          Analytics Query Service setup
       x-is-api-root: true
 
     x-host-basePath: /api/rest_v1

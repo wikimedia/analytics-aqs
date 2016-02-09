@@ -1,7 +1,7 @@
 {
-  "name": "restbase",
-  "version": "0.10.0",
-  "description": "REST storage and service dispatcher",
+  "name": "analytics-query-service",
+  "version": "0.1.0",
+  "description": "Wikipedia pageviews data service",
   "main": "lib/server.js",
   "scripts": {
     "start": "service-runner",
@@ -11,34 +11,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/wikimedia/restbase.git"
+    "url": "git://gerrit.wikimedia.org/r/analytics/query-service.git"
   },
   "keywords": [
-    "REST",
+    "analytics",
     "API",
-    "routing",
-    "orchestration",
-    "storage",
-    "buckets",
-    "tables",
-    "queues",
-    "cassandra",
-    "kafka"
+    "pageviews"
   ],
-  "author": "Wikimedia Service Team <services@wikimedia.org>",
+  "author": "Wikimedia Analytics Team <analytics@wikimedia.org>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://phabricator.wikimedia.org/tag/restbase/"
+    "url": "https://phabricator.wikimedia.org/tag/analytics/"
   },
-  "homepage": "https://github.com/wikimedia/restbase",
   "dependencies": {
     "bluebird": "^3.1.1",
-    "cassandra-uuid": "^0.0.2",
     "restbase-mod-table-cassandra": "^0.8.15",
     "service-runner": "^1.1.0",
-    "json-stable-stringify": "git+https://github.com/wikimedia/json-stable-stringify#master",
-    "htcp-purge": "^0.1.2",
-    "content-type": "git+https://github.com/wikimedia/content-type#master",
     "hyperswitch": "^0.1.1"
   },
   "devDependencies": {
@@ -51,13 +39,11 @@
     "mocha-jscs": "^4.0.0",
     "mocha-jshint": "^2.2.6",
     "mocha-lcov-reporter": "^1.0.0",
-    "nock": "^5.2.1",
     "restbase-mod-table-sqlite": "^0.1.14",
-    "swagger-test": "0.3.0",
     "temp": "^0.8.3"
   },
   "deploy": {
-    "node": "4.2",
+    "node": "4.2.4",
     "target": "debian",
     "dependencies": {
       "_all": []

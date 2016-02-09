@@ -1,6 +1,6 @@
 [gerrit]
 host=gerrit.wikimedia.org
 port=29418
-project=mediawiki/services/restbase.git
+project=mediawiki/analytics/query-service.git
 defaultbranch=master
 defaultrebase=0
