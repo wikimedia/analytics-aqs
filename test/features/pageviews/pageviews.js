@@ -52,6 +52,32 @@ describe('pageviews endpoints', function () {
         });
     });
 
+    function r(s, replaceSpaces) {
+        var weirdArticleTitle = 'dashes - spaces : colons and / slashes';
+        if (replaceSpaces) {
+            weirdArticleTitle = weirdArticleTitle.replace(/ /g, '_');
+        }
+
+        return s.replace(
+            '/one/', '/' + encodeURIComponent(weirdArticleTitle) + '/'
+        );
+    }
+
+    it('should handle per article queries with encoded characters', function () {
+        return preq.post({
+            // the way we have configured the test insert-per-article endpoint
+            // means views_desktop_spider will be 1007 when we pass /100
+            uri: server.config.aqsURL + r(insertArticleEndpoint, true) + '/100'
+        }).then(function() {
+            return preq.get({
+                uri: server.config.aqsURL + r(articleEndpoint)
+            });
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].article, 'dashes_-_spaces_:_colons_and_/_slashes');
+        });
+    });
+
 
     // Test Project Endpoint
 

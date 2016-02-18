@@ -7,10 +7,11 @@
  */
 
 var HyperSwitch = require('hyperswitch');
+var path = require('path');
 var HTTPError = HyperSwitch.HTTPError;
 var URI = HyperSwitch.URI;
 
-var spec = HyperSwitch.utils.loadSpec(__dirname + '/pageviews.yaml');
+var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pageviews.yaml'));
 
 // Pageviews Service
 function PJVS(options) {
@@ -274,7 +275,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
             table: tables.articleFlat,
             attributes: {
                 project: rp.project,
-                article: rp.article,
+                article: decodeURIComponent(rp.article).replace(/ /g, '_'),
                 granularity: rp.granularity,
                 timestamp: { between: [rp.start, rp.end] },
             }
