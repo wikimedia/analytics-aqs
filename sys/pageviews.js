@@ -148,7 +148,7 @@ var normalizeResponse = function(res) {
     res = res || {};
     res.body = res.body || { items: [] };
     res.headers = res.headers || {};
-    res.headers['cache-control'] = 's-maxage=3600, max-age=3600';
+    res.headers['cache-control'] = 's-maxage=86400, max-age=86400';
     res.headers['content-type'] = 'application/json; charset=utf-8';
     return res;
 };
