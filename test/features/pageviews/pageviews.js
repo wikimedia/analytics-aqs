@@ -19,6 +19,7 @@ describe('pageviews endpoints', function () {
     var articleEndpoint = '/pageviews/per-article/en.wikipedia/desktop/spider/one/daily/20150701/20150703';
     var projectEndpoint = '/pageviews/aggregate/en.wikipedia/all-access/all-agents/hourly/1969010100/1971010100';
     var topsEndpoint = '/pageviews/top/en.wikipedia/mobile-web/2015/01/all-days';
+    var projectEndpointStrip = '/pageviews/aggregate/www.en.wikipedia.org/all-access/all-agents/hourly/1969010100/1971010100';
 
     // Fake data insertion endpoints
     var insertArticleEndpoint = '/pageviews/insert-per-article-flat/en.wikipedia/one/daily/2015070200';
@@ -126,6 +127,16 @@ describe('pageviews endpoints', function () {
             return preq.get({
                 uri: server.config.aqsURL + projectEndpoint
             });
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].views, 0);
+        });
+    });
+
+    it('should return the expected aggregate data after insertion, when querying with www.<<project>>.org', function () {
+        // data for this is already inserted in the test above, weird that tests are inter-dependent
+        return preq.get({
+            uri: server.config.aqsURL + projectEndpointStrip
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 0);
