@@ -118,9 +118,9 @@ paths:
           required: true
         - name: agent
           in: path
-          description: If you want to filter by agent type, use one of user, bot or spider. If you are interested in pageviews regardless of agent type, use all-agents
+          description: If you want to filter by agent type, use one of user or spider. If you are interested in pageviews regardless of agent type, use all-agents
           type: string
-          enum: ['all-agents', 'user', 'spider', 'bot']
+          enum: ['all-agents', 'user', 'spider']
           required: true
         - name: granularity
           in: path
@@ -130,12 +130,12 @@ paths:
           required: true
         - name: start
           in: path
-          description: The timestamp of the first day to include, in YYYYMMDDHH format
+          description: The timestamp of the first hour/day/month to include, in YYYYMMDDHH format
           type: string
           required: true
         - name: end
           in: path
-          description: The timestamp of the first day to include, in YYYYMMDDHH format
+          description: The timestamp of the last hour/day/month to include, in YYYYMMDDHH format
           type: string
           required: true
       responses:
@@ -181,7 +181,7 @@ paths:
       tags:
         - Pageviews data
       description: |
-        Lists the 1000 most viewed articles for a given project and timespan (year, month or day). You can filter by access method
+        Lists the 1000 most viewed articles for a given project and timespan (month or day). You can filter by access method
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
       produces:
         - application/json
@@ -199,7 +199,7 @@ paths:
           required: true
         - name: year
           in: path
-          description: The year of the date for which to retrieve top articles, in YYYY format. If you want to get the top articles of a whole year, the month and day parameters should be all-months and all-days respectively
+          description: The year of the date for which to retrieve top articles, in YYYY format.
           type: string
           required: true
         - name: month
