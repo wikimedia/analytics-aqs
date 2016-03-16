@@ -1,4 +1,4 @@
-# A synthetic domain to test pageviews module data
+# A synthetic domain to test aqs modules data
 aqs.wikimedia.org: &analytics.wikimedia.org
   x-modules:
     /:
@@ -28,7 +28,7 @@ info:
 services:
   - name: aqs
     module: hyperswitch
-    conf: 
+    conf:
       port: 7231
       spec: *spec_root
       salt: secret

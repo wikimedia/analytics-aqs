@@ -11,7 +11,7 @@ info:
     name: Apache licence, v2
     url: https://www.apache.org/licenses/LICENSE-2.0
 paths:
-  /pageviews/:
+  /:
     get:
       tags:
         - Pageviews data
@@ -32,7 +32,7 @@ paths:
             $ref: '#/definitions/problem'
       x-monitor: false
 
-  /pageviews/per-article/{project}/{access}/{agent}/{article}/{granularity}/{start}/{end}:
+  /per-article/{project}/{access}/{agent}/{article}/{granularity}/{start}/{end}:
     get:
       tags:
         - Pageviews data
@@ -95,7 +95,7 @@ paths:
               uri: /{domain}/sys/pageviews/per-article/{project}/{access}/{agent}/{article}/{granularity}/{start}/{end}
       x-monitor: false
 
-  /pageviews/aggregate/{project}/{access}/{agent}/{granularity}/{start}/{end}:
+  /aggregate/{project}/{access}/{agent}/{granularity}/{start}/{end}:
     get:
       tags:
         - Pageviews data
@@ -176,7 +176,7 @@ paths:
                   timestamp: 1970010100
                   views: 0
 
-  /pageviews/top/{project}/{access}/{year}/{month}/{day}:
+  /top/{project}/{access}/{year}/{month}/{day}:
     get:
       tags:
         - Pageviews data

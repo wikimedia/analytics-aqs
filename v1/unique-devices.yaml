@@ -1,0 +1,129 @@
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: Analytics Unique Devices API
+  description: Analytics Unique Devicess API
+  contact:
+    name: Analytics
+    email: analytics@lists.wikimedia.org
+    url: https://www.mediawiki.org/wiki/Analytics
+  license:
+    name: Apache licence, v2
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /{project}/{access-site}/{granularity}/{start}/{end}:
+    get:
+      tags:
+        - Unique devices data
+      description: |
+        Given a project and a date range, returns a timeseries of unique devices counts. You need to specify a project, and can filter by accessed site (mobile or desktop). You can choose between daily and hourly granularity as well
+        Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
+      produces:
+        - application/json
+      parameters:
+        - name: project
+          in: path
+          description: The name of any Wikimedia project formatted like {language code}.{project name}, for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped off. For projects like commons without language codes, use commons.wikimedia
+          type: string
+          required: true
+        - name: access-site
+          in: path
+          description: If you want to filter by accessed site, use one of desktop-site or mobile-site. If you are interested in unique devices regardless of accessed site, use or all-sites
+          type: string
+          enum: ['all-sites', 'desktop-site', 'mobile-site']
+          required: true
+        - name: granularity
+          in: path
+          description: The time unit for the response data. As of today, the supported granularities for this endpoint are daily and monthly
+          type: string
+          enum: ['daily', 'monthly']
+          required: true
+        - name: start
+          in: path
+          description: The timestamp of the first day/month to include, in YYYYMMDD format
+          type: string
+          required: true
+        - name: end
+          in: path
+          description: The timestamp of the last day/month to include, in YYYYMMDD format
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The list of values
+          schema:
+            $ref: '#/definitions/project'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/unique-devices/{project}/{access-site}/{granularity}/{start}/{end}
+      x-monitor: true
+      x-amples:
+        - title: Get unique devices
+          request:
+            params:
+              domain: wikimedia.org
+              project: en.wikipedia
+              access-site: all-sites
+              granularity: daily
+              start: 19700101
+              end: 19700101
+          response:
+            status: 200
+            headers:
+              content-type: application/json
+            body:
+              items:
+                - project: en.wikipedia
+                  access-site: all-sites
+                  granularity: daily
+                  timestamp: 19700101
+                  views: 0
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+
+  listing:
+    description: The result format for listings
+    required:
+      - items
+    properties:
+      items:
+        type: array
+        items:
+          type: string
+
+  project:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            project:
+              type : string
+            access-site:
+              type : string
+            granularity:
+              type: string
+            timestamp:
+              # the daily timestamp will be stored as YYYYMMDD
+              type: string
+            devices:
+              type: integer
+              format: int64

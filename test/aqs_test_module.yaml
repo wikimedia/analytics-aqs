@@ -6,7 +6,7 @@ paths:
     swagger: '2.0'
     info:
       version: 1.0.0-beta
-      title: Wikimedia testing APIs
+      title: AQS testing APIs
       x-is-api-root: true
     paths:
       /pageviews/insert-per-article-flat/{project}/{article}/{granularity}/{timestamp}/{views}:
@@ -93,4 +93,21 @@ paths:
                       month: '{{request.params.month}}'
                       day: '{{request.params.day}}'
                       articlesJSON: '{{request.body.articles}}'
+          x-monitor: false
+
+      /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}:
+        post:
+          x-request-handler:
+            - put_to_storage:
+                request:
+                  method: 'put'
+                  uri: '/{domain}/sys/table/unique.devices/'
+                  body:
+                    table: 'unique.devices'
+                    attributes:
+                      project: '{{request.params.project}}'
+                      'access-site': '{{request.params.access-site}}'
+                      granularity: '{{request.params.granularity}}'
+                      timestamp: '{{request.params.timestamp}}'
+                      devices: '{{request.params.devices}}'
           x-monitor: false

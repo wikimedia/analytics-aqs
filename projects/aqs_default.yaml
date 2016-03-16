@@ -13,8 +13,10 @@ paths:
     x-host-basePath: /api/rest_v1
 
     x-modules:
-      /:
+      /pageviews:
         - path: v1/pageviews.yaml
+      /unique-devices:
+        - path: v1/unique-devices.yaml
 
   /{api:sys}:
     swagger: 2.0
@@ -28,3 +30,5 @@ paths:
             conf: '{{options.table}}'
       /pageviews:
         - path: sys/pageviews.js
+      /unique-devices:
+        - path: sys/unique-devices.js
