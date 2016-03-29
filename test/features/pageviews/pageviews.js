@@ -18,13 +18,13 @@ describe('pageviews endpoints', function () {
     // it doesn't know about the /metrics root like the prod config does
     var articleEndpoint = '/pageviews/per-article/en.wikipedia/desktop/spider/one/daily/20150701/20150703';
     var projectEndpoint = '/pageviews/aggregate/en.wikipedia/all-access/all-agents/hourly/1969010100/1971010100';
-    var topsEndpoint = '/pageviews/top/en.wikipedia/mobile-web/2015/all-months/all-days';
+    var topsEndpoint = '/pageviews/top/en.wikipedia/mobile-web/2015/01/all-days';
 
     // Fake data insertion endpoints
     var insertArticleEndpoint = '/pageviews/insert-per-article-flat/en.wikipedia/one/daily/2015070200';
     var insertProjectEndpoint = '/pageviews/insert-aggregate/en.wikipedia/all-access/all-agents/hourly/1970010100';
     var insertProjectEndpointLong = '/pageviews/insert-aggregate-long/en.wikipedia/all-access/all-agents/hourly/1970010100';
-    var insertTopsEndpoint = '/pageviews/insert-top/en.wikipedia/mobile-web/2015/all-months/all-days';
+    var insertTopsEndpoint = '/pageviews/insert-top/en.wikipedia/mobile-web/2015/01/all-days';
 
     function fix(b, s, u) { return b.replace(s, s + u); }
     // Test Article Endpoint
@@ -157,7 +157,7 @@ describe('pageviews endpoints', function () {
 
     it('should return 400 when tops parameters are wrong', function () {
         return preq.get({
-            uri: server.config.aqsURL + topsEndpoint.replace('all-months', 'all-monthz')
+            uri: server.config.aqsURL + topsEndpoint.replace('all-days', 'all-dayz')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -171,17 +171,17 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return 400 when tops date is invalid', function () {
+    it('Should return 400 when all-months is used for the month parameter', function () {
         return preq.get({
-            uri: server.config.aqsURL + topsEndpoint.replace('all-months/all-days', '02/29')
+            uri: server.config.aqsURL + topsEndpoint.replace('01', 'all-months')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
     });
 
-    it('should return 400 when tops parameters are using "all-months" wrong', function () {
+    it('should return 400 when tops date is invalid', function () {
         return preq.get({
-            uri: server.config.aqsURL + topsEndpoint.replace('all-days', '01')
+            uri: server.config.aqsURL + topsEndpoint.replace('01/all-days', '02/29')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });

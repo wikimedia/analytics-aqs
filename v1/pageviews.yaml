@@ -3,6 +3,7 @@ info:
   version: '1.0.0-beta'
   title: Analytics Pageview API
   description: Analytics Pageview API
+  termsofservice: https://github.com/wikimedia/restbase#restbase
   contact:
     name: Analytics
     email: analytics@lists.wikimedia.org
@@ -15,6 +16,7 @@ paths:
     get:
       tags:
         - Pageviews data
+      summary: List pageview-related API entry points.
       description: |
         This is the root of all pageview data endpoints.  The list of paths that this returns includes ways to query by article, project, top articles, etc.  If browsing the interactive documentation, see the specifics for each endpoint below.
 
@@ -36,6 +38,7 @@ paths:
     get:
       tags:
         - Pageviews data
+      summary: Get pageview counts for a page.
       description: |
         Given a Mediawiki article and a date range, returns a daily timeseries of its pageview counts. You can also filter by access method and/or agent type
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -61,7 +64,7 @@ paths:
           required: true
         - name: article
           in: path
-          description: 'The name of any article in the specified project. Any spaces should be replaced with underscores. It also should be URI-encoded, so that non-URI-safe characters like %, / or ? are accepted. Example: Are_You_the_One%3F'
+          description: 'The title of any article in the specified project. Any spaces should be replaced with underscores. It also should be URI-encoded, so that non-URI-safe characters like %, / or ? are accepted. Example: Are_You_the_One%3F'
           type: string
           required: true
         - name: granularity
@@ -99,6 +102,7 @@ paths:
     get:
       tags:
         - Pageviews data
+      summary: Get pageview counts for a project.
       description: |
         Given a date range, returns a timeseries of pageview counts. You can filter by project, access method and/or agent type. You can choose between daily and hourly granularity as well
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -180,6 +184,7 @@ paths:
     get:
       tags:
         - Pageviews data
+      summary: Get the most viewed articles for a project.
       description: |
         Lists the 1000 most viewed articles for a given project and timespan (month or day). You can filter by access method
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
