@@ -96,7 +96,32 @@ paths:
         - get_from_backend:
             request:
               uri: /{domain}/sys/pageviews/per-article/{project}/{access}/{agent}/{article}/{granularity}/{start}/{end}
-      x-monitor: false
+      x-monitor: true
+      x-amples:
+        - title: Get per article page views
+          request:
+            params:
+              domain: wikimedia.org
+              project: en.wikipedia
+              article: '-'
+              access: all-access
+              agent: all-agents
+              granularity: daily
+              start: 1970010100
+              end: 1970010100
+          response:
+            status: 200
+            headers:
+              content-type: application/json
+            body:
+              items:
+                - project: en.wikipedia
+                  article: '-'
+                  access: all-access
+                  agent: all-agents
+                  granularity: daily
+                  timestamp: 1970010100
+                  views: 0
 
   /aggregate/{project}/{access}/{agent}/{granularity}/{start}/{end}:
     get:
@@ -230,7 +255,32 @@ paths:
         - get_from_backend:
             request:
               uri:  /{domain}/sys/pageviews/top/{project}/{access}/{year}/{month}/{day}
-      x-monitor: false
+      x-monitor: true
+      x-amples:
+        - title: Get top page views
+          request:
+            params:
+              domain: wikimedia.org
+              project: en.wikipedia
+              access: all-access
+              year: '1970'
+              month: '01'
+              day: '01'
+          response:
+            status: 200
+            headers:
+              content-type: application/json
+            body:
+              items:
+                - project: en.wikipedia
+                  access: all-access
+                  year: '1970'
+                  month: '01'
+                  day: '01'
+                  articles:
+                    - article: '-'
+                      views: 0
+                      rank: 1
 
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem

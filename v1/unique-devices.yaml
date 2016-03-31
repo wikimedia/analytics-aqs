@@ -82,7 +82,7 @@ paths:
                   access-site: all-sites
                   granularity: daily
                   timestamp: 19700101
-                  views: 0
+                  devices: 0
 
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
