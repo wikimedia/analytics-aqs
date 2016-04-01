@@ -53,7 +53,7 @@ describe('pageviews endpoints', function () {
     });
 
     function r(s, replaceSpaces) {
-        var weirdArticleTitle = 'dashes - spaces : colons and / slashes';
+        var weirdArticleTitle = 'dash - space : colon % percent / slash';
         if (replaceSpaces) {
             weirdArticleTitle = weirdArticleTitle.replace(/ /g, '_');
         }
@@ -74,7 +74,7 @@ describe('pageviews endpoints', function () {
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
-            assert.deepEqual(res.body.items[0].article, 'dashes_-_spaces_:_colons_and_/_slashes');
+            assert.deepEqual(res.body.items[0].article, 'dash_-_space_:_colon_%_percent_/_slash');
         });
     });
 

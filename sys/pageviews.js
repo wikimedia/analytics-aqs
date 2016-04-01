@@ -145,7 +145,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
             table: tables.articleFlat,
             attributes: {
                 project: rp.project,
-                article: decodeURIComponent(rp.article).replace(/ /g, '_'),
+                article: rp.article.replace(/ /g, '_'),
                 granularity: rp.granularity,
                 timestamp: { between: [rp.start, rp.end] },
             }
