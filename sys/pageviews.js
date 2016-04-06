@@ -137,7 +137,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 
     // dates are passed in as YYYYMMDD but we need the HH to match the loaded data
     // which was originally planned at hourly resolution, so we pass "fakeHour"
-    aqsUtil.validateStartAndEnd(rp, { fakeHour: true });
+    aqsUtil.validateStartAndEnd(rp, { fakeHour: true, zeroHour: true });
 
     var dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.articleFlat),

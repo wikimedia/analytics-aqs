@@ -78,6 +78,18 @@ describe('pageviews endpoints', function () {
         });
     });
 
+    it('should return data when start = timestamp = end and YYYYMMDD is used', function () {
+        return preq.get({
+            uri: server.config.aqsURL +
+                    articleEndpoint
+                        .replace('20150701', '20150702')
+                        .replace('20150703', '20150702')
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].views, 1007);
+        });
+    });
+
 
     // Test Project Endpoint
 
