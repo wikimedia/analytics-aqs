@@ -171,7 +171,7 @@ describe('pageviews endpoints', function () {
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
-            assert.deepEqual(res.body.items[0].views, 9007199254740991);
+            assert.deepStrictEqual(res.body.items[0].views, 9007199254740991);
         });
     });
 

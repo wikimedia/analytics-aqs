@@ -77,8 +77,27 @@ function deepEqual(result, expected, message) {
         if (typeof expected === 'string') {
             assert.ok(result === expected || (new RegExp('^' + expected + '$').test(result)));
         } else {
-            assert.deepEqual(result, expected, message);
+            assert.deepStrictEqual(result, expected, message);
         }
+    } catch (e) {
+        console.log('Expected:\n' + JSON.stringify(expected,null,2));
+        console.log('Result:\n' + JSON.stringify(result,null,2));
+        throw e;
+    }
+}
+
+function isDeepStrictEqual(result, expected, message) {
+    try {
+        assert.deepStrictEqual(result, expected, message);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function deepStrictEqual(result, expected, message) {
+    try {
+        assert.deepStrictEqual(result, expected, message);
     } catch (e) {
         console.log('Expected:\n' + JSON.stringify(expected,null,2));
         console.log('Result:\n' + JSON.stringify(result,null,2));
@@ -111,6 +130,16 @@ function notDeepEqual(result, expected, message) {
     }
 }
 
+function notDeepStrictEqual(result, expected, message) {
+    try {
+        assert.notDeepStrictEqual(result, expected, message);
+    } catch (e) {
+        console.log('Not expected:\n' + JSON.stringify(expected,null,2));
+        console.log('Result:\n' + JSON.stringify(result,null,2));
+        throw e;
+    }
+}
+
 function fails(promise, onRejected) {
     var failed = false;
     function trackFailure(e) {
@@ -125,14 +154,17 @@ function fails(promise, onRejected) {
     return promise.catch(trackFailure).then(check);
 }
 
-module.exports.ok             = assert.ok;
-module.exports.fails          = fails;
-module.exports.deepEqual      = deepEqual;
-module.exports.isDeepEqual    = isDeepEqual;
-module.exports.notDeepEqual   = notDeepEqual;
-module.exports.isSuperset     = isSuperset;
-module.exports.contentType    = contentType;
-module.exports.localRequests  = localRequests;
-module.exports.remoteRequests = remoteRequests;
+module.exports.ok                 = assert.ok;
+module.exports.fails              = fails;
+module.exports.deepEqual          = deepEqual;
+module.exports.isDeepEqual        = isDeepEqual;
+module.exports.notDeepEqual       = notDeepEqual;
+module.exports.deepStrictEqual    = deepStrictEqual;
+module.exports.isDeepStrictEqual  = isDeepStrictEqual;
+module.exports.notDeepStrictEqual = notDeepStrictEqual;
+module.exports.isSuperset         = isSuperset;
+module.exports.contentType        = contentType;
+module.exports.localRequests      = localRequests;
+module.exports.remoteRequests     = remoteRequests;
 module.exports.findParsoidRequest = findParsoidRequest;
 

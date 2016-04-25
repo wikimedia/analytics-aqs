@@ -70,7 +70,22 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
 
     }).catch(aqsUtil.notFoundCatcher);
 
-    return dataRequest.then(aqsUtil.normalizeResponse);
+    // Parse long from string to int
+    return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
+        if (res.body.items) {
+            res.body.items.forEach(function(item) {
+                if (item.devices !== null) {
+                    try {
+                        item.devices = parseInt(item.devices, 10);
+                    } catch (e) {
+                        item.devices = null;
+                    }
+                }
+            });
+        }
+        return res;
+    });
+
 };
 
 module.exports = function(options) {

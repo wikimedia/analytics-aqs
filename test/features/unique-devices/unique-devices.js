@@ -60,11 +60,13 @@ describe('unique-devices endpoints', function () {
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
-            assert.deepEqual(res.body.items[0]['devices'], 0);
+            assert.deepStrictEqual(res.body.items[0]['devices'], 0);
         });
     });
 
-    it('should parse the v column string into an int', function () {
+    // This test is not working: result was not an int and test was not failing.
+    // It must be related to using SQLLite instead of cassandra as a backend
+    it('should parse the device column string into an int', function () {
         return preq.post({
             uri: server.config.aqsURL +
                  fix(insertEndpoint, 'en.wikipedia', '3') +
@@ -76,7 +78,7 @@ describe('unique-devices endpoints', function () {
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
-            assert.deepEqual(res.body.items[0]['devices'], 9007199254740991);
+            assert.deepStrictEqual(res.body.items[0]['devices'], 9007199254740991);
         });
     });
 });
