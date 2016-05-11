@@ -8,7 +8,6 @@
 
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
-var HTTPError = HyperSwitch.HTTPError;
 var URI = HyperSwitch.URI;
 
 var aqsUtil = require('../lib/aqsUtil');
@@ -52,9 +51,13 @@ var tableSchemas = {
 UDVS.prototype.uniqueDevices = function(hyper, req) {
     var rp = req.params;
 
-    // dates are passed in as YYYYMMDD but we need the HH to be validated using
-    // our generic data validator, so we pass "fakeHour"
-    aqsUtil.validateStartAndEnd(rp, { fakeHour: true });
+    aqsUtil.validateStartAndEnd(rp, {
+        // YYYYMMDD dates are allowed, but need an hour to pass validation
+        fakeHour: true,
+        // YYYYMMDDHH dates are also allowed, but the hour should be stripped
+        // to match how cassandra stores records
+        stripHour: true,
+    });
 
     var dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.project),
