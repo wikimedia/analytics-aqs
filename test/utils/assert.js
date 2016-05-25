@@ -77,7 +77,7 @@ function deepEqual(result, expected, message) {
         if (typeof expected === 'string') {
             assert.ok(result === expected || (new RegExp('^' + expected + '$').test(result)));
         } else {
-            assert.deepStrictEqual(result, expected, message);
+            assert.deepEqual(result, expected, message);
         }
     } catch (e) {
         console.log('Expected:\n' + JSON.stringify(expected,null,2));
