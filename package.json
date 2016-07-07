@@ -43,7 +43,7 @@
     "temp": "^0.8.3"
   },
   "deploy": {
-    "node": "4.2.4",
+    "node": "4.4.6",
     "target": "debian",
     "dependencies": {
       "_all": []
