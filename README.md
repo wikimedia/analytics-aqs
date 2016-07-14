@@ -4,10 +4,22 @@
 
 ## Installation
 
-Make sure that you have node 0.10+:
+Make sure that you have node 4.4+:
+
+### Linux (Ubuntu)
 ```sh
 sudo apt-get install nodejs nodejs-legacy nodejs-dev npm
 ```
+### Mac OS X
+
+You can directly install node from packages downloads at: https://nodejs.org/en/download/
+
+If you use brew be careful as it might be installing "too-new-of-a-version"
+You can run:
+```sh
+brew info node 
+```
+Brew formulas for node are available at: https://github.com/Homebrew/homebrew-core/blob/master/Formula/node.rb
 
 From the *query-service* project directory, install the Node dependencies:
 
