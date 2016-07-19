@@ -8,11 +8,9 @@ var preq   = require('preq');
 var server = require('../../utils/server.js');
 
 
-describe('pageviews endpoints', function () {
+describe('pageviews endpoints', function() {
     this.timeout(20000);
 
-    //Start server before running tests
-    before(function () { return server.start(); });
 
     // NOTE: this tests using the projects/aqs_default.yaml config, so
     // it doesn't know about the /metrics root like the prod config does
@@ -28,9 +26,24 @@ describe('pageviews endpoints', function () {
     var insertTopsEndpoint = '/pageviews/insert-top/en.wikipedia/mobile-web/2015/01/all-days';
 
     function fix(b, s, u) { return b.replace(s, s + u); }
+
+    // Start server before running tests
+    // insert here data that tests assume exists on db to start working
+    before('before-suite', function() {
+        return server.start().then(function() {
+            preq.post({
+            // the way we have configured the test insert-per-article endpoint
+            // means views_desktop_spider will be 1007 when we pass /100
+            uri: server.config.aqsURL + insertArticleEndpoint + '/100'
+        }).catch(function(e) {
+            console.log(e)
+        })
+        })
+    });
+
     // Test Article Endpoint
 
-    it('should return 400 when per article parameters are wrong', function () {
+    it('should return 400 when per article parameters are wrong', function() {
         return preq.get({
             uri: server.config.aqsURL + articleEndpoint.replace('20150703', '201507a3')
         }).catch(function(res) {
@@ -38,20 +51,26 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return the expected per article data after insertion', function () {
-        return preq.post({
-            // the way we have configured the test insert-per-article endpoint
-            // means views_desktop_spider will be 1007 when we pass /100
-            uri: server.config.aqsURL + insertArticleEndpoint + '/100'
-        }).then(function() {
-            return preq.get({
-                uri: server.config.aqsURL + articleEndpoint
-            });
+    it('should return the expected per article data after insertion', function() {
+        return preq.get({
+            uri: server.config.aqsURL + articleEndpoint
+
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 1007);
         });
     });
+
+    it('should return the expected per article data even if project is uppercase and with org sufix', function() {
+        return preq.get({
+            uri: server.config.aqsURL + articleEndpoint.replace('en.wikipedia', 'EN.WIKIPEDIA.ORG')
+
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].views, 1007);
+        });
+    });
+
 
     function r(s, replaceSpaces) {
         var weirdArticleTitle = 'dash - space : colon % percent / slash';
@@ -64,7 +83,7 @@ describe('pageviews endpoints', function () {
         );
     }
 
-    it('should handle per article queries with encoded characters', function () {
+    it('should handle per article queries with encoded characters', function() {
         return preq.post({
             // the way we have configured the test insert-per-article endpoint
             // means views_desktop_spider will be 1007 when we pass /100
@@ -79,7 +98,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return data when start = timestamp = end and YYYYMMDD is used', function () {
+    it('should return data when start = timestamp = end and YYYYMMDD is used', function() {
         return preq.get({
             uri: server.config.aqsURL +
                     articleEndpoint
@@ -94,7 +113,7 @@ describe('pageviews endpoints', function () {
 
     // Test Project Endpoint
 
-    it('should return 400 when aggregate parameters are wrong', function () {
+    it('should return 400 when aggregate parameters are wrong', function() {
         return preq.get({
             uri: server.config.aqsURL + projectEndpoint.replace('1971010100', '20150701000000')
         }).catch(function(res) {
@@ -102,7 +121,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return 400 when start is before end', function () {
+    it('should return 400 when start is before end', function() {
         return preq.get({
             uri: server.config.aqsURL + projectEndpoint.replace('1969010100', '2016070100')
         }).catch(function(res) {
@@ -110,7 +129,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return 400 when timestamp is invalid', function () {
+    it('should return 400 when timestamp is invalid', function() {
         return preq.get({
             uri: server.config.aqsURL + projectEndpoint.replace('1971010100', '2015022900')
         }).catch(function(res) {
@@ -120,7 +139,7 @@ describe('pageviews endpoints', function () {
 
     // WARNING: the data created in this test is used exactly as created
     // by the monitoring tests.
-    it('should return the expected aggregate data after insertion', function () {
+    it('should return the expected aggregate data after insertion', function() {
         return preq.post({
             uri: server.config.aqsURL + insertProjectEndpoint + '/0'
         }).then(function() {
@@ -133,7 +152,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return the expected aggregate data after insertion, when querying with www.<<project>>.org', function () {
+    it('should return the expected aggregate data after insertion, when querying with www.<<project>>.org', function() {
         // data for this is already inserted in the test above, weird that tests are inter-dependent
         return preq.get({
             uri: server.config.aqsURL + projectEndpointStrip
@@ -143,7 +162,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return the expected aggregate data after long insertion', function () {
+    it('should return the expected aggregate data after long insertion', function() {
         return preq.post({
             uri: server.config.aqsURL +
                  fix(insertProjectEndpointLong, 'en.wikipedia', '1') +
@@ -159,7 +178,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should parse the v column string into an int', function () {
+    it('should parse the v column string into an int', function() {
         return preq.post({
             uri: server.config.aqsURL +
                  fix(insertProjectEndpointLong, 'en.wikipedia', '3') +
@@ -178,7 +197,7 @@ describe('pageviews endpoints', function () {
 
     // Test Top Endpoint
 
-    it('should return 400 when tops parameters are wrong', function () {
+    it('should return 400 when tops parameters are wrong', function() {
         return preq.get({
             uri: server.config.aqsURL + topsEndpoint.replace('all-days', 'all-dayz')
         }).catch(function(res) {
@@ -186,7 +205,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('Should return 400 when all-year is used for the year parameter', function () {
+    it('Should return 400 when all-year is used for the year parameter', function() {
         return preq.get({
             uri: server.config.aqsURL + topsEndpoint.replace('2015', 'all-years')
         }).catch(function(res) {
@@ -194,7 +213,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('Should return 400 when all-months is used for the month parameter', function () {
+    it('Should return 400 when all-months is used for the month parameter', function() {
         return preq.get({
             uri: server.config.aqsURL + topsEndpoint.replace('01', 'all-months')
         }).catch(function(res) {
@@ -202,7 +221,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return 400 when tops date is invalid', function () {
+    it('should return 400 when tops date is invalid', function() {
         return preq.get({
             uri: server.config.aqsURL + topsEndpoint.replace('01/all-days', '02/29')
         }).catch(function(res) {
@@ -210,7 +229,7 @@ describe('pageviews endpoints', function () {
         });
     });
 
-    it('should return the expected tops data after insertion', function () {
+    it('should return the expected tops data after insertion', function() {
         return preq.post({
             uri: server.config.aqsURL + insertTopsEndpoint,
             body: {
