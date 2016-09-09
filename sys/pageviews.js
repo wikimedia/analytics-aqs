@@ -165,6 +165,10 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
                 item.access = rp.access;
                 item.agent = rp.agent;
                 item.views = item[viewKey(rp.access, rp.agent)];
+                // map null to zero for view counts, we store null in cassandra for efficiency
+                if (item.views === null) {
+                    item.views = 0;
+                }
                 removeDenormalizedColumns(item);
             });
         }

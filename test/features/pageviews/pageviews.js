@@ -15,6 +15,7 @@ describe('pageviews endpoints', function() {
     // NOTE: this tests using the projects/aqs_default.yaml config, so
     // it doesn't know about the /metrics root like the prod config does
     var articleEndpoint = '/pageviews/per-article/en.wikipedia/desktop/spider/one/daily/20150701/20150703';
+    var articleEndpointMobile = '/pageviews/per-article/en.wikipedia/desktop/user/one/daily/20150701/20150703';
     var projectEndpoint = '/pageviews/aggregate/en.wikipedia/all-access/all-agents/hourly/1969010100/1971010100';
     var topsEndpoint = '/pageviews/top/en.wikipedia/mobile-web/2015/01/all-days';
     var projectEndpointStrip = '/pageviews/aggregate/www.en.wikipedia.org/all-access/all-agents/hourly/1969010100/1971010100';
@@ -71,6 +72,15 @@ describe('pageviews endpoints', function() {
         });
     });
 
+    it('should return integer zero if view count is null', function () {
+        return preq.get({
+            uri: server.config.aqsURL + articleEndpointMobile
+
+        }).then(function (res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].views, 0);
+        });
+    });
 
     function r(s, replaceSpaces) {
         var weirdArticleTitle = 'dash - space : colon % percent / slash';

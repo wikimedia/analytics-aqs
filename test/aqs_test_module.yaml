@@ -30,7 +30,7 @@ paths:
                       da:  '{{request.params.views}}5'
                       db:  '{{request.params.views}}6'
                       ds:  '{{request.params.views}}7'
-                      du:  '{{request.params.views}}8'
+                      du:  null
                       maa: '{{request.params.views}}9'
                       mab: '{{request.params.views}}10'
                       mas: '{{request.params.views}}11'
