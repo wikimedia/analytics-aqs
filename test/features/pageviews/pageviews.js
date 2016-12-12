@@ -16,6 +16,7 @@ describe('pageviews endpoints', function() {
     // it doesn't know about the /metrics root like the prod config does
     var articleEndpoint = '/pageviews/per-article/en.wikipedia/desktop/spider/one/daily/20150701/20150703';
     var articleEndpointMobile = '/pageviews/per-article/en.wikipedia/desktop/user/one/daily/20150701/20150703';
+    var articleEndpointMonthly = '/pageviews/per-article/en.wikipedia/desktop/spider/one/monthly/20150601/20150803';
     var projectEndpoint = '/pageviews/aggregate/en.wikipedia/all-access/all-agents/hourly/1969010100/1971010100';
     var topsEndpoint = '/pageviews/top/en.wikipedia/mobile-web/2015/01/all-days';
     var projectEndpointStrip = '/pageviews/aggregate/www.en.wikipedia.org/all-access/all-agents/hourly/1969010100/1971010100';
@@ -30,16 +31,34 @@ describe('pageviews endpoints', function() {
 
     // Start server before running tests
     // insert here data that tests assume exists on db to start working
-    before('before-suite', function() {
+    before('before-suite', function(setupDone) {
         return server.start().then(function() {
-            preq.post({
-            // the way we have configured the test insert-per-article endpoint
-            // means views_desktop_spider will be 1007 when we pass /100
-            uri: server.config.aqsURL + insertArticleEndpoint + '/100'
-        }).catch(function(e) {
-            console.log(e)
-        })
-        })
+            const dataToInsert = {
+                2015070200: 100,
+                2015072100: 200,
+                2015063000: 300,
+                2015112500: 400,
+                2015121500: 500,
+                2016010200: 600
+            };
+
+            Object.keys(dataToInsert).map(function(date){
+                preq.post({
+                    // the way we have configured the test insert-per-article endpoint
+                    // means views_desktop_spider will be 1007 when we pass /100
+                    uri: server.config.aqsURL + insertArticleEndpoint.replace('2015070200', date) + '/' + dataToInsert[date]
+                }).catch(function(e) {
+                    console.log(e);
+                }).then(function() {
+                    delete dataToInsert[date];
+
+                    // Start tests only after data insertion is finished
+                    if(Object.keys(dataToInsert).length === 0){
+                        setupDone();
+                    }
+                });
+            });
+        });
     });
 
     // Test Article Endpoint
@@ -120,6 +139,41 @@ describe('pageviews endpoints', function() {
         });
     });
 
+    it('should return the expected per article monthly data after insertion', function() {
+        return preq.get({
+            uri: server.config.aqsURL + articleEndpointMonthly
+
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 2);
+            assert.deepEqual(res.body.items[0].views, 3007);
+            assert.deepEqual(res.body.items[1].views, 3014);
+        });
+    });
+
+    it('should return the expected monthly data only for full months', function() {
+        return preq.get({
+            uri: server.config.aqsURL +
+                    articleEndpointMonthly
+                    .replace('20150601', '20151120')
+                    .replace('20150803', '20160103')
+
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].views, 5007);
+        });
+    });
+
+    it('should return 400 when there are no full months in specified date range', function() {
+        return preq.get({
+            uri: server.config.aqsURL +
+                    articleEndpointMonthly
+                    .replace('20150601', '20151203')
+                    .replace('20150803', '20151220')
+
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 400);
+        });
+    });
 
     // Test Project Endpoint
 

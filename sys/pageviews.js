@@ -15,6 +15,9 @@ var aqsUtil = require('../lib/aqsUtil');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pageviews.yaml'));
 
+const MONTHLY = 'monthly';
+const DAILY = 'daily';
+
 // Pageviews Service
 function PJVS(options) {
     this.options = options;
@@ -132,7 +135,12 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 
     // dates are passed in as YYYYMMDD but we need the HH to match the loaded data
     // which was originally planned at hourly resolution, so we pass "fakeHour"
-    aqsUtil.validateStartAndEnd(rp, { fakeHour: true, zeroHour: true });
+    // Additionally, for monthly granularity we need to take only full months into account
+    aqsUtil.validateStartAndEnd(rp, {
+        fakeHour: true,
+        zeroHour: true,
+        fullMonths: rp.granularity === MONTHLY
+    });
 
     var dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.articleFlat),
@@ -141,7 +149,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
             attributes: {
                 project: rp.project,
                 article: rp.article.replace(/ /g, '_'),
-                granularity: rp.granularity,
+                granularity: DAILY,
                 timestamp: { between: [rp.start, rp.end] },
             }
         }
@@ -161,7 +169,12 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 
     return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
         if (res.body.items) {
+            var monthViews = {};
+            const aggregateMonthly = rp.granularity === MONTHLY;
+
             res.body.items.forEach(function(item) {
+                var yearAndMonth = item.timestamp.substring(0, 6);
+
                 item.access = rp.access;
                 item.agent = rp.agent;
                 item.views = item[viewKey(rp.access, rp.agent)];
@@ -170,7 +183,33 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
                     item.views = 0;
                 }
                 removeDenormalizedColumns(item);
+
+                if (aggregateMonthly) {
+                    if (!monthViews.hasOwnProperty(yearAndMonth)) {
+                        var newMonth = {
+                            project: item.project,
+                            article: item.article,
+                            granularity: MONTHLY,
+                            timestamp: yearAndMonth + '0100',
+                            access: rp.access,
+                            agent: rp.agent,
+                            views: 0
+                        };
+
+                        monthViews[yearAndMonth] = newMonth;
+                    }
+
+                    monthViews[yearAndMonth].views += item.views;
+                }
             });
+
+            if (aggregateMonthly) {
+                var sortedMonths = Object.keys(monthViews);
+                sortedMonths.sort();
+                res.body.items = sortedMonths.map(function(month) {
+                    return monthViews[month];
+                });
+            }
         }
 
         return res;
