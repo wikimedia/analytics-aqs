@@ -27,6 +27,7 @@ function PJVS(options) {
 var tables = {
     articleFlat: 'pageviews.per.article.flat',
     project: 'pageviews.per.project',
+    project_v2: 'pageviews.per.project.v2',
     tops: 'top.pageviews',
 };
 var tableURI = function(domain, tableName) {
@@ -35,7 +36,7 @@ var tableURI = function(domain, tableName) {
 var tableSchemas = {
     articleFlat: {
         table: tables.articleFlat,
-        version: 2,
+        version: 3,
         attributes: {
             project: 'string',
             article: 'string',
@@ -54,7 +55,28 @@ var tableSchemas = {
     },
     project: {
         table: tables.project,
-        version: 2,
+        version: 3,
+        attributes: {
+            project: 'string',
+            access: 'string',
+            agent: 'string',
+            granularity: 'string',
+            // the hourly timestamp will be stored as YYYYMMDDHH
+            timestamp: 'string',
+            views: 'int',
+            v: 'long'
+        },
+        index: [
+            { attribute: 'project', type: 'hash' },
+            { attribute: 'access', type: 'hash' },
+            { attribute: 'agent', type: 'hash' },
+            { attribute: 'granularity', type: 'hash' },
+            { attribute: 'timestamp', type: 'range', order: 'asc' },
+        ]
+    },
+    project_v2: {
+        table: tables.project_v2,
+        version: 3,
         attributes: {
             project: 'string',
             access: 'string',
@@ -75,7 +97,7 @@ var tableSchemas = {
     },
     tops: {
         table: tables.tops,
-        version: 2,
+        version: 3,
         attributes: {
             project: 'string',
             access: 'string',
@@ -319,6 +341,10 @@ module.exports = function(options) {
             {
                 uri: '/{domain}/sys/table/' + tables.articleFlat,
                 body: tableSchemas.articleFlat,
+            }, {
+                // table where per-project data will be stored with fixed timestamps (T156312)
+                uri: '/{domain}/sys/table/' + tables.project_v2,
+                body: tableSchemas.project_v2,
             }, {
                 // pageviews per project table
                 uri: '/{domain}/sys/table/' + tables.project,
