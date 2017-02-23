@@ -219,7 +219,11 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 PJVS.prototype.pageviewsForProjects = function(hyper, req) {
     var rp = req.params;
 
-    aqsUtil.validateStartAndEnd(rp);
+    aqsUtil.validateStartAndEnd(rp, {
+        fakeHour: true,
+        zeroHour: true,
+        fullMonths: rp.granularity === MONTHLY
+    });
 
     var dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.project),
