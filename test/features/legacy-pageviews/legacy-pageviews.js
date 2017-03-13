@@ -1,0 +1,238 @@
+'use strict';
+
+// mocha defines to avoid JSHint breakage
+/* global describe, it, before, beforeEach, afterEach */
+
+var assert = require('../../utils/assert.js');
+var preq   = require('preq');
+var server = require('../../utils/server.js');
+
+describe('legagy-pageviews per-project endpoint', function () {
+    this.timeout(20000);
+
+    var baseURL = server.config.aqsURL;
+
+    function URL (project, accessSite, granularity, start, end) {
+        return (baseURL + '/legacy-pageviews/per-project/' + project + '/' +
+            accessSite + '/' + granularity + '/' + start + '/' + end);
+    }
+
+    function insertURL (project, accessSite, granularity, timestamp, views) {
+        return (baseURL + '/legacy-pageviews/insert-per-project/' + project + '/' +
+            accessSite + '/' + granularity + '/' + timestamp + '/' + views);
+    }
+
+    function insert (project, accessSite, granularity, data) {
+        var promises = data.map(function (elem) {
+            return preq.post({
+                uri: insertURL(project, accessSite, granularity, elem[0], elem[1])
+            });
+        });
+        return Promise.all(promises);
+    }
+
+    before(function () { return server.start(); });
+
+    it('should return requested hourly data', function () {
+        var data = [
+            ['2017010100', 1],
+            ['2017010101', 2],
+            ['2017010102', 3],
+            ['2017010103', 4],
+            ['2017010104', 5]
+        ];
+        return insert('en.wikipedia', 'all-sites', 'hourly', data).then(function (res) {
+            return preq.get({
+                uri: URL('en.wikipedia', 'all-sites', 'hourly', '2017010101', '2017010103')
+            });
+        }).then(function (res) {
+            var items = res.body.items;
+            assert.deepEqual(items.length, 3);
+            data.slice(1, 4).forEach(function (elem, idx) {
+                assert.deepEqual(items[idx].project, 'en.wikipedia');
+                assert.deepEqual(items[idx]['access-site'], 'all-sites');
+                assert.deepEqual(items[idx].granularity, 'hourly');
+                assert.deepEqual(items[idx].timestamp, elem[0]);
+                assert.deepEqual(items[idx].views, elem[1]);
+            });
+        });
+    });
+
+    it('should return requested daily data', function () {
+        var data = [
+            ['2017010100', 1],
+            ['2017010200', 2],
+            ['2017010300', 3],
+            ['2017010400', 4],
+            ['2017010500', 5]
+        ];
+        return insert('de.wikipedia', 'desktop-site', 'daily', data).then(function (res) {
+            return preq.get({
+                uri: URL('de.wikipedia', 'desktop-site', 'daily', '2017010200', '2017010400')
+            });
+        }).then(function (res) {
+            var items = res.body.items;
+            assert.deepEqual(items.length, 3);
+            data.slice(1, 4).forEach(function (elem, idx) {
+                assert.deepEqual(items[idx].project, 'de.wikipedia');
+                assert.deepEqual(items[idx]['access-site'], 'desktop-site');
+                assert.deepEqual(items[idx].granularity, 'daily');
+                assert.deepEqual(items[idx].timestamp, elem[0]);
+                assert.deepEqual(items[idx].views, elem[1]);
+            });
+        });
+    });
+
+    // As opposed to the hourly and daily granularities where the end timestamp
+    // is inclusive, the monthly granularity expects an exclusive end timestamp.
+    // This may be changed in the future, but for now this test obides this rule.
+    it('should return requested monthly data', function () {
+        var data = [
+            ['2017010100', 1],
+            ['2017020100', 2],
+            ['2017030100', 3],
+            ['2017040100', 4],
+            ['2017050100', 5]
+        ];
+        return insert('es.wikipedia', 'mobile-site', 'monthly', data).then(function (res) {
+            return preq.get({
+                uri: URL('es.wikipedia', 'mobile-site', 'monthly', '2017020100', '2017040100')
+            });
+        }).then(function (res) {
+            var items = res.body.items;
+            assert.deepEqual(items.length, 2);
+            data.slice(1, 3).forEach(function (elem, idx) {
+                assert.deepEqual(items[idx].project, 'es.wikipedia');
+                assert.deepEqual(items[idx]['access-site'], 'mobile-site');
+                assert.deepEqual(items[idx].granularity, 'monthly');
+                assert.deepEqual(items[idx].timestamp, elem[0]);
+                assert.deepEqual(items[idx].views, elem[1]);
+            });
+        });
+    });
+
+    it('should return partial results when range exceeds hourly data', function () {
+        var data = [
+            ['2017010101', 1],
+            ['2017010102', 2],
+            ['2017010103', 3]
+        ];
+        return insert('pt.wikipedia', 'all-sites', 'hourly', data).then(function (res) {
+            return preq.get({
+                uri: URL('pt.wikipedia', 'all-sites', 'hourly', '2017010100', '2017010104')
+            });
+        }).then(function (res) {
+            var items = res.body.items;
+            assert.deepEqual(items.length, 3);
+            data.forEach(function (elem, idx) {
+                assert.deepEqual(items[idx].project, 'pt.wikipedia');
+                assert.deepEqual(items[idx]['access-site'], 'all-sites');
+                assert.deepEqual(items[idx].granularity, 'hourly');
+                assert.deepEqual(items[idx].timestamp, elem[0]);
+                assert.deepEqual(items[idx].views, elem[1]);
+            });
+        });
+    });
+
+    it('should return partial results when range exceeds daily data', function () {
+        var data = [
+            ['2017010200', 1],
+            ['2017010300', 2],
+            ['2017010400', 3]
+        ];
+        return insert('ca.wikipedia', 'desktop-site', 'daily', data).then(function (res) {
+            return preq.get({
+                uri: URL('ca.wikipedia', 'desktop-site', 'daily', '2017010100', '2017010500')
+            });
+        }).then(function (res) {
+            var items = res.body.items;
+            assert.deepEqual(items.length, 3);
+            data.forEach(function (elem, idx) {
+                assert.deepEqual(items[idx].project, 'ca.wikipedia');
+                assert.deepEqual(items[idx]['access-site'], 'desktop-site');
+                assert.deepEqual(items[idx].granularity, 'daily');
+                assert.deepEqual(items[idx].timestamp, elem[0]);
+                assert.deepEqual(items[idx].views, elem[1]);
+            });
+        });
+    });
+
+    it('should return partial results when range exceeds monthly data', function () {
+        var data = [
+            ['2017020100', 1],
+            ['2017030100', 2],
+            ['2017040100', 3]
+        ];
+        return insert('ro.wikipedia', 'mobile-site', 'monthly', data).then(function (res) {
+            return preq.get({
+                uri: URL('ro.wikipedia', 'mobile-site', 'monthly', '2017010100', '2017050100')
+            });
+        }).then(function (res) {
+            var items = res.body.items;
+            assert.deepEqual(items.length, 3);
+            data.forEach(function (elem, idx) {
+                assert.deepEqual(items[idx].project, 'ro.wikipedia');
+                assert.deepEqual(items[idx]['access-site'], 'mobile-site');
+                assert.deepEqual(items[idx].granularity, 'monthly');
+                assert.deepEqual(items[idx].timestamp, elem[0]);
+                assert.deepEqual(items[idx].views, elem[1]);
+            });
+        });
+    });
+
+    it('should return 404 when range has no data', function () {
+        preq.get({
+            uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010100', '2017013100')
+        }).catch(function (res) {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    it('should return 404 when project is invalid', function () {
+        preq.get({
+            uri: URL('invalid-project', 'all-sites', 'daily', '2017010100', '2017013100')
+        }).catch(function (res) {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    it('should return 400 when access site is invalid', function () {
+        preq.get({
+            uri: URL('ar.wikipedia', 'invalid-access-site', 'daily', '2017010100', '2017013100')
+        }).catch(function (res) {
+            assert.deepEqual(res.status, 400);
+        });
+    });
+
+    it('should return 400 when granularity is invalid', function () {
+        preq.get({
+            uri: URL('ar.wikipedia', 'all-sites', 'invalid-granularity', '2017010100', '2017013100')
+        }).catch(function (res) {
+            assert.deepEqual(res.status, 400);
+        });
+    });
+
+    it('should return 400 when start timestamp is invalid', function () {
+        preq.get({
+            uri: URL('ar.wikipedia', 'all-sites', 'daily', 'invalid-timestamp', '2017013100')
+        }).catch(function (res) {
+            assert.deepEqual(res.status, 400);
+        });
+    });
+
+    it('should return 400 when end timestamp is invalid', function () {
+        preq.get({
+            uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010100', 'invalid-timestamp')
+        }).catch(function (res) {
+            assert.deepEqual(res.status, 400);
+        });
+    });
+
+    it('should return 400 when end timestamp is smaller than start timestamp', function () {
+        preq.get({
+            uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010200', '2017010100')
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 400);
+        });
+    });
+});

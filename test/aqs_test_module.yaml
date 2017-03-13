@@ -95,6 +95,23 @@ paths:
                       articlesJSON: '{{request.body.articles}}'
           x-monitor: false
 
+      /legacy-pageviews/insert-per-project/{project}/{access-site}/{granularity}/{timestamp}/{views}:
+        post:
+          x-request-handler:
+            - put_to_storage:
+                request:
+                  method: 'put'
+                  uri: '/{domain}/sys/table/lgc.pageviews.per.project/'
+                  body:
+                    table: 'lgc.pageviews.per.project'
+                    attributes:
+                      project: '{{request.params.project}}'
+                      'access-site': '{{request.params.access-site}}'
+                      granularity: '{{request.params.granularity}}'
+                      timestamp: '{{request.params.timestamp}}'
+                      views: '{{request.params.views}}'
+          x-monitor: false
+
       /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}:
         post:
           x-request-handler:
