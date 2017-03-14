@@ -242,8 +242,8 @@ PJVS.prototype.pageviewsForProjects = function(hyper, req) {
     var rp = req.params;
 
     aqsUtil.validateStartAndEnd(rp, {
-        fakeHour: true,
-        zeroHour: true,
+        fakeHour: (rp.granularity === MONTHLY || rp.granularity === DAILY),
+        zeroHour: (rp.granularity === MONTHLY || rp.granularity === DAILY),
         fullMonths: rp.granularity === MONTHLY
     });
 

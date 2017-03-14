@@ -209,6 +209,33 @@ describe('pageviews endpoints', function() {
         });
     });
 
+    it('should return multiple hours inside a day', function () {
+        var datesToAdd = 3;
+        ['2017010100', '2017010101', '2017010102'].forEach(function (timestamp) {
+            preq.post({
+                uri: server.config.aqsURL + endpoints.project.insertHourly
+                    .replace('1970010100', timestamp) + '/100'
+            }).then(function (res) {
+                datesToAdd--;
+                if (datesToAdd === 0) {
+                    preq.get({
+                        uri: server.config.aqsURL + endpoints.project.hourly
+                            .replace('1969010100', '2017010100')
+                            .replace('1971010100', '2017010102')
+                    }).then(function (res) {
+                        assert.deepEqual(res.body.items.length, 3);
+                        assert.deepEqual(res.body.items[0].timestamp, '2017010100');
+                        assert.deepEqual(res.body.items[0].views, 100);
+                        assert.deepEqual(res.body.items[1].timestamp, '2017010101');
+                        assert.deepEqual(res.body.items[1].views, 100);
+                        assert.deepEqual(res.body.items[2].timestamp, '2017010102');
+                        assert.deepEqual(res.body.items[2].views, 100);
+                    });
+                }
+            });
+        });
+    });
+
     // The issue the following is testing (T156312) only appears when running AQS with Cassandra.
     // Therefore this test will always pass when running in SQLite: run it with a Cassandra environment
     // for it to be meaningful.
