@@ -3,23 +3,23 @@
 // mocha defines to avoid JSHint breakage
 /* global describe, it, before, beforeEach, afterEach */
 
-var assert = require('../../utils/assert.js');
+var assert = require('../../../utils/assert.js');
 var preq   = require('preq');
-var server = require('../../utils/server.js');
+var server = require('../../../utils/server.js');
 
-describe('legagy-pageviews per-project endpoint', function () {
+describe('legacy pagecounts aggregate endpoint', function () {
     this.timeout(20000);
 
     var baseURL = server.config.aqsURL;
 
     function URL (project, accessSite, granularity, start, end) {
-        return (baseURL + '/legacy-pageviews/per-project/' + project + '/' +
+        return (baseURL + '/legacy/pagecounts/aggregate/' + project + '/' +
             accessSite + '/' + granularity + '/' + start + '/' + end);
     }
 
-    function insertURL (project, accessSite, granularity, timestamp, views) {
-        return (baseURL + '/legacy-pageviews/insert-per-project/' + project + '/' +
-            accessSite + '/' + granularity + '/' + timestamp + '/' + views);
+    function insertURL (project, accessSite, granularity, timestamp, count) {
+        return (baseURL + '/legacy/pagecounts/insert-aggregate/' + project + '/' +
+            accessSite + '/' + granularity + '/' + timestamp + '/' + count);
     }
 
     function insert (project, accessSite, granularity, data) {
@@ -32,6 +32,11 @@ describe('legagy-pageviews per-project endpoint', function () {
     }
 
     before(function () { return server.start(); });
+    // Note: To avoid that fake data inserted by a test disturbs other tests,
+    // we can submit an after() function that stops the server. However,
+    // when doing that, the npm test logs are too verbose and break the legibility
+    // of its output. So, to avoid data collisions, each test here uses a different
+    // project: en.wikipedia, de.wiktionary, es.wikibooks, etc.
 
     it('should return requested hourly data', function () {
         var data = [
@@ -53,7 +58,7 @@ describe('legagy-pageviews per-project endpoint', function () {
                 assert.deepEqual(items[idx]['access-site'], 'all-sites');
                 assert.deepEqual(items[idx].granularity, 'hourly');
                 assert.deepEqual(items[idx].timestamp, elem[0]);
-                assert.deepEqual(items[idx].views, elem[1]);
+                assert.deepEqual(items[idx].count, elem[1]);
             });
         });
     });
@@ -78,7 +83,7 @@ describe('legagy-pageviews per-project endpoint', function () {
                 assert.deepEqual(items[idx]['access-site'], 'desktop-site');
                 assert.deepEqual(items[idx].granularity, 'daily');
                 assert.deepEqual(items[idx].timestamp, elem[0]);
-                assert.deepEqual(items[idx].views, elem[1]);
+                assert.deepEqual(items[idx].count, elem[1]);
             });
         });
     });
@@ -106,7 +111,7 @@ describe('legagy-pageviews per-project endpoint', function () {
                 assert.deepEqual(items[idx]['access-site'], 'mobile-site');
                 assert.deepEqual(items[idx].granularity, 'monthly');
                 assert.deepEqual(items[idx].timestamp, elem[0]);
-                assert.deepEqual(items[idx].views, elem[1]);
+                assert.deepEqual(items[idx].count, elem[1]);
             });
         });
     });
@@ -129,7 +134,7 @@ describe('legagy-pageviews per-project endpoint', function () {
                 assert.deepEqual(items[idx]['access-site'], 'all-sites');
                 assert.deepEqual(items[idx].granularity, 'hourly');
                 assert.deepEqual(items[idx].timestamp, elem[0]);
-                assert.deepEqual(items[idx].views, elem[1]);
+                assert.deepEqual(items[idx].count, elem[1]);
             });
         });
     });
@@ -152,7 +157,7 @@ describe('legagy-pageviews per-project endpoint', function () {
                 assert.deepEqual(items[idx]['access-site'], 'desktop-site');
                 assert.deepEqual(items[idx].granularity, 'daily');
                 assert.deepEqual(items[idx].timestamp, elem[0]);
-                assert.deepEqual(items[idx].views, elem[1]);
+                assert.deepEqual(items[idx].count, elem[1]);
             });
         });
     });
@@ -175,7 +180,7 @@ describe('legagy-pageviews per-project endpoint', function () {
                 assert.deepEqual(items[idx]['access-site'], 'mobile-site');
                 assert.deepEqual(items[idx].granularity, 'monthly');
                 assert.deepEqual(items[idx].timestamp, elem[0]);
-                assert.deepEqual(items[idx].views, elem[1]);
+                assert.deepEqual(items[idx].count, elem[1]);
             });
         });
     });

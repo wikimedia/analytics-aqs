@@ -47,9 +47,9 @@ paths:
             - put_to_storage:
                 request:
                   method: 'put'
-                  uri: '/{domain}/sys/table/pageviews.per.project/'
+                  uri: '/{domain}/sys/table/pageviews.per.project.v2/'
                   body:
-                    table: 'pageviews.per.project'
+                    table: 'pageviews.per.project.v2'
                     attributes:
                       project: '{{request.params.project}}'
                       access: '{{request.params.access}}'
@@ -65,9 +65,9 @@ paths:
             - put_to_storage:
                 request:
                   method: 'put'
-                  uri: '/{domain}/sys/table/pageviews.per.project/'
+                  uri: '/{domain}/sys/table/pageviews.per.project.v2/'
                   body:
-                    table: 'pageviews.per.project'
+                    table: 'pageviews.per.project.v2'
                     attributes:
                       project: '{{request.params.project}}'
                       access: '{{request.params.access}}'
@@ -95,21 +95,21 @@ paths:
                       articlesJSON: '{{request.body.articles}}'
           x-monitor: false
 
-      /legacy-pageviews/insert-per-project/{project}/{access-site}/{granularity}/{timestamp}/{views}:
+      /legacy/pagecounts/insert-aggregate/{project}/{access-site}/{granularity}/{timestamp}/{count}:
         post:
           x-request-handler:
             - put_to_storage:
                 request:
                   method: 'put'
-                  uri: '/{domain}/sys/table/lgc.pageviews.per.project/'
+                  uri: '/{domain}/sys/table/lgc.pagecounts.per.project/'
                   body:
-                    table: 'lgc.pageviews.per.project'
+                    table: 'lgc.pagecounts.per.project'
                     attributes:
                       project: '{{request.params.project}}'
                       'access-site': '{{request.params.access-site}}'
                       granularity: '{{request.params.granularity}}'
                       timestamp: '{{request.params.timestamp}}'
-                      views: '{{request.params.views}}'
+                      count: '{{request.params.count}}'
           x-monitor: false
 
       /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}:

@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
   version: '1.0.0-beta'
-  title: Analytics Legacy Pageviews API
-  description: Analytics Legacy Pageviews API
+  title: Analytics Pagecounts API (legacy metric)
+  description: Analytics Pagecounts API (legacy metric)
   contact:
     name: Analytics
     email: analytics@lists.wikimedia.org
@@ -11,12 +11,12 @@ info:
     name: Apache licence, v2
     url: https://www.apache.org/licenses/LICENSE-2.0
 paths:
-  /per-project/{project}/{access-site}/{granularity}/{start}/{end}:
+  /aggregate/{project}/{access-site}/{granularity}/{start}/{end}:
     get:
       tags:
-        - Legacy pageviews data
+        - Pagecounts data (legacy)
       description: |
-        Given a project and a date range, returns a timeseries of legacy pageview counts. You can filter by access site (mobile or desktop) and you can choose between monthly, daily and hourly granularity as well.
+        Given a project and a date range, returns a timeseries of pagecounts. You can filter by access site (mobile or desktop) and you can choose between monthly, daily and hourly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
       produces:
         - application/json
@@ -28,7 +28,7 @@ paths:
           required: true
         - name: access-site
           in: path
-          description: If you want to filter by access site, use one of desktop-site or mobile-site. If you are interested in legacy pageviews regardless of access site use all-sites.
+          description: If you want to filter by access site, use one of desktop-site or mobile-site. If you are interested in pagecounts regardless of access site use all-sites.
           type: string
           enum: ['all-sites', 'desktop-site', 'mobile-site']
           required: true
@@ -45,7 +45,7 @@ paths:
           required: true
         - name: end
           in: path
-          description: The timestamp of the last hour/day/month to include, in YYYYMMDDHH format.
+          description: The timestamp of the last hour/day/month to include, in YYYYMMDDHH format. In hourly and daily granularities this value is inclusive, in the monthly granularity this value is exclusive.
           type: string
           required: true
       responses:
@@ -60,18 +60,18 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/legacy-pageviews/per-project/{project}/{access-site}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/legacy/pagecounts/per-project/{project}/{access-site}/{granularity}/{start}/{end}
       x-monitor: true
       x-amples:
-        - title: Get legacy pageviews
+        - title: Get pagecounts
           request:
             params:
               domain: wikimedia.org
               project: en.wikipedia
               access-site: all-sites
               granularity: daily
-              start: 2007120100
-              end: 2008010100
+              start: 1970010100
+              end: 1970010100
           response:
             status: 200
             headers:
@@ -81,8 +81,8 @@ paths:
                 - project: en.wikipedia
                   access-site: all-sites
                   granularity: daily
-                  timestamp: 2007120100
-                  views: 12345
+                  timestamp: 1970010100
+                  count: 0
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
@@ -122,6 +122,6 @@ definitions:
               type: string
             timestamp:
               type: string
-            views:
+            count:
               type: integer
               format: int64

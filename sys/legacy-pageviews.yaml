@@ -1,5 +1,0 @@
-paths:
-    /per-project/{project}/{access-site}/{granularity}/{start}/{end}:
-        get:
-          summary: Query legacy pageviews per project.
-          operationId: legacyPageviewsPerProject

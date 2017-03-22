@@ -15,8 +15,8 @@ paths:
     x-modules:
       /pageviews:
         - path: v1/pageviews.yaml
-      /legacy-pageviews:
-        - path: v1/legacy-pageviews.yaml
+      /legacy/pagecounts:
+        - path: v1/legacy/pagecounts.yaml
       /unique-devices:
         - path: v1/unique-devices.yaml
 
@@ -32,7 +32,7 @@ paths:
             conf: '{{options.table}}'
       /pageviews:
         - path: sys/pageviews.js
-      /legacy-pageviews:
-        - path: sys/legacy-pageviews.js
+      /legacy/pagecounts:
+        - path: sys/legacy/pagecounts.js
       /unique-devices:
         - path: sys/unique-devices.js

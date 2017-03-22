@@ -1,0 +1,5 @@
+paths:
+    /per-project/{project}/{access-site}/{granularity}/{start}/{end}:
+        get:
+          summary: Query pagecounts per project.
+          operationId: pagecountsPerProject

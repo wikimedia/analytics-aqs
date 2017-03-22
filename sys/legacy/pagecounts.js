@@ -1,28 +1,28 @@
 'use strict';
 
 /**
- * Legacy Pageviews API Module
+ * Pagecounts API Module (legacy)
  *
- * This API serves pre-aggregated legacy pageview statistics from Cassandra.
- * Read more about legacy pageviews (not the same metric as pageviews) on:
- * https://wikitech.wikimedia.org/wiki/Analytics/LegacyPageviewAPI
+ * This API serves pre-aggregated pagecounts statistics.
+ * Read more about those metrics on:
+ * https://wikitech.wikimedia.org/wiki/Analytics/Data/Pagecounts-raw
  */
 
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var URI = HyperSwitch.URI;
 
-var aqsUtil = require('../lib/aqsUtil');
+var aqsUtil = require('../../lib/aqsUtil');
 
-var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'legacy-pageviews.yaml'));
+var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pagecounts.yaml'));
 
-// Legacy pageviews service
-function LPVS(options) {
+// Pagecounts service
+function LPCS(options) {
     this.options = options;
 }
 
 var tables = {
-    project: 'lgc.pageviews.per.project'
+    project: 'lgc.pagecounts.per.project'
 };
 var tableURI = function(domain, tableName) {
     return new URI([domain, 'sys', 'table', tableName, '']);
@@ -36,7 +36,7 @@ var tableSchemas = {
             'access-site': 'string',
             granularity: 'string',
             timestamp: 'string',
-            views: 'long'
+            count: 'long'
         },
         index: [
             { attribute: 'project', type: 'hash' },
@@ -47,7 +47,7 @@ var tableSchemas = {
     }
 };
 
-LPVS.prototype.legacyPageviewsPerProject = function(hyper, req) {
+LPCS.prototype.pagecountsPerProject = function(hyper, req) {
     var rp = req.params;
 
     aqsUtil.validateStartAndEnd(rp, {
@@ -72,11 +72,11 @@ LPVS.prototype.legacyPageviewsPerProject = function(hyper, req) {
     return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
         if (res.body.items) {
             res.body.items.forEach(function(item) {
-                if (item.views !== null) {
+                if (item.count !== null) {
                     try {
-                        item.views = parseInt(item.views, 10);
+                        item.count = parseInt(item.count, 10);
                     } catch (e) {
-                        item.views = null;
+                        item.count = null;
                     }
                 }
             });
@@ -87,12 +87,12 @@ LPVS.prototype.legacyPageviewsPerProject = function(hyper, req) {
 };
 
 module.exports = function(options) {
-    var lpvs = new LPVS(options);
+    var lpcs = new LPCS(options);
 
     return {
         spec: spec,
         operations: {
-            legacyPageviewsPerProject: lpvs.legacyPageviewsPerProject.bind(lpvs)
+            pagecountsPerProject: lpcs.pagecountsPerProject.bind(lpcs)
         },
         resources: [
             {
