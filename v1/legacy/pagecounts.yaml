@@ -61,7 +61,7 @@ paths:
         - get_from_backend:
             request:
               uri: /{domain}/sys/legacy/pagecounts/per-project/{project}/{access-site}/{granularity}/{start}/{end}
-      x-monitor: true
+      x-monitor: false
       x-amples:
         - title: Get pagecounts
           request:
