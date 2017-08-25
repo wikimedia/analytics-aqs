@@ -1,0 +1,137 @@
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: Analytics Registered-Users Metrics API
+  description: Analytics Registered-Users Metrics API
+  termsofservice: https://github.com/wikimedia/restbase#restbase
+  contact:
+    name: Analytics
+    email: analytics@lists.wikimedia.org
+    url: https://www.mediawiki.org/wiki/Analytics
+  license:
+    name: Apache licence, v2
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /:
+    get:
+      tags:
+        - Registered users data
+      summary: List mediawiki registered-users metrics related API entry points.
+      description: |
+        This is the root of mediawiki registered-users metrics data endpoints. If browsing the
+        interactive documentation, see the specifics for each endpoint below.
+
+        Stability: [unstable](https://www.mediawiki.org/wiki/API_versioning#Stable)
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The queriable sub-items
+          schema:
+            $ref: '#/definitions/listing'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-monitor: false
+
+  /new/{project}/{granularity}/{start}/{end}:
+    get:
+      tags:
+        - Registered users data
+      summary: Get newly registered users counts for a project.
+      description: |
+        Given a Mediawiki project and a date range, returns a timeserie of its new registered-users
+        counts. You can choose between daily and monthly granularity. The newly-registered-users
+        value is computed with self-created users only, not auto-login created ones.
+        Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
+      produces:
+        - application/json
+      parameters:
+        - name: project
+          in: path
+          description: |
+            The name of any Wikimedia project formatted like {language code}.{project name},
+            for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
+            off. For projects like commons without language codes, use commons.wikimedia. For
+            projects like www.mediawiki.org, you can use that full string, or just use mediawiki
+            or mediawiki.org. If you're interested in the aggregation of all projects, use
+            all-projects.
+          type: string
+          required: true
+        - name: granularity
+          in: path
+          description: |
+            Time unit for the response data. As of today, supported values are daily and monthly
+          type: string
+          enum: ['daily', 'monthly']
+          required: true
+        - name: start
+          in: path
+          description: The date of the first day to include, in YYYYMMDD format
+          type: string
+          required: true
+        - name: end
+          in: path
+          description: The date of the last day to include, in YYYYMMDD format
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The list of values
+          schema:
+            $ref: '#/definitions/new-registered-users'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/mediawiki-history-metrics/registered-users/new/{project}/{granularity}/{start}/{end}
+      x-monitor: false
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+
+  listing:
+    description: The result format for listings
+    required:
+      - items
+    properties:
+      items:
+        type: array
+        items:
+          type: string
+
+  new-registered-users:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            project:
+              type : string
+            granularity:
+              type: string
+            results:
+              type: array
+              items:
+                properties:
+                  timestamp:
+                    type: string
+                  new_registered_users:
+                    type: integer
+                    format: int64

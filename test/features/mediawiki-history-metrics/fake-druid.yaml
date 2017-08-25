@@ -1,0 +1,5 @@
+paths:
+    /druid/v2:
+        post:
+          summary: Test endpointing receiving test druid queries and sending back expected results.
+          operationId: query

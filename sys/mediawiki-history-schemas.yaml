@@ -1,0 +1,134 @@
+#
+# Contains the druid and the aqs-to-druid schemas
+#
+# Druid schema references dimension, metrics and output-metrics names,
+# as well as needed dimension-value-names (in dimension-name sub-objects).
+#
+# Aqs-to-druid schema references conversion for names and functions.
+# It contains dimension-names conversion, filter-function by dimension,
+# and dimension-value conversions (in AQS dimension-name sub-object).
+
+druid:
+
+  datasource: mediawiki_history_reduced
+
+  # Dimensions, metrics and outputMetrics
+  dimension:
+    eventEntity: event_entity
+    eventType: event_type
+    project: project
+    userId: user_id
+    userType: user_type
+    pageId: page_id
+    pageNamespace: page_namespace
+    pageType: page_type
+    otherTags: other_tags
+    revisions: revisions
+
+  metric:
+    events: events
+    textBytesDiffSum: text_bytes_diff_sum
+    textBytesDiffAbsSum: text_bytes_diff_abs_sum
+
+  outputMetric:
+    newPages: new_pages
+    pagesCreated: pages_created
+    pagesDeleted: pages_deleted
+    pagesRestored: pages_restored
+    editedPages: edited_pages
+    newRegisteredUsers: new_registered_users
+    editors: editors
+    edits: edits
+    netBytesDiff: net_bytes_diff
+    absBytesDiff: abs_bytes_diff
+
+  # Dimensions inner values when enums
+  eventEntity:
+    revision: revision
+    page: page
+    user: user
+
+  eventType:
+    create: create
+    delete: delete
+    restore: restore
+    dailyDigest: daily_digest
+    monthlyDigest: monthly_digest
+
+  userType:
+    anonymous: anonymous
+    groupBot: group_bot
+    nameBot: name_bot
+    user: user
+
+  pageType:
+    content: content
+    nonContent: non_content
+
+  otherTags:
+    deletedDay: deleted_day
+    deletedMonth: deleted_month
+    selfCreated: self_created
+
+
+aqs2druid:
+
+  # aqs-parameter to druid dimension
+  dimension:
+    project: project
+    editor-type: user_type
+    page-type: page_type
+    activity-level: revisions
+    granularity-digest: event_type
+    granularity-deleted_currents: other_tags
+    page-id: page_id
+    editor-id: user_id
+
+  # filter function to apply (if any)
+  filter:
+    project: makeSelectorFilter
+    editor-type: makeSelectorFilter
+    page-type: makeSelectorFilter
+    activity-level: makeRegexFilter
+    page-id: makeSelectorFilter
+    editor-id: makeSelectorFilter
+
+  # List of `all` values taken by the various dimensions (to help filtering)
+  all:
+    'all-projects': true
+    'all-editor-types': true
+    'all-page-types': true
+    'all-activity-levels' : true
+
+  # aqs-parameters values to druid-dimensions values, by dimension
+  granularity:
+    daily: day
+    monthly: month
+
+  editor-type:
+    anonymous: anonymous
+    group-bot: group_bot
+    name-bot: name_bot
+    user: user
+    all-editor-types: all
+
+  page-type:
+    content: content
+    non-content: non_content
+    all-page-types: all
+
+  activity-level:
+    1..4-edits: '^[1-4]$'
+    5..24-edits: '^([5-9]|1\d|2[0-4])$'
+    25..99-edits: '^(2[5-9]|[3-9]\d)$'
+    100..-edits: '^[1-9]\d\d+$'
+
+  # Specific conversion objects for granularity-to-digest
+  # and granularity to deleted-currents
+  granularity-digest:
+    daily: daily_digest
+    monthly: monthly_digest
+
+  granularity-deleted_currents:
+    daily: [ 'deleted_day' ]
+    monthly: [ 'deleted_day', 'deleted_month' ]

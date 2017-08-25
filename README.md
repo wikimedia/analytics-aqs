@@ -1,5 +1,5 @@
 # Analytics Query Service
- 
+
  REST API for wikimedia projects pageviews data.
 
 ## Installation
@@ -17,7 +17,7 @@ You can directly install node from packages downloads at: https://nodejs.org/en/
 If you use brew be careful as it might be installing "too-new-of-a-version"
 You can run:
 ```sh
-brew info node 
+brew info node
 ```
 Brew formulas for node are available at: https://github.com/Homebrew/homebrew-core/blob/master/Formula/node.rb
 

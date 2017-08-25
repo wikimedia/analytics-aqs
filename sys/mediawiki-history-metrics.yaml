@@ -1,0 +1,44 @@
+paths:
+
+    # Specific endpoint having their own function
+    /edited-pages/new/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}:
+        get:
+          summary: query new-pages per project, editor-type and page-type
+          operationId: newPagesTimeseries
+
+    /registered-users/new/{project}/{granularity}/{start}/{end}:
+        get:
+          summary: query newly-registered-users per project
+          operationId: newlyRegisteredUsersTimeseries
+
+    # Timeseries Digest-based metrics
+    # Expected values for metric are 'editors' or 'edited-pages'
+    /digests/aggregate/{digest-type}/{project}/{editor-type}/{page-type}/{activity-level}/{granularity}/{start}/{end}:
+        get:
+          summary: query edited-pages per project, editor-type, page-type and activity-level
+          operationId: digestsTimeseries
+
+    # Timeseries Revision based metrics
+    # Expected values for metric are 'edits', 'net-bytes-diff' or 'net-bytes-abs'
+    /revisions/aggregate/{metric}/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}:
+        get:
+          summary: aggregate revisions per metric, project, editor-type and page-type
+          operationId: revisionsTimeseries
+
+    /revisions/per-page/{metric}/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}:
+        get:
+          summary: per-page revisions per metric, project and editor-type
+          operationId: revisionsTimeseries
+
+    /revisions/per-editor/{metric}/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}:
+        get:
+          summary: per-editor revisions per metric, project and page-type
+          operationId: revisionsTimeseries
+
+    # Top revisions based metrics
+    # expected values for top-type are 'editors' or 'edited-pages'
+    # Expected values for metric are 'edits', 'net-bytes-diff' or 'net-bytes-abs'
+    /revisions/top/{top-type}/{metric}/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}:
+        get:
+          summary: top 100 top-type per metric, project, editor-type and page-type
+          operationId: revisionsTop

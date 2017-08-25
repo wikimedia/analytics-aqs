@@ -19,6 +19,16 @@ paths:
         - path: v1/legacy/pagecounts.yaml
       /unique-devices:
         - path: v1/unique-devices.yaml
+      /edited-pages:
+        - path: v1/edited-pages.yaml
+      /editors:
+        - path: v1/editors.yaml
+      /registered-users:
+        - path: v1/registered-users.yaml
+      /edits:
+        - path: v1/edits.yaml
+      /bytes-difference:
+        - path: v1/bytes-difference.yaml
 
   /{api:sys}:
     swagger: 2.0
@@ -36,3 +46,7 @@ paths:
         - path: sys/legacy/pagecounts.js
       /unique-devices:
         - path: sys/unique-devices.js
+      /mediawiki-history-metrics:
+        - path: sys/mediawiki-history-metrics.js
+          options:
+            druid: '{{options.druid}}'

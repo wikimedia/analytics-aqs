@@ -128,3 +128,12 @@ paths:
                       timestamp: '{{request.params.timestamp}}'
                       devices: '{{request.params.devices}}'
           x-monitor: false
+
+  # Fake internal endpoint simulating a druid cluster for testing
+  /{api:sys}:
+    swagger: 2.0
+    info:
+      x-is-api-root: true
+    x-modules:
+      /fake-druid:
+        - path: test/features/mediawiki-history-metrics/fake-druid.js
