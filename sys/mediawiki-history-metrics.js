@@ -44,7 +44,6 @@ var requestURI = function(druid) {
         uri += (druid.scheme) ? druid.scheme + '://' : '';
         uri += druid.host || '';
         uri += (druid.port) ? ':' + druid.port : '';
-        uri += druid.host || '';
         uri += druid.query_path || '';
 
         return uri;
