@@ -206,8 +206,9 @@ paths:
                   page-id: 0
                   editor-type: all-editor-types
                   granularity: daily
-                  timestamp: 2001-01-01T00:00:00.000Z
-                  edits: 0
+                  results:
+                    - timestamp: 2001-01-01T00:00:00.000Z
+                      edits: 0
 
   /per-editor/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}:
     get:
