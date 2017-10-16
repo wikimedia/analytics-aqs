@@ -41,7 +41,7 @@ paths:
         - Edits data
       summary: Get edits counts.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of edits counts. You can
+        Given a Mediawiki project and a date range, returns a timeseries of edits counts. You can
         filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user) and
         page-type (all-page-types, content or non-content). You can choose between daily and
         monthly granularity as well.
@@ -118,7 +118,7 @@ paths:
         - Edits data
       summary: Get edit counts for a page in a project.
       description: |
-        Given a Mediawiki project, a page-id and a date range, returns a timeserie of edit counts.
+        Given a Mediawiki project, a page-id and a date range, returns a timeseries of edit counts.
         You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user).
         You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -215,7 +215,7 @@ paths:
         - Edits data
       summary: Get the edits counts for an editor in a project.
       description: |
-        Given a Mediawiki project, an editor-id and a date range, returns a timeserie of edits
+        Given a Mediawiki project, an editor-id and a date range, returns a timeseries of edits
         counts. You can filter by page type (all-page-types, content or non-content). You can
         choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)

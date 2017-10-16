@@ -41,7 +41,7 @@ paths:
         - Edited pages data
       summary: Get new pages counts for a project.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of its new pages counts.
+        Given a Mediawiki project and a date range, returns a timeseries of its new pages counts.
         You can filter by editor type (all-editor-types, anonymous, group-bot, name-bot, user) or
         page-type (all-page-types, content or non-content). You can choose between daily and
         monthly granularity as well. The new pages value is computed as follow:
@@ -120,7 +120,7 @@ paths:
         - Edited pages data
       summary: Get edited-pages counts for a project.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of its edited-pages counts.
+        Given a Mediawiki project and a date range, returns a timeseries of its edited-pages counts.
         You can filter by editor-type (all-editor-types, anonymous, group-bot, name-bot, user),
         page-type (all-page-types, content or non-content) or activity-level (1..4-edits,
         5..24-edits, 25..99-edits, 100..-edits). You can choose between daily and monthly
@@ -206,7 +206,7 @@ paths:
         - Edited pages data
       summary: Get top 100 edited-pages by edits count.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of the top 100 edited-pages
+        Given a Mediawiki project and a date range, returns a timeseries of the top 100 edited-pages
         by edits count. You can filter by editor-type (all-editor-types, anonymous, group-bot,
         name-bot, user) or page-type (all-page-types, content or non-content). You can choose
         between daily and monthly granularity as well.
@@ -282,7 +282,7 @@ paths:
         - Edited pages data
       summary: Get top 100 edited-pages by net bytes-difference.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of the top 100 edited-pages
+        Given a Mediawiki project and a date range, returns a timeseries of the top 100 edited-pages
         by net bytes-difference. You can filter by editor-type (all-editor-types, anonymous,
         group-bot, name-bot, user) or page-type (all-page-types, content or non-content). You can
         choose between daily and monthly granularity as well.
@@ -358,7 +358,7 @@ paths:
         - Edited pages data
       summary: Get top 100 edited-pages by absolute bytes-difference.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of the top 100 edited-pages
+        Given a Mediawiki project and a date range, returns a timeseries of the top 100 edited-pages
         by absolute bytes-difference. You can filter by editor-type (all-editor-types, anonymous,
         group-bot, name-bot, user) or page-type (all-page-types, content or non-content). You can
         choose between daily and monthly granularity as well.

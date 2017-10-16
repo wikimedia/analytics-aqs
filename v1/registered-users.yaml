@@ -41,7 +41,7 @@ paths:
         - Registered users data
       summary: Get newly registered users counts for a project.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of its new registered-users
+        Given a Mediawiki project and a date range, returns a timeseries of its new registered-users
         counts. You can choose between daily and monthly granularity. The newly-registered-users
         value is computed with self-created users only, not auto-login created ones.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)

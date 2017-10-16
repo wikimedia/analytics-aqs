@@ -41,7 +41,7 @@ paths:
         - Editors data
       summary: Get editors counts for a project.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of its editors counts.
+        Given a Mediawiki project and a date range, returns a timeseries of its editors counts.
         You can filter by editory-type (all-editor-types, anonymous, group-bot, name-bot, user),
         page-type (all-page-types, content or non-content) or activity-level (1..4-edits,
         5..24-edits, 25..99-edits or 100..-edits). You can choose between daily and monthly
@@ -127,7 +127,7 @@ paths:
         - Editors data
       summary: Get top 100 editors by edits count.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of the top 100 editors by
+        Given a Mediawiki project and a date range, returns a timeseries of the top 100 editors by
         edits count. You can filter by editor-type (all-editor-types, anonymous, group-bot,
         name-bot, user) or page-type (all-page-types, content or non-content). You can choose
         between daily and monthly granularity as well. The user_id returned is either the mediawiki
@@ -204,7 +204,7 @@ paths:
         - Editors data
       summary: Get top 100 editors by net bytes-difference.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of the top 100 editors by
+        Given a Mediawiki project and a date range, returns a timeseries of the top 100 editors by
         net bytes-difference. You can filter by editor-type (all-editor-types, anonymous, group-bot,
         name-bot, user) or page-type (all-page-types, content or non-content). You can choose
         between daily and monthly granularity as well. The user_id returned is either the mediawiki
@@ -281,7 +281,7 @@ paths:
         - Editors data
       summary: Get top 100 editors by absolute bytes-difference.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of the top 100 editors by
+        Given a Mediawiki project and a date range, returns a timeseries of the top 100 editors by
         absolute bytes-difference. You can filter by editor-type (all-editor-types, anonymous,
         group-bot, name-bot, user) or page-type (all-page-types, content or non-content). You can
         choose between daily and monthly granularity as well. The user_id returned is either the

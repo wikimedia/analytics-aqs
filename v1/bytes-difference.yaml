@@ -41,7 +41,7 @@ paths:
         - Bytes difference data
       summary: Get the sum of net text bytes difference between current edit and previous one.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of bytes difference net
+        Given a Mediawiki project and a date range, returns a timeseries of bytes difference net
         sums. You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot,
         user) and page-type (all-page-types, content or non-content). You can choose between
         daily and monthly granularity as well.
@@ -118,7 +118,7 @@ paths:
         - Bytes difference data
       summary: Get the sum of net text bytes difference per page.
       description: |
-        Given a Mediawiki project, a page-id and a date range, returns a timeserie of bytes
+        Given a Mediawiki project, a page-id and a date range, returns a timeseries of bytes
         difference net sums. You can filter by editors-type (all-editor-types, anonymous, group-bot,
         name-bot, user). You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -190,7 +190,7 @@ paths:
         - Bytes difference data
       summary: Get the sum of net text bytes difference per editor.
       description: |
-        Given a Mediawiki project, an editor-id and a date range, returns a timeserie of bytes
+        Given a Mediawiki project, an editor-id and a date range, returns a timeseries of bytes
         difference net sums. You can filter by page-type (all-page-types, content, non-content).
         You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -263,7 +263,7 @@ paths:
         Get the sum of absolute value of text bytes difference between current edit and
         previous one.
       description: |
-        Given a Mediawiki project and a date range, returns a timeserie of absolute bytes
+        Given a Mediawiki project and a date range, returns a timeseries of absolute bytes
         difference sums. You can filter by editors-type (all-editor-types, anonymous, group-bot,
         name-bot, user) and page-type (all-page-types, content, non-content). You can choose
         between daily and monthly granularity as well.
@@ -340,7 +340,7 @@ paths:
         - Bytes difference data
       summary: Get the sum of absolute text bytes difference per page.
       description: |
-        Given a Mediawiki project, a page-id and a date range, returns a timeserie of bytes
+        Given a Mediawiki project, a page-id and a date range, returns a timeseries of bytes
         difference absolute sums. You can filter by editors-type (all-editor-types, anonymous,
         group-bot, name-bot, user). You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -412,7 +412,7 @@ paths:
         - Bytes difference data
       summary: Get the sum of absolute text bytes difference per editor.
       description: |
-        Given a Mediawiki project, an editor-id and a date range, returns a timeserie of bytes
+        Given a Mediawiki project, an editor-id and a date range, returns a timeseries of bytes
         difference absolute sums. You can filter by page-type (all-page-types, content,
         non-content). You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
