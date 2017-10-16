@@ -6,14 +6,14 @@
  * This API serves pre-aggregated pageview statistics from Cassandra
  */
 
-var HyperSwitch = require('hyperswitch');
-var path = require('path');
-var HTTPError = HyperSwitch.HTTPError;
-var URI = HyperSwitch.URI;
+const HyperSwitch = require('hyperswitch');
+const path = require('path');
+const HTTPError = HyperSwitch.HTTPError;
+const URI = HyperSwitch.URI;
 
-var aqsUtil = require('../lib/aqsUtil');
+const aqsUtil = require('../lib/aqsUtil');
 
-var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pageviews.yaml'));
+const spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pageviews.yaml'));
 
 const MONTHLY = 'monthly';
 const DAILY = 'daily';
@@ -23,16 +23,17 @@ function PJVS(options) {
     this.options = options;
 }
 
+function tableURI(domain, tableName) {
+    return new URI([domain, 'sys', 'table', tableName, '']);
+}
 
-var tables = {
+const tables = {
     articleFlat: 'pageviews.per.article.flat',
     project_v2: 'pageviews.per.project.v2',
     tops: 'top.pageviews',
 };
-var tableURI = function(domain, tableName) {
-    return new URI([domain, 'sys', 'table', tableName, '']);
-};
-var tableSchemas = {
+
+const tableSchemas = {
     articleFlat: {
         table: tables.articleFlat,
         version: 3,
@@ -99,7 +100,7 @@ var tableSchemas = {
 };
 
 
-var viewCountColumnsForArticleFlat = {
+const viewCountColumnsForArticleFlat = {
     views_all_access_all_agents: 'aa', // views for all-access, all-agents
     views_all_access_bot: 'ab',        // views for all-access, bot
     views_all_access_spider: 'as',     // views for all-access, spider
@@ -125,13 +126,13 @@ var viewCountColumnsForArticleFlat = {
 // view count column in the dictionary above, using its short name.
 // The short name saves space because cassandra stores the column name with
 // each record.
-Object.keys(viewCountColumnsForArticleFlat).forEach(function(k) {
+Object.keys(viewCountColumnsForArticleFlat).forEach((k) => {
     tableSchemas.articleFlat.attributes[viewCountColumnsForArticleFlat[k]] = 'int';
 });
 
 
 PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
-    var rp = req.params;
+    const rp = req.params;
 
     // dates are passed in as YYYYMMDD but we need the HH to match the loaded data
     // which was originally planned at hourly resolution, so we pass "fakeHour"
@@ -142,7 +143,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
         fullMonths: rp.granularity === MONTHLY
     });
 
-    var dataRequest = hyper.get({
+    const dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.articleFlat),
         body: {
             table: tables.articleFlat,
@@ -157,23 +158,23 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
     }).catch(aqsUtil.notFoundCatcher);
 
     function viewKey(access, agent) {
-        var ret = ['views', access, agent].join('_');
+        const ret = ['views', access, agent].join('_');
         return viewCountColumnsForArticleFlat[ret.replace(/-/g, '_')];
     }
 
     function removeDenormalizedColumns(item) {
-        Object.keys(viewCountColumnsForArticleFlat).forEach(function(k) {
+        Object.keys(viewCountColumnsForArticleFlat).forEach((k) => {
             delete item[viewCountColumnsForArticleFlat[k]];
         });
     }
 
-    return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
-            var monthViews = {};
+            const monthViews = {};
             const aggregateMonthly = rp.granularity === MONTHLY;
 
-            res.body.items.forEach(function(item) {
-                var yearAndMonth = item.timestamp.substring(0, 6);
+            res.body.items.forEach((item) => {
+                const yearAndMonth = item.timestamp.substring(0, 6);
 
                 item.access = rp.access;
                 item.agent = rp.agent;
@@ -185,12 +186,12 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
                 removeDenormalizedColumns(item);
 
                 if (aggregateMonthly) {
-                    if (!monthViews.hasOwnProperty(yearAndMonth)) {
-                        var newMonth = {
+                    if (!Object.prototype.hasOwnProperty.call(monthViews, yearAndMonth)) {
+                        const newMonth = {
                             project: item.project,
                             article: item.article,
                             granularity: MONTHLY,
-                            timestamp: yearAndMonth + '0100',
+                            timestamp: `${yearAndMonth}0100`,
                             access: rp.access,
                             agent: rp.agent,
                             views: 0
@@ -204,9 +205,9 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
             });
 
             if (aggregateMonthly) {
-                var sortedMonths = Object.keys(monthViews);
+                const sortedMonths = Object.keys(monthViews);
                 sortedMonths.sort();
-                res.body.items = sortedMonths.map(function(month) {
+                res.body.items = sortedMonths.map((month) => {
                     return monthViews[month];
                 });
             }
@@ -217,7 +218,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 };
 
 PJVS.prototype.pageviewsForProjects = function(hyper, req) {
-    var rp = req.params;
+    const rp = req.params;
 
     aqsUtil.validateStartAndEnd(rp, {
         fakeHour: (rp.granularity === MONTHLY || rp.granularity === DAILY),
@@ -225,7 +226,7 @@ PJVS.prototype.pageviewsForProjects = function(hyper, req) {
         fullMonths: rp.granularity === MONTHLY
     });
 
-    var dataRequest = hyper.get({
+    const dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.project_v2),
         body: {
             table: tables.project_v2,
@@ -240,9 +241,9 @@ PJVS.prototype.pageviewsForProjects = function(hyper, req) {
 
     }).catch(aqsUtil.notFoundCatcher);
 
-    return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
-            res.body.items.forEach(function(item) {
+            res.body.items.forEach((item) => {
                 // prefer the v column if it's loaded
                 if (item.v !== null) {
                     try {
@@ -260,11 +261,11 @@ PJVS.prototype.pageviewsForProjects = function(hyper, req) {
 };
 
 PJVS.prototype.pageviewsForTops = function(hyper, req) {
-    var rp = req.params;
+    const rp = req.params;
 
     aqsUtil.validateYearMonthDay(rp);
 
-    var dataRequest = hyper.get({
+    const dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.tops),
         body: {
             table: tables.tops,
@@ -279,9 +280,9 @@ PJVS.prototype.pageviewsForTops = function(hyper, req) {
 
     }).catch(aqsUtil.notFoundCatcher);
 
-    return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
-            res.body.items.forEach(function(item) {
+            res.body.items.forEach((item) => {
                 // prefer the articlesJSON column if it's loaded
                 if (item.articlesJSON !== null) {
                     item.articles = item.articlesJSON;
@@ -310,10 +311,10 @@ PJVS.prototype.pageviewsForTops = function(hyper, req) {
 
 
 module.exports = function(options) {
-    var pjvs = new PJVS(options);
+    const pjvs = new PJVS(options);
 
     return {
-        spec: spec,
+        spec,
         operations: {
             pageviewsForArticle: pjvs.pageviewsForArticleFlat.bind(pjvs),
             pageviewsForProjects: pjvs.pageviewsForProjects.bind(pjvs),
@@ -321,15 +322,15 @@ module.exports = function(options) {
         },
         resources: [
             {
-                uri: '/{domain}/sys/table/' + tables.articleFlat,
+                uri: `/{domain}/sys/table/${tables.articleFlat}`,
                 body: tableSchemas.articleFlat,
             }, {
                 // table where per-project data will be stored with fixed timestamps (T156312)
-                uri: '/{domain}/sys/table/' + tables.project_v2,
+                uri: `/{domain}/sys/table/${tables.project_v2}`,
                 body: tableSchemas.project_v2,
             }, {
                 // top pageviews table
-                uri: '/{domain}/sys/table/' + tables.tops,
+                uri: `/{domain}/sys/table/${tables.tops}`,
                 body: tableSchemas.tops,
             }
         ]

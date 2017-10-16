@@ -1,139 +1,141 @@
 # Simple test spec
 
-swagger: 2.0
 paths:
   /{api:v1}:
-    swagger: '2.0'
-    info:
-      version: 1.0.0-beta
-      title: AQS testing APIs
-      x-is-api-root: true
-    paths:
-      /pageviews/insert-per-article-flat/{project}/{article}/{granularity}/{timestamp}/{views}:
-        post:
-          x-request-handler:
-            - put_to_storage:
-                request:
-                  method: 'put'
-                  uri: '/{domain}/sys/table/pageviews.per.article.flat/'
-                  body:
-                    table: 'pageviews.per.article.flat'
-                    attributes:
-                      project: '{{request.params.project}}'
-                      article: '{{request.params.article}}'
-                      granularity: '{{request.params.granularity}}'
-                      timestamp: '{{request.params.timestamp}}'
-                      aa:  '{{request.params.views}}1'
-                      ab:  '{{request.params.views}}2'
-                      as:  '{{request.params.views}}3'
-                      au:  '{{request.params.views}}4'
-                      da:  '{{request.params.views}}5'
-                      db:  '{{request.params.views}}6'
-                      ds:  '{{request.params.views}}7'
-                      du:  null
-                      maa: '{{request.params.views}}9'
-                      mab: '{{request.params.views}}10'
-                      mas: '{{request.params.views}}11'
-                      mau: '{{request.params.views}}12'
-                      mwa: '{{request.params.views}}13'
-                      mwb: '{{request.params.views}}14'
-                      mws: '{{request.params.views}}15'
-                      mwu: '{{request.params.views}}16'
-          x-monitor: false
+    x-modules:
+      - spec:
+            # Careful - 2 indentations here !
+            info:
+              version: 1.0.0-beta
+              title: AQS testing APIs
+              x-is-api-root: true
+            paths:
+              /pageviews/insert-per-article-flat/{project}/{article}/{granularity}/{timestamp}/{views}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/pageviews.per.article.flat/'
+                          body:
+                            table: 'pageviews.per.article.flat'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              article: '{{request.params.article}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              aa:  '{{request.params.views}}1'
+                              ab:  '{{request.params.views}}2'
+                              as:  '{{request.params.views}}3'
+                              au:  '{{request.params.views}}4'
+                              da:  '{{request.params.views}}5'
+                              db:  '{{request.params.views}}6'
+                              ds:  '{{request.params.views}}7'
+                              du:  null
+                              maa: '{{request.params.views}}9'
+                              mab: '{{request.params.views}}10'
+                              mas: '{{request.params.views}}11'
+                              mau: '{{request.params.views}}12'
+                              mwa: '{{request.params.views}}13'
+                              mwb: '{{request.params.views}}14'
+                              mws: '{{request.params.views}}15'
+                              mwu: '{{request.params.views}}16'
+                  x-monitor: false
 
-      /pageviews/insert-aggregate/{project}/{access}/{agent}/{granularity}/{timestamp}/{views}:
-        post:
-          x-request-handler:
-            - put_to_storage:
-                request:
-                  method: 'put'
-                  uri: '/{domain}/sys/table/pageviews.per.project.v2/'
-                  body:
-                    table: 'pageviews.per.project.v2'
-                    attributes:
-                      project: '{{request.params.project}}'
-                      access: '{{request.params.access}}'
-                      agent: '{{request.params.agent}}'
-                      granularity: '{{request.params.granularity}}'
-                      timestamp: '{{request.params.timestamp}}'
-                      views: '{{request.params.views}}'
-          x-monitor: false
+              /pageviews/insert-aggregate/{project}/{access}/{agent}/{granularity}/{timestamp}/{views}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/pageviews.per.project.v2/'
+                          body:
+                            table: 'pageviews.per.project.v2'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              access: '{{request.params.access}}'
+                              agent: '{{request.params.agent}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              views: '{{request.params.views}}'
+                  x-monitor: false
 
-      /pageviews/insert-aggregate-long/{project}/{access}/{agent}/{granularity}/{timestamp}/{v}:
-        post:
-          x-request-handler:
-            - put_to_storage:
-                request:
-                  method: 'put'
-                  uri: '/{domain}/sys/table/pageviews.per.project.v2/'
-                  body:
-                    table: 'pageviews.per.project.v2'
-                    attributes:
-                      project: '{{request.params.project}}'
-                      access: '{{request.params.access}}'
-                      agent: '{{request.params.agent}}'
-                      granularity: '{{request.params.granularity}}'
-                      timestamp: '{{request.params.timestamp}}'
-                      v: '{{request.params.v}}'
-          x-monitor: false
+              /pageviews/insert-aggregate-long/{project}/{access}/{agent}/{granularity}/{timestamp}/{v}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/pageviews.per.project.v2/'
+                          body:
+                            table: 'pageviews.per.project.v2'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              access: '{{request.params.access}}'
+                              agent: '{{request.params.agent}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              v: '{{request.params.v}}'
+                  x-monitor: false
 
-      /pageviews/insert-top/{project}/{access}/{year}/{month}/{day}:
-        post:
-          x-request-handler:
-            - put_to_storage:
-                request:
-                  method: 'put'
-                  uri: '/{domain}/sys/table/top.pageviews/'
-                  body:
-                    table: 'top.pageviews'
-                    attributes:
-                      project: '{{request.params.project}}'
-                      access: '{{request.params.access}}'
-                      year: '{{request.params.year}}'
-                      month: '{{request.params.month}}'
-                      day: '{{request.params.day}}'
-                      articlesJSON: '{{request.body.articles}}'
-          x-monitor: false
+              /pageviews/insert-top/{project}/{access}/{year}/{month}/{day}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/top.pageviews/'
+                          body:
+                            table: 'top.pageviews'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              access: '{{request.params.access}}'
+                              year: '{{request.params.year}}'
+                              month: '{{request.params.month}}'
+                              day: '{{request.params.day}}'
+                              articlesJSON: '{{request.body.articles}}'
+                  x-monitor: false
 
-      /legacy/pagecounts/insert-aggregate/{project}/{access-site}/{granularity}/{timestamp}/{count}:
-        post:
-          x-request-handler:
-            - put_to_storage:
-                request:
-                  method: 'put'
-                  uri: '/{domain}/sys/table/lgc.pagecounts.per.project/'
-                  body:
-                    table: 'lgc.pagecounts.per.project'
-                    attributes:
-                      project: '{{request.params.project}}'
-                      'access-site': '{{request.params.access-site}}'
-                      granularity: '{{request.params.granularity}}'
-                      timestamp: '{{request.params.timestamp}}'
-                      count: '{{request.params.count}}'
-          x-monitor: false
+              /legacy/pagecounts/insert-aggregate/{project}/{access-site}/{granularity}/{timestamp}/{count}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/lgc.pagecounts.per.project/'
+                          body:
+                            table: 'lgc.pagecounts.per.project'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              'access-site': '{{request.params.access-site}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              count: '{{request.params.count}}'
+                  x-monitor: false
 
-      /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}:
-        post:
-          x-request-handler:
-            - put_to_storage:
-                request:
-                  method: 'put'
-                  uri: '/{domain}/sys/table/unique.devices/'
-                  body:
-                    table: 'unique.devices'
-                    attributes:
-                      project: '{{request.params.project}}'
-                      'access-site': '{{request.params.access-site}}'
-                      granularity: '{{request.params.granularity}}'
-                      timestamp: '{{request.params.timestamp}}'
-                      devices: '{{request.params.devices}}'
-          x-monitor: false
+              /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/unique.devices/'
+                          body:
+                            table: 'unique.devices'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              'access-site': '{{request.params.access-site}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              devices: '{{request.params.devices}}'
+                  x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing
   /{api:sys}:
-    swagger: 2.0
-    info:
-      x-is-api-root: true
     x-modules:
-      /fake-druid:
-        - path: test/features/mediawiki-history-metrics/fake-druid.js
+      - spec:
+          # Careful - 2 indentations here !
+          paths:
+            /fake-druid:
+              x-modules:
+                - path: test/features/mediawiki-history-metrics/fake-druid.js

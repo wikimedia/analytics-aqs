@@ -11,6 +11,13 @@ runTest ( ) {
         rm -f test.db.sqlite3
     else
         echo "Running with Cassandra backend"
+        if [ `nc -z localhost 9042 < /dev/null; echo $?` != 0 ]; then
+          echo "Waiting for Cassandra to start..."
+          while [ `nc -z localhost 9042; echo $?` != 0 ]; do
+            sleep 1
+          done
+          echo "Cassandra is ready."
+        fi
         export RB_TEST_BACKEND=cassandra
         sh ./test/utils/cleandb.sh
     fi
@@ -28,7 +35,7 @@ if [ "x$2" = "x" ]; then
     if [ "$?" -eq 0 ]; then
         runTest "cassandra" $1
     else
-        echo "Cassandra not available. Using SQLite backed for tests"
+        echo "Cassandra not available. Using SQLite backend for tests"
         runTest "sqlite" $1
     fi
 elif [ "$2" = "sqlite" ]; then

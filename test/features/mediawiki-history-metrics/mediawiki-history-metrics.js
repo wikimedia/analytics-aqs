@@ -23,10 +23,8 @@ describe('mediawiki-history-metrics endpoints', function() {
     this.timeout(20000);
 
     // Start server before running tests
-    before('before-suite', setupDone => {
-        return server.start().then(() => {
-            setupDone();
-        });
+    before('before-suite', () => {
+        return server.start();
     });
 
     var makeTest = function(fixture) {

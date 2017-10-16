@@ -1,23 +1,23 @@
 # A synthetic domain to test aqs modules data
 aqs.wikimedia.org: &analytics.wikimedia.org
   x-modules:
-    /:
-      - path: test/aqs_test_module.yaml
-      - path: projects/aqs_default.yaml
-        options: &default_options
-          table:
-            hosts: [localhost]
-            keyspace: system
-            username: cassandra
-            password: cassandra
-            defaultConsistency: one # or 'localQuorum' for production
-            storage_groups:
-              - name: test.group.local
-                domains: /./
-            dbname: test.db.sqlite3 # ignored in cassandra, but useful in SQLite testing
-          druid:
-            # Use a fake internal endpoint in restbase to test
-            query_path: /analytics.wikimedia.org/sys/fake-druid/druid/v2
+    - path: test/aqs_test_module.yaml
+    - path: projects/aqs_default.yaml
+      options: &default_options
+        table:
+          backend: cassandra
+          hosts: [ localhost ]
+          keyspace: system
+          username: cassandra
+          password: cassandra
+          defaultConsistency: one # or 'localQuorum' for production
+          storage_groups:
+            - name: test.group.local
+              domains: /./
+          dbname: test.db.sqlite3 # ignored in cassandra, but useful in SQLite testing
+        druid:
+          # Use a fake internal endpoint in restbase to test
+          query_path: /analytics.wikimedia.org/sys/fake-druid/druid/v2
 
 spec_root: &spec_root
   title: "The Analytics Query Service root"

@@ -40,7 +40,7 @@ describe('pageviews endpoints', function() {
     // Start server before running tests
     // insert here data that tests assume exists on db to start working
     before('before-suite', function(setupDone) {
-        return server.start().then(function() {
+        server.start().then(function() {
             const dataToInsert = {
                 2015070200: 100,
                 2015072100: 200,

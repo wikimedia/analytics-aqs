@@ -1,38 +1,37 @@
 {
-	"predef": [
-		"ve",
+  "predef": [
+    "ve",
 
-		"setImmediate",
+    "setImmediate",
 
-		"QUnit",
+    "QUnit",
 
-		"Map",
-		"Set"
-	],
+    "Map",
+    "Set"
+  ],
 
-	"bitwise": true,
-	"laxbreak": true,
-	"curly": true,
-	"eqeqeq": true,
-	"immed": true,
-	"latedef": "nofunc",
-	"maxlen":false,
-	"newcap": true,
-	"noarg": true,
-	"noempty": true,
-	"nonew": true,
-	"regexp": false,
-	"undef": true,
-	"strict": true,
-	"trailing": true,
+  "bitwise": true,
+  "laxbreak": true,
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "latedef": "nofunc",
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonew": true,
+  "regexp": false,
+  "undef": true,
+  "strict": true,
+  "trailing": true,
 
-	"smarttabs": true,
-	"multistr": true,
+  "smarttabs": true,
+  "multistr": true,
 
-	"node": true,
+  "node": true,
 
-	"nomen": false,
-	"loopfunc": true,
-	"esnext": true
-	//"onevar": true
+  "nomen": false,
+  "loopfunc": true,
+        "esnext": true
+  //"onevar": true
 }

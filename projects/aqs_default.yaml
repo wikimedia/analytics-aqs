@@ -1,52 +1,64 @@
-swagger: '2.0'
 paths:
   /{api:v1}: &default_project_paths_v1
-    swagger: '2.0'
-    # swagger options, overriding the shared ones from the merged specs (?)
-    info:
-      version: 1.0.0-beta
-      title: Analytics REST API
-      description: >
-          Analytics Query Service setup
-      x-is-api-root: true
-
-    x-host-basePath: /api/rest_v1
-
     x-modules:
-      /pageviews:
-        - path: v1/pageviews.yaml
-      /legacy/pagecounts:
-        - path: v1/legacy/pagecounts.yaml
-      /unique-devices:
-        - path: v1/unique-devices.yaml
-      /edited-pages:
-        - path: v1/edited-pages.yaml
-      /editors:
-        - path: v1/editors.yaml
-      /registered-users:
-        - path: v1/registered-users.yaml
-      /edits:
-        - path: v1/edits.yaml
-      /bytes-difference:
-        - path: v1/bytes-difference.yaml
+      - spec:
+          # Careful - 2 indentations here !
+          info:
+            version: 1.0.0-beta
+            title: Analytics REST API
+            description: Analytics Query Service setup
+
+          x-is-api-root: true
+          x-host-basePath: /api/rest_v1
+
+          paths:
+            /pageviews:
+              x-modules:
+                - path: v1/pageviews.yaml
+            /legacy/pagecounts:
+              x-modules:
+                - path: v1/legacy/pagecounts.yaml
+            /unique-devices:
+              x-modules:
+                - path: v1/unique-devices.yaml
+            /edited-pages:
+              x-modules:
+                - path: v1/edited-pages.yaml
+            /editors:
+              x-modules:
+                - path: v1/editors.yaml
+            /registered-users:
+              x-modules:
+                - path: v1/registered-users.yaml
+            /edits:
+              x-modules:
+                - path: v1/edits.yaml
+            /bytes-difference:
+              x-modules:
+                - path: v1/bytes-difference.yaml
 
   /{api:sys}:
-    swagger: 2.0
-    info:
-      x-is-api-root: true
     x-modules:
-      /table:
-        - type: npm
-          name: restbase-mod-table-cassandra
-          options:
-            conf: '{{options.table}}'
-      /pageviews:
-        - path: sys/pageviews.js
-      /legacy/pagecounts:
-        - path: sys/legacy/pagecounts.js
-      /unique-devices:
-        - path: sys/unique-devices.js
-      /mediawiki-history-metrics:
-        - path: sys/mediawiki-history-metrics.js
-          options:
-            druid: '{{options.druid}}'
+      - spec:
+          # Careful - 2 indentations here !
+          paths:
+            /table:
+              x-modules:
+                - path: sys/table.js
+                  options:
+                    conf: '{{options.table}}'
+            /pageviews:
+              x-modules:
+                - path: sys/pageviews.js
+            /legacy/pagecounts:
+              x-modules:
+                - path: sys/legacy/pagecounts.js
+            /unique-devices:
+              x-modules:
+                - path: sys/unique-devices.js
+            /mediawiki-history-metrics:
+              x-modules:
+                - path: sys/mediawiki-history-metrics.js
+                  options:
+                    druid: '{{options.druid}}'
+        options: '{{options}}'

@@ -8,26 +8,27 @@
  * https://wikitech.wikimedia.org/wiki/Analytics/Data/Pagecounts-raw
  */
 
-var HyperSwitch = require('hyperswitch');
-var path = require('path');
-var URI = HyperSwitch.URI;
+const HyperSwitch = require('hyperswitch');
+const path = require('path');
+const URI = HyperSwitch.URI;
 
-var aqsUtil = require('../../lib/aqsUtil');
+const aqsUtil = require('../../lib/aqsUtil');
 
-var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pagecounts.yaml'));
+const spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'pagecounts.yaml'));
 
 // Pagecounts service
 function LPCS(options) {
     this.options = options;
 }
 
-var tables = {
+function tableURI(domain, tableName) {
+    return new URI([domain, 'sys', 'table', tableName, '']);
+}
+
+const tables = {
     project: 'lgc.pagecounts.per.project'
 };
-var tableURI = function(domain, tableName) {
-    return new URI([domain, 'sys', 'table', tableName, '']);
-};
-var tableSchemas = {
+const tableSchemas = {
     project: {
         table: tables.project,
         version: 1,
@@ -48,14 +49,14 @@ var tableSchemas = {
 };
 
 LPCS.prototype.pagecountsPerProject = function(hyper, req) {
-    var rp = req.params;
+    const rp = req.params;
 
     aqsUtil.validateStartAndEnd(rp, {
         zeroHour: rp.granularity !== 'hourly',
         fullMonths: rp.granularity === 'monthly'
     });
 
-    var dataRequest = hyper.get({
+    const dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.project),
         body: {
             table: tables.project,
@@ -69,9 +70,9 @@ LPCS.prototype.pagecountsPerProject = function(hyper, req) {
     }).catch(aqsUtil.notFoundCatcher);
 
     // Parse long from string to int
-    return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
-            res.body.items.forEach(function(item) {
+            res.body.items.forEach((item) => {
                 if (item.count !== null) {
                     try {
                         item.count = parseInt(item.count, 10);
@@ -87,16 +88,16 @@ LPCS.prototype.pagecountsPerProject = function(hyper, req) {
 };
 
 module.exports = function(options) {
-    var lpcs = new LPCS(options);
+    const lpcs = new LPCS(options);
 
     return {
-        spec: spec,
+        spec,
         operations: {
             pagecountsPerProject: lpcs.pagecountsPerProject.bind(lpcs)
         },
         resources: [
             {
-                uri: '/{domain}/sys/table/' + tables.project,
+                uri: `/{domain}/sys/table/${tables.project}`,
                 body: tableSchemas.project
             }
         ]

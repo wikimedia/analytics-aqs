@@ -6,27 +6,28 @@
  * This API serves pre-aggregated unique devices statistics from Cassandra
  */
 
-var HyperSwitch = require('hyperswitch');
-var path = require('path');
-var URI = HyperSwitch.URI;
+const HyperSwitch = require('hyperswitch');
+const path = require('path');
+const URI = HyperSwitch.URI;
 
-var aqsUtil = require('../lib/aqsUtil');
+const aqsUtil = require('../lib/aqsUtil');
 
-var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'unique-devices.yaml'));
+const spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'unique-devices.yaml'));
 
 // Unique devices Service
 function UDVS(options) {
     this.options = options;
 }
 
+function tableURI(domain, tableName) {
+    return new URI([domain, 'sys', 'table', tableName, '']);
+}
 
-var tables = {
+const tables = {
     project: 'unique.devices',
 };
-var tableURI = function(domain, tableName) {
-    return new URI([domain, 'sys', 'table', tableName, '']);
-};
-var tableSchemas = {
+
+const tableSchemas = {
     project: {
         table: tables.project,
         version: 1,
@@ -49,7 +50,7 @@ var tableSchemas = {
 
 
 UDVS.prototype.uniqueDevices = function(hyper, req) {
-    var rp = req.params;
+    const rp = req.params;
 
     aqsUtil.validateStartAndEnd(rp, {
         // YYYYMMDD dates are allowed, but need an hour to pass validation
@@ -59,7 +60,7 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
         stripHour: true,
     });
 
-    var dataRequest = hyper.get({
+    const dataRequest = hyper.get({
         uri: tableURI(rp.domain, tables.project),
         body: {
             table: tables.project,
@@ -74,9 +75,9 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
     }).catch(aqsUtil.notFoundCatcher);
 
     // Parse long from string to int
-    return dataRequest.then(aqsUtil.normalizeResponse).then(function(res) {
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
-            res.body.items.forEach(function(item) {
+            res.body.items.forEach((item) => {
                 if (item.devices !== null) {
                     try {
                         item.devices = parseInt(item.devices, 10);
@@ -92,17 +93,17 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
 };
 
 module.exports = function(options) {
-    var udvs = new UDVS(options);
+    const udvs = new UDVS(options);
 
     return {
-        spec: spec,
+        spec,
         operations: {
             uniqueDevices: udvs.uniqueDevices.bind(udvs)
         },
         resources: [
             {
                 // unique devices per project table
-                uri: '/{domain}/sys/table/' + tables.project,
+                uri: `/{domain}/sys/table/${tables.project}`,
                 body: tableSchemas.project,
             }
         ]
