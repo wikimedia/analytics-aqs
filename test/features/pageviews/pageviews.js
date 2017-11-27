@@ -31,6 +31,10 @@ describe('pageviews endpoints', function() {
         top: {
             all: '/pageviews/top/en.wikipedia/mobile-web/2015/01/all-days',
             insert: '/pageviews/insert-top/en.wikipedia/mobile-web/2015/01/all-days'
+        },
+        bycountry: {
+            all: '/pageviews/top-by-country/en.wikipedia/all-access/2015/01',
+            insert: '/pageviews/insert-top-by-country/en.wikipedia/all-access/2015/01'
         }
     }
     var projectEndpointStrip = '/pageviews/aggregate/www.en.wikipedia.org/all-access/all-agents/hourly/1969010100/1971010100';
@@ -381,4 +385,35 @@ describe('pageviews endpoints', function() {
             assert.deepEqual(res.body.items[0].articles[1].article, 'two\\');
         });
     });
+
+    // By country test
+
+    it('should return the correct countries after insertion', function () {
+        return preq.post({
+            uri: server.config.aqsURL + endpoints.bycountry.insert,
+            body: {
+                countries: [{
+                        rank: 1,
+                        country: 'Republic of Mriiii\'duuh',
+                        views: 2000
+                    },{
+                        rank: 2,
+                        country: 'Kingdom of OOOOOOOOOOH',
+                        views: 1000
+                    }
+                ]
+            },
+            headers: { 'content-type': 'application/json' }
+
+        }).then(function() {
+            return preq.get({
+                uri: server.config.aqsURL + endpoints.bycountry.all
+            });
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].countries[0].country, 'Republic of Mriiii\'duuh');
+            assert.deepEqual(res.body.items[0].countries[1].views, 1000);
+            assert.deepEqual(res.body.items[0].countries[1].country, 'Kingdom of OOOOOOOOOOH');
+        });
+    })
 });

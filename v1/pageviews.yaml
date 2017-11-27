@@ -282,6 +282,78 @@ paths:
                       views: 0
                       rank: 1
 
+  /top-by-country/{project}/{access}/{year}/{month}:
+    get:
+      tags:
+        - Pageviews data
+      summary: Get pageviews by country and access method.
+      description: |
+        Lists the pageviews to this project, split by country of origin for a given month.
+        Because of privacy reasons, pageviews are given in a bucketed format, and countries
+        with less than 100 views do not get reported.
+        Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
+      produces:
+        - application/json
+      parameters:
+        - name: project
+          in: path
+          description: The domain of any Wikimedia project (.org optional), like gl.wikimedia.
+          type: string
+          required: true
+        - name: access
+          in: path
+          description: The method of access to this project. Use all-access for all methods.
+          type: string
+          enum: ['all-access', 'desktop', 'mobile-app', 'mobile-web']
+          required: true
+        - name: year
+          in: path
+          description: The year for which to retrieve top countries, in YYYY format.
+          type: string
+          required: true
+        - name: month
+          in: path
+          description: The month for which to retrieve top countries, in MM format.
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The list of top countries by pageviews in the project
+          schema:
+            $ref: '#/definitions/by-country'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri:  /{domain}/sys/pageviews/top-by-country/{project}/{access}/{year}/{month}
+      x-monitor: true
+      x-amples:
+        - title: Get top countries by page views
+          request:
+            params:
+              domain: wikimedia.org
+              project: en.wikipedia
+              access: all-access
+              year: '1970'
+              month: '01'
+          response:
+            status: 200
+            headers:
+              content-type: application/json
+            body:
+              items:
+                - project: en.wikipedia
+                  access: all-access
+                  year: '1970'
+                  month: '01'
+                  countries:
+                    - country: '-'
+                      views: 0
+                      rank: 1
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
@@ -369,4 +441,22 @@ definitions:
               type: string
             articles:
               # format for this is a json array: [{rank: 1, article: <<title>>, views: 123}, ...]
+              type: string
+
+  by-country:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            project:
+              type: string
+            access:
+              type : string
+            year:
+              type: string
+            month:
+              type: string
+            countries:
+              # format for this is a json array: [{rank: 1, country: <<name>>, views: 123}, ...]
               type: string

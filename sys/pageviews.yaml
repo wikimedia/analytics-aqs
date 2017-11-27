@@ -11,3 +11,7 @@ paths:
         get:
           summary: query top pageviews
           operationId: pageviewsForTops
+    /top-by-country/{project}/{access}/{year}/{month}:
+        get:
+          summary: query top countries by pageviews
+          operationId: pageviewsByCountry

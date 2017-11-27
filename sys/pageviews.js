@@ -31,6 +31,7 @@ const tables = {
     articleFlat: 'pageviews.per.article.flat',
     project_v2: 'pageviews.per.project.v2',
     tops: 'top.pageviews',
+    bycountry: 'top.bycountry'
 };
 
 const tableSchemas = {
@@ -95,6 +96,23 @@ const tableSchemas = {
             { attribute: 'year', type: 'hash' },
             { attribute: 'month', type: 'hash' },
             { attribute: 'day', type: 'hash' },
+        ]
+    },
+    bycountry: {
+        table: tables.bycountry,
+        version: 1,
+        attributes: {
+            project: 'string',
+            access: 'string',
+            year: 'string',
+            month: 'string',
+            countriesJSON: 'json'
+        },
+        index: [
+            { attribute: 'project', type: 'hash' },
+            { attribute: 'access', type: 'hash' },
+            { attribute: 'year', type: 'hash' },
+            { attribute: 'month', type: 'hash' }
         ]
     }
 };
@@ -309,6 +327,37 @@ PJVS.prototype.pageviewsForTops = function(hyper, req) {
     });
 };
 
+PJVS.prototype.pageviewsByCountry = function(hyper, req) {
+    const rp = req.params;
+
+    aqsUtil.validateYearMonth(rp);
+
+    const dataRequest = hyper.get({
+        uri: tableURI(rp.domain, tables.bycountry),
+        body: {
+            table: tables.bycountry,
+            attributes: {
+                project: rp.project,
+                access: rp.access,
+                year: rp.year,
+                month: rp.month
+            }
+        }
+
+    }).catch(aqsUtil.notFoundCatcher);
+
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
+        if (res.body.items) {
+            res.body.items.forEach((item) => {
+                item.countries = item.countriesJSON;
+                delete item.countriesJSON;
+            });
+        }
+
+        return res;
+    });
+};
+
 
 module.exports = function(options) {
     const pjvs = new PJVS(options);
@@ -319,6 +368,7 @@ module.exports = function(options) {
             pageviewsForArticle: pjvs.pageviewsForArticleFlat.bind(pjvs),
             pageviewsForProjects: pjvs.pageviewsForProjects.bind(pjvs),
             pageviewsForTops: pjvs.pageviewsForTops.bind(pjvs),
+            pageviewsByCountry: pjvs.pageviewsByCountry.bind(pjvs),
         },
         resources: [
             {
@@ -332,6 +382,10 @@ module.exports = function(options) {
                 // top pageviews table
                 uri: `/{domain}/sys/table/${tables.tops}`,
                 body: tableSchemas.tops,
+            }, {
+                // pageviews by country table
+                uri: `/{domain}/sys/table/${tables.bycountry}`,
+                body: tableSchemas.bycountry,
             }
         ]
     };
