@@ -66,8 +66,8 @@ druid:
     nonContent: non_content
 
   otherTags:
-    deletedDay: deleted_day
-    deletedMonth: deleted_month
+    redirect: redirect
+    deleted: deleted
     selfCreated: self_created
 
 
@@ -128,7 +128,3 @@ aqs2druid:
   granularity-digest:
     daily: daily_digest
     monthly: monthly_digest
-
-  granularity-deleted_currents:
-    daily: [ 'deleted_day' ]
-    monthly: [ 'deleted_day', 'deleted_month' ]

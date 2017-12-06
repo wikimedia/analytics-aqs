@@ -182,7 +182,8 @@ var makeAqsTopResult = function(dimension, measure, granularity, project, editor
 
 var makeNewPagesDruidQuery = function(granularity, additionalFilters) {
   var defaultFilters = [
-      { type: 'selector', dimension: 'event_entity', value: 'page' }
+      { type: 'selector', dimension: 'event_entity', value: 'page' },
+      { type: 'not', field: { type: 'selector', dimension: 'other_tags', value: 'redirect' } }
   ];
   return {
       queryType: 'timeseries',
@@ -550,7 +551,8 @@ var editorsFixtures = [
 var makeRevisionsDruidQuery = function(aggType, granularity, additionalFilters) {
   var defaultFilters = [
       { type: 'selector', dimension: 'event_entity', value: 'revision' },
-      { type: 'selector', dimension: 'event_type', value: 'create' }
+      { type: 'selector', dimension: 'event_type', value: 'create' },
+      { type: 'not', field: { type: 'selector', dimension: 'other_tags', value: 'deleted' } }
   ];
 
   var agg;

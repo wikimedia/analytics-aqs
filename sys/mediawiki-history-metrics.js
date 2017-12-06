@@ -228,8 +228,13 @@ MHMS.prototype.newPagesTimeseries = function(hyper, req) {
         D.datasource,
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
-            [ druidQueriesBlocks.filter.pages ]
-                .concat(eventsFiltersFromRequestParams(rp))),
+            [
+                druidQueriesBlocks.filter.pages,
+                druidUtil.makeNotFilter(
+                    druidUtil.makeSelectorFilter(
+                        D.dimension.otherTags,
+                        D.otherTags.redirect))
+            ].concat(eventsFiltersFromRequestParams(rp))),
         [
             druidUtil.makeFilteredAggregation(
                 druidQueriesBlocks.filter.create,
@@ -334,8 +339,10 @@ MHMS.prototype.digestsTimeseries = function(hyper, req) {
         D.datasource,
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
-            [ eventEntityFilter, digestGranularityFilter(rp.granularity) ]
-                .concat(digestsFiltersFromRequestParams(rp))),
+            [
+                eventEntityFilter,
+                digestGranularityFilter(rp.granularity)
+            ].concat(digestsFiltersFromRequestParams(rp))),
         [ eventsCountingAggregation(outputMetric) ],
         [], // No post-aggregation
         druidUtil.makeInterval(rp.start, rp.end)
@@ -384,8 +391,14 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
         D.datasource,
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
-            [ druidQueriesBlocks.filter.revisions, druidQueriesBlocks.filter.create ]
-                .concat(eventsFiltersFromRequestParams(rp))),
+            [
+                druidQueriesBlocks.filter.revisions,
+                druidQueriesBlocks.filter.create,
+                druidUtil.makeNotFilter(
+                    druidUtil.makeSelectorFilter(
+                        D.dimension.otherTags,
+                        D.otherTags.deleted))
+            ].concat(eventsFiltersFromRequestParams(rp))),
         [ aggregation ],
         [], // No post-aggregation
         druidUtil.makeInterval(rp.start, rp.end)
@@ -447,8 +460,10 @@ MHMS.prototype.revisionsTop = function(hyper, req) {
         TOP_THRESHOLD, // Get top 100
         outputMetric,
         druidUtil.makeAndFilter(
-            [ druidQueriesBlocks.filter.revisions, druidQueriesBlocks.filter.create ]
-                .concat(eventsFiltersFromRequestParams(rp))),
+            [
+                druidQueriesBlocks.filter.revisions,
+                druidQueriesBlocks.filter.create
+            ].concat(eventsFiltersFromRequestParams(rp))),
         [ aggregation ],
         [], // No post-aggregation
         druidUtil.makeInterval(rp.start, rp.end)
