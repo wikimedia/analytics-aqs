@@ -96,6 +96,23 @@ paths:
                               articlesJSON: '{{request.body.articles}}'
                   x-monitor: false
 
+              /pageviews/insert-top-by-country/{project}/{access}/{year}/{month}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/top.bycountry/'
+                          body:
+                            table: 'top.bycountry'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              access: '{{request.params.access}}'
+                              year: '{{request.params.year}}'
+                              month: '{{request.params.month}}'
+                              countriesJSON: '{{request.body.countries}}'
+                  x-monitor: false
+
               /legacy/pagecounts/insert-aggregate/{project}/{access-site}/{granularity}/{timestamp}/{count}:
                 post:
                   x-request-handler:
