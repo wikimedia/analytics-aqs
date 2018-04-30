@@ -55,6 +55,20 @@ function requestURI(druid) {
     }
 }
 
+function requestDatasource(druid) {
+    if (druid && druid.datasources && druid.datasources.mediawiki_history) {
+        return druid.datasources.mediawiki_history;
+    } else { // Fail with 500 if druid conf is not set
+        throw new HTTPError({
+            status: 500,
+            body: {
+                type: 'internal_error',
+                detail: 'Druid datasource configuration not set',
+            }
+        });
+    }
+}
+
 
 const druidQueriesBlocks = {
     filter: {
@@ -225,7 +239,7 @@ MHMS.prototype.newPagesTimeseries = function(hyper, req) {
 
     const druidRequest = druidUtil.makeTimeseriesQuery(
         requestURI(this.druid),
-        D.datasource,
+        requestDatasource(this.druid),
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
             [
@@ -284,7 +298,7 @@ MHMS.prototype.newlyRegisteredUsersTimeseries = function(hyper, req) {
 
     const druidRequest = druidUtil.makeTimeseriesQuery(
         requestURI(this.druid),
-        D.datasource,
+        requestDatasource(this.druid),
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
             [
@@ -336,7 +350,7 @@ MHMS.prototype.digestsTimeseries = function(hyper, req) {
 
     const druidRequest = druidUtil.makeTimeseriesQuery(
         requestURI(this.druid),
-        D.datasource,
+        requestDatasource(this.druid),
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
             [
@@ -388,7 +402,7 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
 
     const druidRequest = druidUtil.makeTimeseriesQuery(
         requestURI(this.druid),
-        D.datasource,
+        requestDatasource(this.druid),
         A2D.granularity[rp.granularity],
         druidUtil.makeAndFilter(
             [
@@ -454,7 +468,7 @@ MHMS.prototype.revisionsTop = function(hyper, req) {
 
     const druidRequest = druidUtil.makeTopN(
         requestURI(this.druid),
-        D.datasource,
+        requestDatasource(this.druid),
         A2D.granularity[rp.granularity],
         topDimension,
         TOP_THRESHOLD, // Get top 100

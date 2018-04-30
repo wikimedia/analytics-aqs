@@ -10,8 +10,6 @@
 
 druid:
 
-  datasource: mediawiki_history_reduced
-
   # Dimensions, metrics and outputMetrics
   dimension:
     eventEntity: event_entity

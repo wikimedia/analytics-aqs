@@ -18,6 +18,8 @@ aqs.wikimedia.org: &analytics.wikimedia.org
         druid:
           # Use a fake internal endpoint in restbase to test
           query_path: /analytics.wikimedia.org/sys/fake-druid/druid/v2
+          datasources:
+            mediawiki_history: mediawiki_history_reduced
 
 spec_root: &spec_root
   title: "The Analytics Query Service root"

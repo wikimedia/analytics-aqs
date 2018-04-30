@@ -18,6 +18,8 @@ aqs_project: &aqs_project
           host: druid1004.eqiad.wmnet
           port: 8082
           query_path: /druid/v2/
+          datasources:
+            mediawiki_history: mediawiki_history_reduced
 
 # Swagger spec root.
 spec: &spec_root
