@@ -381,8 +381,8 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
     // Validate request parameters in place
     const rp = req.params;
     validateRequestParams(rp,
-      // Accept all-projects aggregation if not grouping by page-id or editor-id
-      (rp['page-id'] || rp['editor-id']) ? { noAllProjects: true } : {}
+        // Accept all-projects aggregation if not grouping by page-id or editor-id
+        (rp['page-id'] || rp['editor-id']) ? { noAllProjects: true } : {}
     );
 
 
@@ -391,11 +391,11 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
     if (rp.metric === 'edits') {
         aggregation = eventsCountingAggregation(D.outputMetric.edits);
     } else if (rp.metric === 'net-bytes-diff') {
-        aggregation = druidUtil.makeLongSum(
-          D.outputMetric.netBytesDiff, D.metric.textBytesDiffSum);
+        aggregation = druidUtil.makeLongSum(D.outputMetric.netBytesDiff,
+            D.metric.textBytesDiffSum);
     } else if (rp.metric === 'abs-bytes-diff') {
-        aggregation = druidUtil.makeLongSum(
-          D.outputMetric.absBytesDiff, D.metric.textBytesDiffAbsSum);
+        aggregation = druidUtil.makeLongSum(D.outputMetric.absBytesDiff,
+            D.metric.textBytesDiffAbsSum);
     } else { // Internal endpoint parameter, this case should never happen
         throw new Error('Internal error - Invalid metric parameter for revisionsTimeseries');
     }
