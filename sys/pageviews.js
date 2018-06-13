@@ -351,9 +351,14 @@ PJVS.prototype.pageviewsByCountry = function(hyper, req) {
             res.body.items.forEach((item) => {
                 item.countries = item.countriesJSON;
                 delete item.countriesJSON;
+                if (typeof item.countries[0].views === 'number') {
+                    item.countries.forEach((country) => {
+                        country.views_ceil = country.views;
+                        country.views = aqsUtil.getIntervalForCeiledValue(country.views);
+                    });
+                }
             });
         }
-
         return res;
     });
 };

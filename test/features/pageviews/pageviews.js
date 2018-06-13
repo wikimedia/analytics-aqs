@@ -6,6 +6,7 @@
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
+var aqsUtil  = require('../../../lib/aqsUtil')
 
 
 describe('pageviews endpoints', function() {
@@ -388,6 +389,13 @@ describe('pageviews endpoints', function() {
 
     // By country test
 
+    it('ceiled values should be correctly converted to intervals', function () {
+        assert.deepEqual(aqsUtil.getIntervalForCeiledValue(999), '100-999');
+        assert.deepEqual(aqsUtil.getIntervalForCeiledValue(1000), '100-999');
+        assert.deepEqual(aqsUtil.getIntervalForCeiledValue(1001), '1000-9999');
+        assert.deepEqual(aqsUtil.getIntervalForCeiledValue(10000), '1000-9999');
+    })
+
     it('should return the correct countries after insertion', function () {
         return preq.post({
             uri: server.config.aqsURL + endpoints.bycountry.insert,
@@ -400,6 +408,10 @@ describe('pageviews endpoints', function() {
                         rank: 2,
                         country: 'Kingdom of OOOOOOOOOOH',
                         views: 1000
+                    },{
+                        rank: 3,
+                        country: 'State of the Evil Spiders',
+                        views: '1000-9999'
                     }
                 ]
             },
@@ -412,8 +424,9 @@ describe('pageviews endpoints', function() {
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].countries[0].country, 'Republic of Mriiii\'duuh');
-            assert.deepEqual(res.body.items[0].countries[1].views, 1000);
+            assert.deepEqual(res.body.items[0].countries[1].views, '100-999');
             assert.deepEqual(res.body.items[0].countries[1].country, 'Kingdom of OOOOOOOOOOH');
+            assert.deepEqual(res.body.items[0].countries[2].views, '1000-9999');
         });
     })
 });
