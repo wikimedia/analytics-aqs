@@ -34,8 +34,10 @@ describe('pageviews endpoints', function() {
             insert: '/pageviews/insert-top/en.wikipedia/mobile-web/2015/01/all-days'
         },
         bycountry: {
-            all: '/pageviews/top-by-country/en.wikipedia/all-access/2015/01',
-            insert: '/pageviews/insert-top-by-country/en.wikipedia/all-access/2015/01'
+            all_intervals: '/pageviews/top-by-country/en.wikipedia/all-access/2015/02',
+            insert_intervals: '/pageviews/insert-top-by-country/en.wikipedia/all-access/2015/02',
+            all_ceiled: '/pageviews/top-by-country/en.wikipedia/all-access/2015/01',
+            insert_ceiled: '/pageviews/insert-top-by-country/en.wikipedia/all-access/2015/01'
         }
     }
     var projectEndpointStrip = '/pageviews/aggregate/www.en.wikipedia.org/all-access/all-agents/hourly/1969010100/1971010100';
@@ -396,9 +398,9 @@ describe('pageviews endpoints', function() {
         assert.deepEqual(aqsUtil.getIntervalForCeiledValue(10000), '1000-9999');
     })
 
-    it('should return the correct countries after insertion', function () {
+    it('should return the correct countries after ceiled value insertion', function () {
         return preq.post({
-            uri: server.config.aqsURL + endpoints.bycountry.insert,
+            uri: server.config.aqsURL + endpoints.bycountry.insert_ceiled,
             body: {
                 countries: [{
                         rank: 1,
@@ -408,10 +410,6 @@ describe('pageviews endpoints', function() {
                         rank: 2,
                         country: 'Kingdom of OOOOOOOOOOH',
                         views: 1000
-                    },{
-                        rank: 3,
-                        country: 'State of the Evil Spiders',
-                        views: '1000-9999'
                     }
                 ]
             },
@@ -419,14 +417,47 @@ describe('pageviews endpoints', function() {
 
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + endpoints.bycountry.all
+                uri: server.config.aqsURL + endpoints.bycountry.all_ceiled
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].countries[0].country, 'Republic of Mriiii\'duuh');
             assert.deepEqual(res.body.items[0].countries[1].views, '100-999');
             assert.deepEqual(res.body.items[0].countries[1].country, 'Kingdom of OOOOOOOOOOH');
-            assert.deepEqual(res.body.items[0].countries[2].views, '1000-9999');
+        });
+    });
+
+    it('should return the correct countries after interval insertion', function () {
+        return preq.post({
+            uri: server.config.aqsURL + endpoints.bycountry.insert_intervals,
+            body: {
+                countries: [{
+                        rank: 1,
+                        country: 'Republic of Mriiii\'duuh',
+                        views: '1000000-9999999'
+                    },{
+                        rank: 2,
+                        country: 'Kingdom of OOOOOOOOOOH',
+                        views: '100000-999999'
+                    },{
+                        rank: 3,
+                        country: 'State of the Evil Spiders',
+                        views: '10000-99999'
+                    }
+                ]
+            },
+            headers: { 'content-type': 'application/json' }
+
+        }).then(function() {
+            return preq.get({
+                uri: server.config.aqsURL + endpoints.bycountry.all_intervals
+            });
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].countries[0].country, 'Republic of Mriiii\'duuh');
+            assert.deepEqual(res.body.items[0].countries[1].views, '100000-999999');
+            assert.deepEqual(res.body.items[0].countries[1].country, 'Kingdom of OOOOOOOOOOH');
+            assert.deepEqual(res.body.items[0].countries[2].views, '10000-99999');
         });
     })
 });
