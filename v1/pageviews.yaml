@@ -351,7 +351,7 @@ paths:
                   month: '01'
                   countries:
                     - country: '-'
-                      views: 0
+                      views: '100-999'
                       rank: 1
 
 definitions:
