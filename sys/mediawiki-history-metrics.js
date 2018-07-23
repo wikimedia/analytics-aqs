@@ -244,33 +244,14 @@ MHMS.prototype.newPagesTimeseries = function(hyper, req) {
         druidUtil.makeAndFilter(
             [
                 druidQueriesBlocks.filter.pages,
+                druidQueriesBlocks.filter.create,
                 druidUtil.makeNotFilter(
                     druidUtil.makeSelectorFilter(
                         D.dimension.otherTags,
                         D.otherTags.redirect))
             ].concat(eventsFiltersFromRequestParams(rp))),
-        [
-            druidUtil.makeFilteredAggregation(
-                druidQueriesBlocks.filter.create,
-                druidUtil.makeCount(D.outputMetric.pagesCreated)),
-            druidUtil.makeFilteredAggregation(
-                druidUtil.makeSelectorFilter(
-                    D.dimension.eventType,
-                    D.eventType.delete),
-                druidUtil.makeCount(D.outputMetric.pagesDeleted)),
-            druidUtil.makeFilteredAggregation(
-                druidUtil.makeSelectorFilter(
-                    D.dimension.eventType,
-                    D.eventType.restore),
-                druidUtil.makeCount(D.outputMetric.pagesRestored))
-        ],
-        [
-            druidUtil.makeMinusPostAggregation(D.outputMetric.newPages, [
-                druidUtil.makePlusPostAggregation('tmp', [
-                    druidUtil.makeFieldAccessor(D.outputMetric.pagesCreated),
-                    druidUtil.makeFieldAccessor(D.outputMetric.pagesRestored) ]),
-                druidUtil.makeFieldAccessor(D.outputMetric.pagesDeleted) ])
-        ],
+        [ eventsCountingAggregation(D.outputMetric.newPages) ],
+        [], // No post-aggregation
         druidUtil.makeInterval(rp.start, rp.end)
     );
 

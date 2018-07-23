@@ -183,6 +183,7 @@ var makeAqsTopResult = function(dimension, measure, granularity, project, editor
 var makeNewPagesDruidQuery = function(granularity, additionalFilters) {
   var defaultFilters = [
       { type: 'selector', dimension: 'event_entity', value: 'page' },
+      { type: 'selector', dimension: 'event_type', value: 'create' },
       { type: 'not', field: { type: 'selector', dimension: 'other_tags', value: 'redirect' } }
   ];
   return {
@@ -190,40 +191,8 @@ var makeNewPagesDruidQuery = function(granularity, additionalFilters) {
       dataSource: 'mediawiki_history_reduced',
       granularity: granularity,
       filter: { type: 'and', fields: defaultFilters.concat(additionalFilters) },
-      aggregations: [ {
-          type: 'filtered',
-          filter: { type: 'selector', dimension: 'event_type', value: 'create' },
-          aggregator: { type: 'count', name: 'pages_created' }
-      },
-      {
-          type: 'filtered',
-          filter: { type: 'selector', dimension: 'event_type', value: 'delete' },
-          aggregator: { type: 'count', name: 'pages_deleted' }
-      },
-      {
-          type : 'filtered',
-          filter : { type: 'selector', dimension: 'event_type', value: 'restore' },
-          aggregator : { type: 'count', name: 'pages_restored' }
-      } ],
-    postAggregations: [
-        {
-            type : 'arithmetic',
-            name : 'new_pages',
-            fn : '-',
-            fields : [
-                {
-                    type     : 'arithmetic',
-                    name     : 'tmp',
-                    fn         : '+',
-                    fields : [
-                        { type: 'fieldAccess', fieldName: 'pages_created' },
-                        { type: 'fieldAccess', fieldName: 'pages_restored' }
-                    ]
-                },
-                { type: 'fieldAccess', fieldName: 'pages_deleted' }
-            ]
-        }
-      ],
+      aggregations: [ { type: 'longSum', name: 'new_pages', fieldName: 'events' } ],
+    postAggregations: [],
       intervals: [ makeStartTimestamp(dateTime=false) + '/'
           + makeEndTimestamp(granularity, dateTime=false) ]
   };
