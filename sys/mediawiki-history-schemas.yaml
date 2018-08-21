@@ -16,8 +16,10 @@ druid:
     eventType: event_type
     project: project
     userId: user_id
+    userText: user_text
     userType: user_type
     pageId: page_id
+    pageTitle: page_title
     pageNamespace: page_namespace
     pageType: page_type
     otherTags: other_tags
@@ -79,8 +81,8 @@ aqs2druid:
     activity-level: revisions
     granularity-digest: event_type
     granularity-deleted_currents: other_tags
-    page-id: page_id
-    editor-id: user_id
+    page-title: page_title
+    user-text: user_text
 
   # filter function to apply (if any)
   filter:
@@ -88,8 +90,8 @@ aqs2druid:
     editor-type: makeSelectorFilter
     page-type: makeSelectorFilter
     activity-level: makeRegexFilter
-    page-id: makeSelectorFilter
-    editor-id: makeSelectorFilter
+    page-title: makeSelectorFilter
+    user-text: makeSelectorFilter
 
   # List of `all` values taken by the various dimensions (to help filtering)
   all:

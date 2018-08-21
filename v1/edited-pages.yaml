@@ -525,7 +525,7 @@ definitions:
                     type: array
                     items:
                       properties:
-                        page_id:
+                        page_title:
                           type: string
                         edits:
                           type: integer
@@ -555,7 +555,7 @@ definitions:
                     type: array
                     items:
                       properties:
-                        page_id:
+                        page_title:
                           type: string
                         net_bytes_diff:
                           type: integer
@@ -585,7 +585,7 @@ definitions:
                     type: array
                     items:
                       properties:
-                        page_id:
+                        page_title:
                           type: string
                         abs_bytes_diff:
                           type: integer

@@ -112,13 +112,14 @@ paths:
               uri: /{domain}/sys/mediawiki-history-metrics/revisions/aggregate/edits/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}
       x-monitor: false
 
-  /per-page/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}:
+  /per-page/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}:
     get:
       tags:
         - Edits data
       summary: Get edit counts for a page in a project.
       description: |
-        Given a Mediawiki project, a page-id and a date range, returns a timeseries of edit counts.
+        Given a Mediawiki project, a page-title prefixed with its canonical namespace and a date
+        range, returns a timeseries of edit counts.
         You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user).
         You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -135,11 +136,12 @@ paths:
             or mediawiki.org.
           type: string
           required: true
-        - name: page-id
+        - name: page-title
           in: path
-          description: The page-id to request edits for.
-          type: integer
-          format: int32
+          description: |
+            The page-title to request edits for. It should be prefixed with canonical namespace.
+            Spaces will be converted to underscores.
+          type: string
           required: true
         - name: editor-type
           in: path
@@ -181,7 +183,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-page/edits/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-page/edits/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}
       # This endpoint is used to monitor druid bein set
       # (correct datasource and expected schema for this endpoint)
       x-monitor: true
@@ -191,7 +193,7 @@ paths:
             params:
               domain: wikimedia.org
               project: en.wikipedia
-              page-id: 0
+              page-title: Main_page
               editor-type: all-editor-types
               granularity: daily
               start: 20010101
@@ -203,20 +205,20 @@ paths:
             body:
               items:
                 - project: en.wikipedia
-                  page-id: 0
+                  page-title: Main_page
                   editor-type: all-editor-types
                   granularity: daily
                   results:
                     - timestamp: 2001-01-01T00:00:00.000Z
                       edits: 0
 
-  /per-editor/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}:
+  /per-editor/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}:
     get:
       tags:
         - Edits data
       summary: Get the edits counts for an editor in a project.
       description: |
-        Given a Mediawiki project, an editor-id and a date range, returns a timeseries of edits
+        Given a Mediawiki project, a user-text and a date range, returns a timeseries of edits
         counts. You can filter by page type (all-page-types, content or non-content). You can
         choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -233,12 +235,12 @@ paths:
             or mediawiki.org.
           type: string
           required: true
-        - name: editor-id
+        - name: user-text
           in: path
           description: |
-            The editor-id you want to get edits for.
-          type: integer
-          format: int32
+            The user you want to get edits for. Can be either a registered user-name, or an
+            anonymous user IP.
+          type: string
           required: true
         - name: page-type
           in: path
@@ -278,7 +280,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-editor/edits/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-editor/edits/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}
       x-monitor: false
 
 definitions:
@@ -338,9 +340,8 @@ definitions:
           properties:
             project:
               type : string
-            page-id:
-              type: integer
-              format: int32
+            page-title:
+              type: string
             editor-type:
               type : string
             granularity:
@@ -363,9 +364,8 @@ definitions:
           properties:
             project:
               type : string
-            editor-id:
-              type: integer
-              format: int32
+            user-text:
+              type: string
             page-type:
               type: string
             granularity:

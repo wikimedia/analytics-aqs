@@ -25,12 +25,12 @@ paths:
           summary: aggregate revisions per metric, project, editor-type and page-type
           operationId: revisionsTimeseries
 
-    /revisions/per-page/{metric}/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}:
+    /revisions/per-page/{metric}/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}:
         get:
           summary: per-page revisions per metric, project and editor-type
           operationId: revisionsTimeseries
 
-    /revisions/per-editor/{metric}/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}:
+    /revisions/per-editor/{metric}/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}:
         get:
           summary: per-editor revisions per metric, project and page-type
           operationId: revisionsTimeseries

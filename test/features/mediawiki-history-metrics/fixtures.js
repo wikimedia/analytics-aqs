@@ -84,7 +84,7 @@ var makeDruidTimeseriesResult = function(measure, granularity) {
     return result;
 }
 
-var makeAqsTimeseriesResult = function(measure, granularity, project, editorType, pageType, activityLevel, pageId, editorId) {
+var makeAqsTimeseriesResult = function(measure, granularity, project, editorType, pageType, activityLevel, pageTitle, userText) {
   var result = {
       status: 200,
       body: { items: [ {
@@ -100,11 +100,11 @@ var makeAqsTimeseriesResult = function(measure, granularity, project, editorType
   if (activityLevel) {
       result.body.items[0]['activity-level'] = activityLevel;
   }
-  if (pageId) {
-      result.body.items[0]['page-id'] = pageId;
+  if (pageTitle) {
+      result.body.items[0]['page-title'] = pageTitle;
   }
-  if (editorId) {
-      result.body.items[0]['editor-id'] = editorId;
+  if (userText) {
+      result.body.items[0]['user-text'] = userText;
   }
   result.body.items[0].granularity = granularity;
   result.body.items[0].results = [
@@ -618,46 +618,45 @@ var editsFixtures = [
 ******************************************/
 
 var makeEditsPerPageAqsResult = function(editorType, granularity) {
-    return makeAqsTimeseriesResult('edits', granularity, 'en.wikipedia', editorType, undefined, undefined, '1');
+    return makeAqsTimeseriesResult('edits', granularity, 'en.wikipedia', editorType, undefined, undefined, 'Fake_page');
 }
 
 var editsPerPageFixtures = [
-    makeErrorFixture('return 400 for edits per page with all-projects filter', '/edits/per-page/all-projects/1/all-editor-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for edits per page with typo in date', '/edits/per-page/en.wikipedia/1/all-editor-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for edits per page with invalid date (end before start)', '/edits/per-page/en.wikipedia/1/all-editor-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for edits per page with invalid granularity', '/edits/per-page/en.wikipedia/1/all-editor-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for edits per page with invalid editor-type', '/edits/per-page/en.wikipedia/1/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for edits per page with invalid page-id', '/edits/per-page/en.wikipedia/wrong/all-editor-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly edits per page and no full-month dates', '/edits/per-page/en.wikipedia/1/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for edits per page with all-projects filter', '/edits/per-page/all-projects/Fake_page/all-editor-types/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for edits per page with typo in date', '/edits/per-page/en.wikipedia/Fake_page/all-editor-types/daily/2017010100/2017010a00'),
+    makeErrorFixture('return 400 for edits per page with invalid date (end before start)', '/edits/per-page/en.wikipedia/Fake_page/all-editor-types/daily/2017010200/2017010100'),
+    makeErrorFixture('return 400 for edits per page with invalid granularity', '/edits/per-page/en.wikipedia/Fake_page/all-editor-types/wrong/2017010100/2017010200'),
+    makeErrorFixture('return 400 for edits per page with invalid editor-type', '/edits/per-page/en.wikipedia/Fake_page/wrong/daily/2017010100/2017010200'),
+    makeErrorFixture('return 400 for monthly edits per page and no full-month dates', '/edits/per-page/en.wikipedia/Fake_page/all-page-types/monthly/2017010100/2017010200'),
 
     // Edits per page counts- Filters
     {
-        describe: 'return 200 and results for edits per page daily with only page-id and project filter',
-        aqsEndpoint: '/edits/per-page/EN.wikipedia.org/1/all-editor-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for edits per page daily with only page-title and project filter',
+        aqsEndpoint: '/edits/per-page/EN.wikipedia.org/Fake_page/all-editor-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeEditsDruidQuery('day', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'page_id', value: '1' }
+          { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeEditsDruidResult('day'),
         expectedAqsResult: makeEditsPerPageAqsResult('all-editor-types', 'daily')
     },
     {
-        describe: 'return 200 and results for edits per page monthly with only page-id and project filter and no hours',
-        aqsEndpoint: '/edits/per-page/en.wikipedia/1/all-editor-types/monthly/20170101/20170210',
+        describe: 'return 200 and results for edits per page monthly with only page-title and project filter and no hours',
+        aqsEndpoint: '/edits/per-page/en.wikipedia/Fake_page/all-editor-types/monthly/20170101/20170210',
         expectedDruidQuery: makeEditsDruidQuery('month', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'page_id', value: '1' }
+          { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeEditsDruidResult('month'),
         expectedAqsResult: makeEditsPerPageAqsResult('all-editor-types', 'monthly')
     },
     {
-        describe: 'return 200 with results for edits per page with project, page-id and editor-type filter',
-        aqsEndpoint: '/edits/per-page/en.wikipedia/1/user/daily/2017010100/2017010200',
+        describe: 'return 200 with results for edits per page with project, page-title and editor-type filter',
+        aqsEndpoint: '/edits/per-page/en.wikipedia/Fake_page/user/daily/2017010100/2017010200',
         expectedDruidQuery: makeEditsDruidQuery('day', [
             { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
-            { type: 'selector', dimension: 'page_id', value: '1' }
+            { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeEditsDruidResult('day'),
         expectedAqsResult: makeEditsPerPageAqsResult('user', 'daily')
@@ -671,46 +670,45 @@ var editsPerPageFixtures = [
 ******************************************/
 
 var makeEditsPerEditorAqsResult = function(pageType, granularity) {
-    return makeAqsTimeseriesResult('edits', granularity, 'en.wikipedia', undefined, pageType, undefined, undefined, '1');
+    return makeAqsTimeseriesResult('edits', granularity, 'en.wikipedia', undefined, pageType, undefined, undefined, 'Fake_User');
 }
 
 var editsPerEditorFixtures = [
-    makeErrorFixture('return 400 for edits per editor with all-projects filter', '/edits/per-editor/all-projects/1/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for edits per editor with typo in date', '/edits/per-editor/en.wikipedia/1/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for edits per editor with invalid date (end before start)', '/edits/per-editor/en.wikipedia/1/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for edits per editor with invalid granularity', '/edits/per-editor/en.wikipedia/1/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for edits per editor with invalid page-type', '/edits/per-editor/en.wikipedia/1/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for edits per editor with invalid editor-id', '/edits/per-editor/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly edits per editor and no full-month dates', '/edits/per-editor/en.wikipedia/1/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for edits per editor with all-projects filter', '/edits/per-editor/all-projects/Fake_User/all-page-types/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for edits per editor with typo in date', '/edits/per-editor/en.wikipedia/Fake_User/all-page-types/daily/2017010100/2017010a00'),
+    makeErrorFixture('return 400 for edits per editor with invalid date (end before start)', '/edits/per-editor/en.wikipedia/Fake_User/all-page-types/daily/2017010200/2017010100'),
+    makeErrorFixture('return 400 for edits per editor with invalid granularity', '/edits/per-editor/en.wikipedia/Fake_User/all-page-types/wrong/2017010100/2017010200'),
+    makeErrorFixture('return 400 for edits per editor with invalid page-type', '/edits/per-editor/en.wikipedia/Fake_User/wrong/daily/2017010100/2017010200'),
+    makeErrorFixture('return 400 for monthly edits per editor and no full-month dates', '/edits/per-editor/en.wikipedia/Fake_User/all-page-types/monthly/2017010100/2017010200'),
 
     // Edits per editor counts- Filters
     {
-        describe: 'return 200 and results for edits per editor daily with only project and editor-id filter',
-        aqsEndpoint: '/edits/per-editor/EN.wikipedia.org/1/all-page-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for edits per editor daily with only project and user-text filter',
+        aqsEndpoint: '/edits/per-editor/EN.wikipedia.org/Fake_User/all-page-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeEditsDruidQuery('day', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'user_id', value: '1' }
+          { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeEditsDruidResult('day'),
         expectedAqsResult: makeEditsPerEditorAqsResult('all-page-types', 'daily')
     },
     {
-        describe: 'return 200 and results for edits per editor monthly with only project and editor-id filter and no hours',
-        aqsEndpoint: '/edits/per-editor/en.wikipedia/1/all-page-types/monthly/20170101/20170210',
+        describe: 'return 200 and results for edits per editor monthly with only project and user-text filter and no hours',
+        aqsEndpoint: '/edits/per-editor/en.wikipedia/Fake_User/all-page-types/monthly/20170101/20170210',
         expectedDruidQuery: makeEditsDruidQuery('month', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'user_id', value: '1' }
+          { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeEditsDruidResult('month'),
         expectedAqsResult: makeEditsPerEditorAqsResult('all-page-types', 'monthly')
     },
     {
-        describe: 'return 200 with results for edits per editor with project, editor-id and page-type filter',
-        aqsEndpoint: '/edits/per-editor/en.wikipedia/1/content/daily/2017010100/2017010200',
+        describe: 'return 200 with results for edits per editor with project, user-text and page-type filter',
+        aqsEndpoint: '/edits/per-editor/en.wikipedia/Fake_User/content/daily/2017010100/2017010200',
         expectedDruidQuery: makeEditsDruidQuery('day', [
             { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'page_type', value: 'content' },
-            { type: 'selector', dimension: 'user_id', value: '1' }
+            { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeEditsDruidResult('day'),
         expectedAqsResult: makeEditsPerEditorAqsResult('content', 'daily')
@@ -794,46 +792,45 @@ var netBytesDiffFixtures = [
 ******************************************/
 
 var makeNetBytesDiffPerPageAqsResult = function(editorType, granularity) {
-    return makeAqsTimeseriesResult('net_bytes_diff', granularity, 'en.wikipedia', editorType, undefined, undefined, '1');
+    return makeAqsTimeseriesResult('net_bytes_diff', granularity, 'en.wikipedia', editorType, undefined, undefined, 'Fake_page');
 }
 
 var netBytesDiffPerPageFixtures = [
-    makeErrorFixture('return 400 for net bytes-difference per page with all-projects filter', '/bytes-difference/net/per-page/all-projects/1/all-editor-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for net bytes-difference per page with typo in date', '/bytes-difference/net/per-page/en.wikipedia/1/all-editor-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for net bytes-difference per page with invalid date (end before start)', '/bytes-difference/net/per-page/en.wikipedia/1/all-editor-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for net bytes-difference per page with invalid granularity', '/bytes-difference/net/per-page/en.wikipedia/1/all-editor-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for net bytes-difference per page with invalid editor-type', '/bytes-difference/net/per-page/en.wikipedia/1/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for net bytes-difference per page with invalid page-id', '/bytes-difference/net/per-page/en.wikipedia/wrong/all-editor-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly net bytes-difference per page and no full-month dates', '/bytes-difference/net/per-page/en.wikipedia/1/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for net bytes-difference per page with all-projects filter', '/bytes-difference/net/per-page/all-projects/Fake_page/all-editor-types/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for net bytes-difference per page with typo in date', '/bytes-difference/net/per-page/en.wikipedia/Fake_page/all-editor-types/daily/2017010100/2017010a00'),
+    makeErrorFixture('return 400 for net bytes-difference per page with invalid date (end before start)', '/bytes-difference/net/per-page/en.wikipedia/Fake_page/all-editor-types/daily/2017010200/2017010100'),
+    makeErrorFixture('return 400 for net bytes-difference per page with invalid granularity', '/bytes-difference/net/per-page/en.wikipedia/Fake_page/all-editor-types/wrong/2017010100/2017010200'),
+    makeErrorFixture('return 400 for net bytes-difference per page with invalid editor-type', '/bytes-difference/net/per-page/en.wikipedia/Fake_page/wrong/daily/2017010100/2017010200'),
+    makeErrorFixture('return 400 for monthly net bytes-difference per page and no full-month dates', '/bytes-difference/net/per-page/en.wikipedia/Fake_page/all-page-types/monthly/2017010100/2017010200'),
 
     // Edits per page counts- Filters
     {
-        describe: 'return 200 and results for net bytes-difference per page daily with only page-id and project filter',
-        aqsEndpoint: '/bytes-difference/net/per-page/EN.wikipedia.org/1/all-editor-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for net bytes-difference per page daily with only page-title and project filter',
+        aqsEndpoint: '/bytes-difference/net/per-page/EN.wikipedia.org/Fake_page/all-editor-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeNetBytesDiffDruidQuery('day', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'page_id', value: '1' }
+          { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeNetBytesDiffDruidResult('day'),
         expectedAqsResult: makeNetBytesDiffPerPageAqsResult('all-editor-types', 'daily')
     },
     {
-        describe: 'return 200 and results for net bytes-difference per page monthly with only page-id and project filter and no hours',
-        aqsEndpoint: '/bytes-difference/net/per-page/en.wikipedia/1/all-editor-types/monthly/20170101/20170210',
+        describe: 'return 200 and results for net bytes-difference per page monthly with only page-title and project filter and no hours',
+        aqsEndpoint: '/bytes-difference/net/per-page/en.wikipedia/Fake_page/all-editor-types/monthly/20170101/20170210',
         expectedDruidQuery: makeNetBytesDiffDruidQuery('month', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'page_id', value: '1' }
+          { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeNetBytesDiffDruidResult('month'),
         expectedAqsResult: makeNetBytesDiffPerPageAqsResult('all-editor-types', 'monthly')
     },
     {
-        describe: 'return 200 with results for net bytes-difference per page with project, page-id and editor-type filter',
-        aqsEndpoint: '/bytes-difference/net/per-page/en.wikipedia/1/user/daily/2017010100/2017010200',
+        describe: 'return 200 with results for net bytes-difference per page with project, page-title and editor-type filter',
+        aqsEndpoint: '/bytes-difference/net/per-page/en.wikipedia/Fake_page/user/daily/2017010100/2017010200',
         expectedDruidQuery: makeNetBytesDiffDruidQuery('day', [
             { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
-            { type: 'selector', dimension: 'page_id', value: '1' }
+            { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeNetBytesDiffDruidResult('day'),
         expectedAqsResult: makeNetBytesDiffPerPageAqsResult('user', 'daily')
@@ -847,46 +844,45 @@ var netBytesDiffPerPageFixtures = [
 ******************************************/
 
 var makeNetBytesDiffPerEditorAqsResult = function(pageType, granularity) {
-    return makeAqsTimeseriesResult('net_bytes_diff', granularity, 'en.wikipedia', undefined, pageType, undefined, undefined, '1');
+    return makeAqsTimeseriesResult('net_bytes_diff', granularity, 'en.wikipedia', undefined, pageType, undefined, undefined, 'Fake_User');
 }
 
 var netBytesDiffPerEditorFixtures = [
-    makeErrorFixture('return 400 for net bytes-difference per editor with all-projects filter', '/bytes-difference/net/per-editor/all-projects/1/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for net bytes-difference per editor with typo in date', '/bytes-difference/net/per-editor/en.wikipedia/1/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for net bytes-difference per editor with invalid date (end before start)', '/bytes-difference/net/per-editor/en.wikipedia/1/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for net bytes-difference per editor with invalid granularity', '/bytes-difference/net/per-editor/en.wikipedia/1/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for net bytes-difference per editor with invalid page-type', '/bytes-difference/net/per-editor/en.wikipedia/1/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for net bytes-difference per editor with invalid editor-id', '/bytes-difference/net/per-editor/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly net bytes-difference per editor and no full-month dates', '/bytes-difference/net/per-editor/en.wikipedia/1/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for net bytes-difference per editor with all-projects filter', '/bytes-difference/net/per-editor/all-projects/Fake_User/all-page-types/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for net bytes-difference per editor with typo in date', '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/all-page-types/daily/2017010100/2017010a00'),
+    makeErrorFixture('return 400 for net bytes-difference per editor with invalid date (end before start)', '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/all-page-types/daily/2017010200/2017010100'),
+    makeErrorFixture('return 400 for net bytes-difference per editor with invalid granularity', '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/all-page-types/wrong/2017010100/2017010200'),
+    makeErrorFixture('return 400 for net bytes-difference per editor with invalid page-type', '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/wrong/daily/2017010100/2017010200'),
+    makeErrorFixture('return 400 for monthly net bytes-difference per editor and no full-month dates', '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/all-page-types/monthly/2017010100/2017010200'),
 
     // net bytes-difference per editor counts- Filters
     {
-        describe: 'return 200 and results for net bytes-difference per editor daily with only project and editor-id filter',
-        aqsEndpoint: '/bytes-difference/net/per-editor/EN.wikipedia.org/1/all-page-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for net bytes-difference per editor daily with only project and user-text filter',
+        aqsEndpoint: '/bytes-difference/net/per-editor/EN.wikipedia.org/Fake_User/all-page-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeNetBytesDiffDruidQuery('day', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'user_id', value: '1' }
+          { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeNetBytesDiffDruidResult('day'),
         expectedAqsResult: makeNetBytesDiffPerEditorAqsResult('all-page-types', 'daily')
     },
     {
-        describe: 'return 200 and results for net bytes-difference per editor monthly with only project and editor-id filter and no hours',
-        aqsEndpoint: '/bytes-difference/net/per-editor/en.wikipedia/1/all-page-types/monthly/20170101/20170210',
+        describe: 'return 200 and results for net bytes-difference per editor monthly with only project and user-text filter and no hours',
+        aqsEndpoint: '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/all-page-types/monthly/20170101/20170210',
         expectedDruidQuery: makeNetBytesDiffDruidQuery('month', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'user_id', value: '1' }
+          { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeNetBytesDiffDruidResult('month'),
         expectedAqsResult: makeNetBytesDiffPerEditorAqsResult('all-page-types', 'monthly')
     },
     {
-        describe: 'return 200 with results for net bytes-difference per editor with project, editor-id and page-type filter',
-        aqsEndpoint: '/bytes-difference/net/per-editor/en.wikipedia/1/content/daily/2017010100/2017010200',
+        describe: 'return 200 with results for net bytes-difference per editor with project, user-text and page-type filter',
+        aqsEndpoint: '/bytes-difference/net/per-editor/en.wikipedia/Fake_User/content/daily/2017010100/2017010200',
         expectedDruidQuery: makeNetBytesDiffDruidQuery('day', [
             { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'page_type', value: 'content' },
-            { type: 'selector', dimension: 'user_id', value: '1' }
+            { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeNetBytesDiffDruidResult('day'),
         expectedAqsResult: makeNetBytesDiffPerEditorAqsResult('content', 'daily')
@@ -972,46 +968,45 @@ var absBytesDiffFixtures = [
 ******************************************/
 
 var makeAbsBytesDiffPerPageAqsResult = function(editorType, granularity) {
-    return makeAqsTimeseriesResult('abs_bytes_diff', granularity, 'en.wikipedia', editorType, undefined, undefined, '1');
+    return makeAqsTimeseriesResult('abs_bytes_diff', granularity, 'en.wikipedia', editorType, undefined, undefined, 'Fake_page');
 }
 
 var absBytesDiffPerPageFixtures = [
-    makeErrorFixture('return 400 for absolute bytes-difference per page with all-projects filter', '/bytes-difference/absolute/per-page/all-projects/1/all-editor-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for absolute bytes-difference per page with typo in date', '/bytes-difference/absolute/per-page/en.wikipedia/1/all-editor-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid date (end before start)', '/bytes-difference/absolute/per-page/en.wikipedia/1/all-editor-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid granularity', '/bytes-difference/absolute/per-page/en.wikipedia/1/all-editor-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid editor-type', '/bytes-difference/absolute/per-page/en.wikipedia/1/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid page-id', '/bytes-difference/absolute/per-page/en.wikipedia/wrong/all-editor-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly absolute bytes-difference per page and no full-month dates', '/bytes-difference/absolute/per-page/en.wikipedia/1/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for absolute bytes-difference per page with all-projects filter', '/bytes-difference/absolute/per-page/all-projects/Fake_page/all-editor-types/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for absolute bytes-difference per page with typo in date', '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/all-editor-types/daily/2017010100/2017010a00'),
+    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid date (end before start)', '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/all-editor-types/daily/2017010200/2017010100'),
+    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid granularity', '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/all-editor-types/wrong/2017010100/2017010200'),
+    makeErrorFixture('return 400 for absolute bytes-difference per page with invalid editor-type', '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/wrong/daily/2017010100/2017010200'),
+    makeErrorFixture('return 400 for monthly absolute bytes-difference per page and no full-month dates', '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/all-page-types/monthly/2017010100/2017010200'),
 
     // absolute bytes difference per page - Filters
     {
-        describe: 'return 200 and results for absolute bytes-difference per page daily with only page-id and project filter',
-        aqsEndpoint: '/bytes-difference/absolute/per-page/EN.wikipedia.org/1/all-editor-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for absolute bytes-difference per page daily with only page-title and project filter',
+        aqsEndpoint: '/bytes-difference/absolute/per-page/EN.wikipedia.org/Fake_page/all-editor-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeAbsBytesDiffDruidQuery('day', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'page_id', value: '1' }
+          { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeAbsBytesDiffDruidResult('day'),
         expectedAqsResult: makeAbsBytesDiffPerPageAqsResult('all-editor-types', 'daily')
     },
     {
-        describe: 'return 200 and results for absolute bytes-difference per page monthly with only page-id and project filter and no hours',
-        aqsEndpoint: '/bytes-difference/absolute/per-page/en.wikipedia/1/all-editor-types/monthly/20170101/20170210',
+        describe: 'return 200 and results for absolute bytes-difference per page monthly with only page-title and project filter and no hours',
+        aqsEndpoint: '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/all-editor-types/monthly/20170101/20170210',
         expectedDruidQuery: makeAbsBytesDiffDruidQuery('month', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'page_id', value: '1' }
+          { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeAbsBytesDiffDruidResult('month'),
         expectedAqsResult: makeAbsBytesDiffPerPageAqsResult('all-editor-types', 'monthly')
     },
     {
-        describe: 'return 200 with results for absolute bytes-difference per page with project, page-id and editor-type filter',
-        aqsEndpoint: '/bytes-difference/absolute/per-page/en.wikipedia/1/user/daily/2017010100/2017010200',
+        describe: 'return 200 with results for absolute bytes-difference per page with project, page-title and editor-type filter',
+        aqsEndpoint: '/bytes-difference/absolute/per-page/en.wikipedia/Fake_page/user/daily/2017010100/2017010200',
         expectedDruidQuery: makeAbsBytesDiffDruidQuery('day', [
             { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
-            { type: 'selector', dimension: 'page_id', value: '1' }
+            { type: 'selector', dimension: 'page_title', value: 'Fake_page' }
         ]),
         druidResult: makeAbsBytesDiffDruidResult('day'),
         expectedAqsResult: makeAbsBytesDiffPerPageAqsResult('user', 'daily')
@@ -1025,46 +1020,45 @@ var absBytesDiffPerPageFixtures = [
 ******************************************/
 
 var makeAbsBytesDiffPerEditorAqsResult = function(pageType, granularity) {
-    return makeAqsTimeseriesResult('abs_bytes_diff', granularity, 'en.wikipedia', undefined, pageType, undefined, undefined, '1');
+    return makeAqsTimeseriesResult('abs_bytes_diff', granularity, 'en.wikipedia', undefined, pageType, undefined, undefined, 'Fake_User');
 }
 
 var absBytesDiffPerEditorFixtures = [
-    makeErrorFixture('return 400 for absolute bytes-difference per editor with all-projects filter', '/bytes-difference/absolute/per-editor/all-projects/1/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for absolute bytes-difference per editor with typo in date', '/bytes-difference/absolute/per-editor/en.wikipedia/1/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid date (end before start)', '/bytes-difference/absolute/per-editor/en.wikipedia/1/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid granularity', '/bytes-difference/absolute/per-editor/en.wikipedia/1/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid page-type', '/bytes-difference/absolute/per-editor/en.wikipedia/1/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid editor-id', '/bytes-difference/absolute/per-editor/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly absolute bytes-difference per editor and no full-month dates', '/bytes-difference/absolute/per-editor/en.wikipedia/1/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for absolute bytes-difference per editor with all-projects filter', '/bytes-difference/absolute/per-editor/all-projects/Fake_User/all-page-types/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for absolute bytes-difference per editor with typo in date', '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/all-page-types/daily/2017010100/2017010a00'),
+    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid date (end before start)', '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/all-page-types/daily/2017010200/2017010100'),
+    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid granularity', '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/all-page-types/wrong/2017010100/2017010200'),
+    makeErrorFixture('return 400 for absolute bytes-difference per editor with invalid page-type', '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/wrong/daily/2017010100/2017010200'),
+    makeErrorFixture('return 400 for monthly absolute bytes-difference per editor and no full-month dates', '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/all-page-types/monthly/2017010100/2017010200'),
 
     // absolute bytes-difference per editor - Filters
     {
-        describe: 'return 200 and results for absolute bytes-difference per editor daily with only project and editor-id filter',
-        aqsEndpoint: '/bytes-difference/absolute/per-editor/EN.wikipedia.org/1/all-page-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for absolute bytes-difference per editor daily with only project and user-text filter',
+        aqsEndpoint: '/bytes-difference/absolute/per-editor/EN.wikipedia.org/Fake_User/all-page-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeAbsBytesDiffDruidQuery('day', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'user_id', value: '1' }
+          { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeAbsBytesDiffDruidResult('day'),
         expectedAqsResult: makeAbsBytesDiffPerEditorAqsResult('all-page-types', 'daily')
     },
     {
-        describe: 'return 200 and results for absolute bytes-difference per editor monthly with only project and editor-id filter and no hours',
-        aqsEndpoint: '/bytes-difference/absolute/per-editor/en.wikipedia/1/all-page-types/monthly/20170101/20170210',
+        describe: 'return 200 and results for absolute bytes-difference per editor monthly with only project and user-text filter and no hours',
+        aqsEndpoint: '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/all-page-types/monthly/20170101/20170210',
         expectedDruidQuery: makeAbsBytesDiffDruidQuery('month', [
           { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
-          { type: 'selector', dimension: 'user_id', value: '1' }
+          { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeAbsBytesDiffDruidResult('month'),
         expectedAqsResult: makeAbsBytesDiffPerEditorAqsResult('all-page-types', 'monthly')
     },
     {
-        describe: 'return 200 with results for absolute bytes-difference per editor with project, editor-id and page-type filter',
-        aqsEndpoint: '/bytes-difference/absolute/per-editor/en.wikipedia/1/content/daily/2017010100/2017010200',
+        describe: 'return 200 with results for absolute bytes-difference per editor with project, user-text and page-type filter',
+        aqsEndpoint: '/bytes-difference/absolute/per-editor/en.wikipedia/Fake_User/content/daily/2017010100/2017010200',
         expectedDruidQuery: makeAbsBytesDiffDruidQuery('day', [
             { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'page_type', value: 'content' },
-            { type: 'selector', dimension: 'user_id', value: '1' }
+            { type: 'selector', dimension: 'user_text', value: 'Fake_User' }
         ]),
         druidResult: makeAbsBytesDiffDruidResult('day'),
         expectedAqsResult: makeAbsBytesDiffPerEditorAqsResult('content', 'daily')
@@ -1112,15 +1106,15 @@ var makeTopRevisionsDruidQuery = function(dimension, aggType, granularity, addit
 }
 
 var makeTopEditedPagesPerEditsDruidQuery = function(granularity, additionalFilters) {
-  return makeTopRevisionsDruidQuery('page_id', 'edits', granularity, additionalFilters)
+  return makeTopRevisionsDruidQuery('page_title', 'edits', granularity, additionalFilters)
 }
 
 var makeTopEditedPagesPerEditsDruidResult = function(granularity) {
-    return makeDruidTopResult('page_id', 'edits', granularity);
+    return makeDruidTopResult('page_title', 'edits', granularity);
 }
 
 var makeTopEditedPagesPerEditsAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('page_id', 'edits', granularity, 'en.wikipedia', editorType, pageType);
+    return makeAqsTopResult('page_title', 'edits', granularity, 'en.wikipedia', editorType, pageType);
 }
 
 var topEditedPagesPerEditsFixtures = [
@@ -1174,15 +1168,15 @@ var topEditedPagesPerEditsFixtures = [
 
 
 var makeTopEditedPagesPerNetBytesDiffDruidQuery = function(granularity, additionalFilters) {
-  return makeTopRevisionsDruidQuery('page_id', 'net', granularity, additionalFilters)
+  return makeTopRevisionsDruidQuery('page_title', 'net', granularity, additionalFilters)
 }
 
 var makeTopEditedPagesPerNetBytesDiffDruidResult = function(granularity) {
-    return makeDruidTopResult('page_id', 'net', granularity);
+    return makeDruidTopResult('page_title', 'net', granularity);
 }
 
 var makeTopEditedPagesPerNetBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('page_id', 'net', granularity, 'en.wikipedia', editorType, pageType);
+    return makeAqsTopResult('page_title', 'net', granularity, 'en.wikipedia', editorType, pageType);
 }
 
 var topEditedPagesPerNetBytesDiffFixtures = [
@@ -1237,15 +1231,15 @@ var topEditedPagesPerNetBytesDiffFixtures = [
 
 
 var makeTopEditedPagesPerAbsBytesDiffDruidQuery = function(granularity, additionalFilters) {
-  return makeTopRevisionsDruidQuery('page_id', 'abs', granularity, additionalFilters)
+  return makeTopRevisionsDruidQuery('page_title', 'abs', granularity, additionalFilters)
 }
 
 var makeTopEditedPagesPerAbsBytesDiffDruidResult = function(granularity) {
-    return makeDruidTopResult('page_id', 'abs', granularity);
+    return makeDruidTopResult('page_title', 'abs', granularity);
 }
 
 var makeTopEditedPagesPerAbsBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('page_id', 'abs', granularity, 'en.wikipedia', editorType, pageType);
+    return makeAqsTopResult('page_title', 'abs', granularity, 'en.wikipedia', editorType, pageType);
 }
 
 var topEditedPagesPerAbsBytesDiffFixtures = [
@@ -1297,15 +1291,15 @@ var topEditedPagesPerAbsBytesDiffFixtures = [
 ******************************************/
 
 var makeTopEditorsPerEditsDruidQuery = function(granularity, additionalFilters) {
-  return makeTopRevisionsDruidQuery('user_id', 'edits', granularity, additionalFilters)
+  return makeTopRevisionsDruidQuery('user_text', 'edits', granularity, additionalFilters)
 }
 
 var makeTopEditorsPerEditsDruidResult = function(granularity) {
-    return makeDruidTopResult('user_id', 'edits', granularity);
+    return makeDruidTopResult('user_text', 'edits', granularity);
 }
 
 var makeTopEditorsPerEditsAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('user_id', 'edits', granularity, 'en.wikipedia', editorType, pageType);
+    return makeAqsTopResult('user_text', 'edits', granularity, 'en.wikipedia', editorType, pageType);
 }
 
 var topEditorsPerEditsFixtures = [
@@ -1359,15 +1353,15 @@ var topEditorsPerEditsFixtures = [
 
 
 var makeTopEditorsPerNetBytesDiffDruidQuery = function(granularity, additionalFilters) {
-  return makeTopRevisionsDruidQuery('user_id', 'net', granularity, additionalFilters)
+  return makeTopRevisionsDruidQuery('user_text', 'net', granularity, additionalFilters)
 }
 
 var makeTopEditorsPerNetBytesDiffDruidResult = function(granularity) {
-    return makeDruidTopResult('user_id', 'net', granularity);
+    return makeDruidTopResult('user_text', 'net', granularity);
 }
 
 var makeTopEditorsPerNetBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('user_id', 'net', granularity, 'en.wikipedia', editorType, pageType);
+    return makeAqsTopResult('user_text', 'net', granularity, 'en.wikipedia', editorType, pageType);
 }
 
 var topEditorsPerNetBytesDiffFixtures = [
@@ -1422,15 +1416,15 @@ var topEditorsPerNetBytesDiffFixtures = [
 
 
 var makeTopEditorsPerAbsBytesDiffDruidQuery = function(granularity, additionalFilters) {
-  return makeTopRevisionsDruidQuery('user_id', 'abs', granularity, additionalFilters)
+  return makeTopRevisionsDruidQuery('user_text', 'abs', granularity, additionalFilters)
 }
 
 var makeTopEditorsPerAbsBytesDiffDruidResult = function(granularity) {
-    return makeDruidTopResult('user_id', 'abs', granularity);
+    return makeDruidTopResult('user_text', 'abs', granularity);
 }
 
 var makeTopEditorsPerAbsBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('user_id', 'abs', granularity, 'en.wikipedia', editorType, pageType);
+    return makeAqsTopResult('user_text', 'abs', granularity, 'en.wikipedia', editorType, pageType);
 }
 
 var topEditorsPerAbsBytesDiffFixtures = [

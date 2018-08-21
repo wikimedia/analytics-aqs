@@ -112,15 +112,16 @@ paths:
               uri: /{domain}/sys/mediawiki-history-metrics/revisions/aggregate/net-bytes-diff/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}
       x-monitor: false
 
-  /net/per-page/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}:
+  /net/per-page/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}:
     get:
       tags:
         - Bytes difference data
       summary: Get the sum of net text bytes difference per page.
       description: |
-        Given a Mediawiki project, a page-id and a date range, returns a timeseries of bytes
-        difference net sums. You can filter by editors-type (all-editor-types, anonymous, group-bot,
-        name-bot, user). You can choose between daily and monthly granularity as well.
+        Given a Mediawiki project, a page-title prefixed with canonical namespace and a date range,
+        returns a timeseries of bytes difference net sums.
+        You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user).
+        You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
       produces:
         - application/json
@@ -135,11 +136,12 @@ paths:
             or mediawiki.org.
           type: string
           required: true
-        - name: page-id
+        - name: page-title
           in: path
-          description: The page-id to request net bytes-difference for.
-          type: integer
-          format: int32
+          description: |
+            The page-title to request net bytes-difference for. Should be prefixed with the
+            page canonical namespace.
+          type: string
           required: true
         - name: editor-type
           in: path
@@ -181,16 +183,16 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-page/net-bytes-diff/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-page/net-bytes-diff/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}
       x-monitor: false
 
-  /net/per-editor/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}:
+  /net/per-editor/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}:
     get:
       tags:
         - Bytes difference data
       summary: Get the sum of net text bytes difference per editor.
       description: |
-        Given a Mediawiki project, an editor-id and a date range, returns a timeseries of bytes
+        Given a Mediawiki project, an user-text and a date range, returns a timeseries of bytes
         difference net sums. You can filter by page-type (all-page-types, content, non-content).
         You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -207,12 +209,12 @@ paths:
             or mediawiki.org.
           type: string
           required: true
-        - name: editor-id
+        - name: user-text
           in: path
           description: |
-            The editor-id to request net bytes-difference for.
-          type: integer
-          format: int32
+            The user-text to request net bytes-difference for. Can be either a registered
+            user-name or an anonymous user IP.
+          type: string
           required: true
         - name: page-type
           in: path
@@ -252,7 +254,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-editor/net-bytes-diff/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-editor/net-bytes-diff/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}
       x-monitor: false
 
   /absolute/aggregate/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}:
@@ -334,7 +336,7 @@ paths:
               uri: /{domain}/sys/mediawiki-history-metrics/revisions/aggregate/abs-bytes-diff/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}
       x-monitor: false
 
-  /absolute/per-page/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}:
+  /absolute/per-page/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}:
     get:
       tags:
         - Bytes difference data
@@ -357,11 +359,12 @@ paths:
             or mediawiki.org.
           type: string
           required: true
-        - name: page-id
+        - name: page-title
           in: path
-          description: The page-id to request absolute bytes-difference for.
-          type: integer
-          format: int32
+          description: |
+            The page-title to request absolute bytes-difference for. Should be prefixed with the
+            page canonical namespace.
+          type: string
           required: true
         - name: editor-type
           in: path
@@ -403,10 +406,10 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-page/abs-bytes-diff/{project}/{page-id}/{editor-type}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-page/abs-bytes-diff/{project}/{page-title}/{editor-type}/{granularity}/{start}/{end}
       x-monitor: false
 
-  /absolute/per-editor/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}:
+  /absolute/per-editor/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}:
     get:
       tags:
         - Bytes difference data
@@ -429,12 +432,12 @@ paths:
             or mediawiki.org.
           type: string
           required: true
-        - name: editor-id
+        - name: user-text
           in: path
           description: |
-            The editor-id to request absolute bytes-difference for.
-          type: integer
-          format: int32
+            The user-text to request absolute bytes-difference for. Can be either a registered
+            user-name or an anonymous user IP.
+          type: string
           required: true
         - name: page-type
           in: path
@@ -474,7 +477,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-editor/abs-bytes-diff/{project}/{editor-id}/{page-type}/{granularity}/{start}/{end}
+              uri: /{domain}/sys/mediawiki-history-metrics/revisions/per-editor/abs-bytes-diff/{project}/{user-text}/{page-type}/{granularity}/{start}/{end}
       x-monitor: false
 
 
@@ -535,9 +538,8 @@ definitions:
           properties:
             project:
               type : string
-            page-id:
-              type: integer
-              format: int32
+            page-title:
+              type: string
             editor-type:
               type : string
             granularity:
@@ -560,9 +562,8 @@ definitions:
           properties:
             project:
               type : string
-            editor-id:
-              type: integer
-              format: int32
+            user-text:
+              type: string
             page-type:
               type: string
             granularity:
@@ -609,9 +610,8 @@ definitions:
           properties:
             project:
               type : string
-            page-id:
-              type: integer
-              format: int32
+            page-title:
+              type: string
             editor-type:
               type : string
             granularity:
@@ -634,9 +634,8 @@ definitions:
           properties:
             project:
               type : string
-            editor-id:
-              type: integer
-              format: int32
+            user-text:
+              type: string
             page-type:
               type: string
             granularity:

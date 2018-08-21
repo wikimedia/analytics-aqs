@@ -26,7 +26,8 @@ const A2D = schemas.aqs2druid;
 const TOP_THRESHOLD = 100;
 
 const AQS_PARAMS = [
-    'project', 'editor-type', 'page-type', 'activity-level', 'page-id', 'editor-id', 'granularity'
+    'project', 'editor-type', 'page-type', 'activity-level',
+    'page-title', 'user-text', 'granularity'
 ];
 
 
@@ -96,6 +97,7 @@ function validateRequestParams(requestParams, opts) {
     opts = opts || {};
 
     aqsUtil.normalizeProject(requestParams, opts);
+    aqsUtil.normalizePageTitle(requestParams, opts);
     aqsUtil.validateStartAndEnd(requestParams, Object.assign(opts, {
         // YYYYMMDD dates are allowed, but need an hour to pass validation
         fakeHour: true,
@@ -362,8 +364,8 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
     // Validate request parameters in place
     const rp = req.params;
     validateRequestParams(rp,
-        // Accept all-projects aggregation if not grouping by page-id or editor-id
-        (rp['page-id'] || rp['editor-id']) ? { noAllProjects: true } : {}
+        // Accept all-projects aggregation if not grouping by page-title or user-text
+        (rp['page-title'] || rp['user-text']) ? { noAllProjects: true } : {}
     );
 
 
@@ -424,9 +426,9 @@ MHMS.prototype.revisionsTop = function(hyper, req) {
     // editors or edited-pages specific parts
     let topDimension;
     if (rp['top-type'] === 'editors') {
-        topDimension = D.dimension.userId;
+        topDimension = D.dimension.userText;
     } else if (rp['top-type'] === 'edited-pages') {
-        topDimension = D.dimension.pageId;
+        topDimension = D.dimension.pageTitle;
     } else { // Internal endpoint parameter, this case should never happen
         throw new Error('Internal error - Invalid top-type parameter for revisionsTop');
     }
