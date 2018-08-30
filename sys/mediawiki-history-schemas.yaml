@@ -76,6 +76,7 @@ aqs2druid:
   # aqs-parameter to druid dimension
   dimension:
     project: project
+    project-family: project
     editor-type: user_type
     page-type: page_type
     activity-level: revisions
@@ -87,6 +88,7 @@ aqs2druid:
   # filter function to apply (if any)
   filter:
     project: makeSelectorFilter
+    project-family: makeRegexFilter
     editor-type: makeSelectorFilter
     page-type: makeSelectorFilter
     activity-level: makeRegexFilter
@@ -122,6 +124,17 @@ aqs2druid:
     5..24-edits: '^([5-9]|1\d|2[0-4])$'
     25..99-edits: '^(2[5-9]|[3-9]\d)$'
     100..-edits: '^[1-9]\d\d+$'
+
+  # Project families regular-expressions
+  project-family:
+    all-wikipedia-projects: '^[a-z0-9\-]+\.wikipedia$'
+    all-wikivoyage-projects: '^[a-z0-9\-]+\.wikivoyage$'
+    all-wiktionary-projects: '^[a-z0-9\-]+\.wiktionary$'
+    all-wikibooks-projects: '^[a-z0-9\-]+\.wikibooks$'
+    all-wikinews-projects: '^[a-z0-9\-]+\.wikinews$'
+    all-wikiquote-projects: '^[a-z0-9\-]+\.wikiquote$'
+    all-wikisource-projects: '^[a-z0-9\-]+\.wikisource$'
+    all-wikiversity-projects: '^[a-z0-9\-]+\.wikiversity$'
 
   # Specific conversion objects for granularity-to-digest
   # and granularity to deleted-currents

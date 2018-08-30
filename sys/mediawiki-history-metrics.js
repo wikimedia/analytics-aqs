@@ -125,12 +125,19 @@ function eventsFiltersFromRequestParams(requestParams) {
                 // Parameter value is not ALL
                 !Object.prototype.hasOwnProperty.call(A2D.all, requestParams[paramName]);
     }).map((paramName) => {
+        const paramValue = requestParams[paramName];
+        // Special case for 'project' and project-families:
+        // replace paramName project by project-family if its value is one of
+        // the accepted project-family
+        if (Object.prototype.hasOwnProperty.call(A2D['project-family'], paramValue)) {
+            paramName = 'project-family';
+        }
         // Get filter function by name from schemas
         const makeFilter = druidUtil[A2D.filter[paramName]];
         const filterDim = A2D.dimension[paramName];
-        let filterVal = requestParams[paramName];
+        let filterVal = paramValue;
         if (Object.prototype.hasOwnProperty.call(A2D, paramName)) { // Convert or keep same
-            filterVal = A2D[paramName][requestParams[paramName]];
+            filterVal = A2D[paramName][paramValue];
         }
         return makeFilter(filterDim, filterVal);
     });
@@ -315,7 +322,7 @@ MHMS.prototype.digestsTimeseries = function(hyper, req) {
     // Validate request parameters in place
     const rp = req.params;
     validateRequestParams(rp, {
-        noAllProjects: true // Don't accept all-projects aggregation
+        noAllProjects: true // Don't accept all-... project type aggregation
     });
 
     // editors or edited-pages specific parts
@@ -363,11 +370,7 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
-    validateRequestParams(rp,
-        // Accept all-projects aggregation if not grouping by page-title or user-text
-        (rp['page-title'] || rp['user-text']) ? { noAllProjects: true } : {}
-    );
-
+    validateRequestParams(rp);
 
     // edits, net-bytes-diff or abs-bytes-diff specific parts
     let aggregation;
@@ -419,9 +422,7 @@ MHMS.prototype.revisionsTop = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
-    validateRequestParams(rp, {
-        noAllProjects: true // Don't accept all-projects aggregation
-    });
+    validateRequestParams(rp);
 
     // editors or edited-pages specific parts
     let topDimension;

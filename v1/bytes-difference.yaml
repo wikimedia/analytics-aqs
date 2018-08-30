@@ -56,8 +56,9 @@ paths:
             for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
             off. For projects like commons without language codes, use commons.wikimedia. For
             projects like www.mediawiki.org, you can use that full string, or just use mediawiki
-            or mediawiki.org. If you're interested in the aggregation of all projects, use
-            all-projects.
+            or mediawiki.org. If you are interested in the aggregation of all projects or
+            project-families, use all-projects or all-[family]-projects (i.e.
+            all-wikipedia-projects for instance).
           type: string
           required: true
         - name: editor-type
@@ -133,7 +134,9 @@ paths:
             for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
             off. For projects like commons without language codes, use commons.wikimedia. For
             projects like www.mediawiki.org, you can use that full string, or just use mediawiki
-            or mediawiki.org.
+            or mediawiki.org. If you are interested in the aggregation of all projects or
+            project-families, use all-projects or all-[family]-projects (i.e.
+            all-wikipedia-projects for instance).
           type: string
           required: true
         - name: page-title
@@ -206,7 +209,9 @@ paths:
             for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
             off. For projects like commons without language codes, use commons.wikimedia. For
             projects like www.mediawiki.org, you can use that full string, or just use mediawiki
-            or mediawiki.org.
+            or mediawiki.org. If you are interested in the aggregation of all projects or
+            project-families, use all-projects or all-[family]-projects (i.e.
+            all-wikipedia-projects for instance).
           type: string
           required: true
         - name: user-text
@@ -280,8 +285,9 @@ paths:
             for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
             off. For projects like commons without language codes, use commons.wikimedia. For
             projects like www.mediawiki.org, you can use that full string, or just use mediawiki
-            or mediawiki.org. If you're interested in the aggregation of all projects, use
-            all-projects.
+            or mediawiki.org. If you are interested in the aggregation of all projects or
+            project-families, use all-projects or all-[family]-projects (i.e.
+            all-wikipedia-projects for instance).
           type: string
           required: true
         - name: editor-type
@@ -356,7 +362,9 @@ paths:
             for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
             off. For projects like commons without language codes, use commons.wikimedia. For
             projects like www.mediawiki.org, you can use that full string, or just use mediawiki
-            or mediawiki.org.
+            or mediawiki.org. If you are interested in the aggregation of all projects or
+            project-families, use all-projects or all-[family]-projects (i.e.
+            all-wikipedia-projects for instance).
           type: string
           required: true
         - name: page-title
@@ -429,7 +437,9 @@ paths:
             for example en.wikipedia. You may pass en.wikipedia.org and the .org will be stripped
             off. For projects like commons without language codes, use commons.wikimedia. For
             projects like www.mediawiki.org, you can use that full string, or just use mediawiki
-            or mediawiki.org.
+            or mediawiki.org. If you are interested in the aggregation of all projects or
+            project-families, use all-projects or all-[family]-projects (i.e.
+            all-wikipedia-projects for instance).
           type: string
           required: true
         - name: user-text

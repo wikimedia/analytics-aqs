@@ -230,6 +230,13 @@ var newPagesFixtures = [
         expectedAqsResult: makeNewPagesAqsResult('all-projects', 'all-editor-types', 'all-page-types',  'monthly')
     },
     {
+        describe: 'return 200 with results for new-pages with project-family filter',
+        aqsEndpoint: '/edited-pages/new/all-wikipedia-projects/all-editor-types/all-page-types/daily/2017010100/2017010200',
+        expectedDruidQuery: makeNewPagesDruidQuery('day', [ { type: 'regex', dimension: 'project', pattern: '^[a-z0-9\\-]+\\.wikipedia$' } ]),
+        druidResult: makeNewPagesDruidResult('day'),
+        expectedAqsResult: makeNewPagesAqsResult('all-wikipedia-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
+    {
         describe: 'return 200 with results for new-pages with uppercase project filter',
         aqsEndpoint: '/edited-pages/new/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
         expectedDruidQuery: makeNewPagesDruidQuery('day', [ { type: 'selector', dimension: 'project', value: 'en.wikipedia' } ]),
@@ -311,6 +318,13 @@ var newRegisteredUsersFixtures = [
         expectedAqsResult: makeNewRegisteredUsersAqsResult('all-projects', 'monthly')
     },
     {
+        describe: 'return 200 with results for new registered users with project-family filter',
+        aqsEndpoint: '/registered-users/new/all-wiktionary-projects/daily/2017010100/2017010200',
+        expectedDruidQuery: makeNewRegisteredUsersDruidQuery('day', [ { type: 'regex', dimension: 'project', pattern: '^[a-z0-9\\-]+\\.wiktionary$' } ]),
+        druidResult: makeNewRegisteredUsersDruidResult('day'),
+        expectedAqsResult: makeNewRegisteredUsersAqsResult('all-wiktionary-projects', 'daily')
+    },
+    {
         describe: 'return 200 with results for new registered users with uppercase project filter',
         aqsEndpoint: '/registered-users/new/EN.wikipedia.org/daily/2017010100/2017010200',
         expectedDruidQuery: makeNewRegisteredUsersDruidQuery('day', [ { type: 'selector', dimension: 'project', value: 'en.wikipedia' } ]),
@@ -353,6 +367,7 @@ var makeEditedPagesAqsResult = function(editorType, pageType, activityLevel, gra
 
 var editedPagesFixtures = [
     makeErrorFixture('return 400 for edited-pages with all-projects filter', '/edited-pages/aggregate/all-projects/all-editor-types/all-page-types/all-activity-levels/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for edited-pages with project-family filter', '/edited-pages/aggregate/all-wikivoyage-projects/all-editor-types/all-page-types/all-activity-levels/daily/2017010100/201701000'),
     makeErrorFixture('return 400 for edited-pages with typo in date', '/edited-pages/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/daily/2017010100/2017010a00'),
     makeErrorFixture('return 400 for edited-pages with invalid date (end before start)', '/edited-pages/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/daily/2017010200/2017010100'),
     makeErrorFixture('return 400 for edited-pages with invalid granularity', '/edited-pages/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/wrong/2017010100/2017010200'),
@@ -450,6 +465,7 @@ var makeEditorsAqsResult = function(editorType, pageType, activityLevel, granula
 
 var editorsFixtures = [
     makeErrorFixture('return 400 for editors with all-projects filter', '/editors/aggregate/all-projects/all-editor-types/all-page-types/all-activity-levels/daily/2017010100/201701000'),
+    makeErrorFixture('return 400 for editors with project-family filter', '/editors/aggregate/all-wikisource-projects/all-editor-types/all-page-types/all-activity-levels/daily/2017010100/201701000'),
     makeErrorFixture('return 400 for editors with typo in date', '/editors/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/daily/2017010100/2017010a00'),
     makeErrorFixture('return 400 for editors with invalid date (end before start)', '/editors/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/daily/2017010200/2017010100'),
     makeErrorFixture('return 400 for editors with invalid granularity', '/editors/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/wrong/2017010100/2017010200'),
@@ -580,6 +596,13 @@ var editsFixtures = [
         expectedDruidQuery: makeEditsDruidQuery('month', []),
         druidResult: makeEditsDruidResult('month'),
         expectedAqsResult: makeEditsAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'monthly')
+    },
+    {
+        describe: 'return 200 with results for edits with project-family filter',
+        aqsEndpoint: '/edits/aggregate/all-wikiversity-projects/all-editor-types/all-page-types/daily/2017010100/2017010200',
+        expectedDruidQuery: makeEditsDruidQuery('day', [ { type: 'regex', dimension: 'project', pattern: '^[a-z0-9\\-]+\\.wikiversity$' } ]),
+        druidResult: makeEditsDruidResult('day'),
+        expectedAqsResult: makeEditsAqsResult('all-wikiversity-projects', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for edits with uppercase project filter',
