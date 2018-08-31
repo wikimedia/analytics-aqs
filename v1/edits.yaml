@@ -119,8 +119,8 @@ paths:
         - Edits data
       summary: Get edit counts for a page in a project.
       description: |
-        Given a Mediawiki project, a page-title prefixed with its canonical namespace and a date
-        range, returns a timeseries of edit counts.
+        Given a Mediawiki project, a page-title prefixed with its canonical namespace (for
+        instance 'User:Jimbo_Wales')and a date range, returns a timeseries of edit counts.
         You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user).
         You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)

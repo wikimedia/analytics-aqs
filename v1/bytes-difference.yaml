@@ -119,10 +119,10 @@ paths:
         - Bytes difference data
       summary: Get the sum of net text bytes difference per page.
       description: |
-        Given a Mediawiki project, a page-title prefixed with canonical namespace and a date range,
-        returns a timeseries of bytes difference net sums.
-        You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user).
-        You can choose between daily and monthly granularity as well.
+        Given a Mediawiki project, a page-title prefixed with canonical namespace (for
+        instance 'User:Jimbo_Wales') and a date range, returns a timeseries of bytes
+        difference net sums. You can filter by editors-type (all-editor-types, anonymous,
+        group-bot, name-bot, user). You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
       produces:
         - application/json
@@ -348,7 +348,8 @@ paths:
         - Bytes difference data
       summary: Get the sum of absolute text bytes difference per page.
       description: |
-        Given a Mediawiki project, a page-id and a date range, returns a timeseries of bytes
+        Given a Mediawiki project, a page-title prefixed with canonical namespace (for
+        instance 'User:Jimbo_Wales') and a date range, returns a timeseries of bytes
         difference absolute sums. You can filter by editors-type (all-editor-types, anonymous,
         group-bot, name-bot, user). You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
@@ -423,7 +424,7 @@ paths:
         - Bytes difference data
       summary: Get the sum of absolute text bytes difference per editor.
       description: |
-        Given a Mediawiki project, an editor-id and a date range, returns a timeseries of bytes
+        Given a Mediawiki project, an user_text and a date range, returns a timeseries of bytes
         difference absolute sums. You can filter by page-type (all-page-types, content,
         non-content). You can choose between daily and monthly granularity as well.
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
