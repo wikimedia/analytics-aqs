@@ -98,17 +98,29 @@ function validateRequestParams(requestParams, opts) {
 
     aqsUtil.normalizeProject(requestParams, opts);
     aqsUtil.normalizePageTitle(requestParams, opts);
-    aqsUtil.validateStartAndEnd(requestParams, Object.assign(opts, {
-        // YYYYMMDD dates are allowed, but need an hour to pass validation
-        fakeHour: true,
-        // YYYYMMDDHH dates are also allowed, but the hour should be stripped
-        // to match how cassandra stores records
-        stripHour: true,
-        // Use fullmonthDruid if monthly granularity == true
-        fullMonthsDruid: requestParams.granularity === 'monthly',
-        // Druid uses ISO date format, so convert to YYYY-MM-DD
-        isoDateFormat: true
-    }));
+    if (opts.topQuery) {
+        aqsUtil.validateYearMonthDay(requestParams, Object.assign(opts, {
+            // Make year-month-day validation generate start/end for druid
+            druidRange: true
+        }));
+        if (requestParams.day === 'all-days') {
+            requestParams.granularity = 'monthly';
+        } else {
+            requestParams.granularity = 'daily';
+        }
+    } else {
+        aqsUtil.validateStartAndEnd(requestParams, Object.assign(opts, {
+            // YYYYMMDD dates are allowed, but need an hour to pass validation
+            fakeHour: true,
+            // YYYYMMDDHH dates are also allowed, but the hour should be stripped
+            // since we only work at day level
+            stripHour: true,
+            // Use fullmonthDruid if monthly granularity == true
+            fullMonthsDruid: requestParams.granularity === 'monthly',
+            // Druid uses ISO date format, so convert to YYYY-MM-DD
+            isoDateFormat: true
+        }));
+    }
 }
 
 
@@ -208,8 +220,10 @@ function convertDruidResultToAqsResult(druidResult, requestParams, keyFilters, i
         coreItem.results = druidResult.body.map((druidRes) => {
             const aqsRes = { timestamp: druidRes.timestamp };
             if (isTop) {
-                // Just copy the result array to top field
-                aqsRes.top = druidRes.result;
+                // copy the result array to top field adding rank value
+                aqsRes.top = druidRes.result.map((item, idx) => {
+                    return Object.assign(item, { rank: idx + 1 });
+                });
             } else {
                 // Iterate over result keys and keep/convert only needed ones
                 Object.keys(druidRes.result).forEach((k) => {
@@ -422,7 +436,7 @@ MHMS.prototype.revisionsTop = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
-    validateRequestParams(rp);
+    validateRequestParams(rp, { topQuery: true });
 
     // editors or edited-pages specific parts
     let topDimension;

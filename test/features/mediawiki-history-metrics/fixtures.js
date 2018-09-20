@@ -164,10 +164,11 @@ var makeAqsTopResult = function(dimension, measure, granularity, project, editor
     ];
     result.body.items[0].results.map((item, idx) => {
         item.top = [];
-        [...Array(idx + 1).keys()].forEach(ii => {
+        [...Array(idx + 1).keys()].forEach((ii, iidx) => {
             var res = {};
             res[dimension] = dimension + ii.toString();
             res[measure] = ii;
+            res.rank = iidx + 1;
             item.top.push(res);
         });
         return item;
@@ -1096,8 +1097,7 @@ var absBytesDiffPerEditorFixtures = [
 var makeTopRevisionsDruidQuery = function(dimension, aggType, granularity, additionalFilters) {
   var defaultFilters = [
       { type: 'selector', dimension: 'event_entity', value: 'revision' },
-      { type: 'selector', dimension: 'event_type', value: 'create' },
-      { type: 'selector', dimension: 'project', value: 'en.wikipedia' }
+      { type: 'selector', dimension: 'event_type', value: 'create' }
   ];
 
   var agg;
@@ -1136,51 +1136,62 @@ var makeTopEditedPagesPerEditsDruidResult = function(granularity) {
     return makeDruidTopResult('page_title', 'edits', granularity);
 }
 
-var makeTopEditedPagesPerEditsAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('page_title', 'edits', granularity, 'en.wikipedia', editorType, pageType);
+var makeTopEditedPagesPerEditsAqsResult = function(project, editorType, pageType, granularity) {
+    return makeAqsTopResult('page_title', 'edits', granularity, project, editorType, pageType);
 }
 
 var topEditedPagesPerEditsFixtures = [
-    makeErrorFixture('return 400 for top-edited-pages-per-edits with all-projects filter', '/edited-pages/top-by-edits/all-projects/all-editor-types/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for top-edited-pages-per-edits with typo in date', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid date (end before start)', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid granularity', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid page-type', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid user-type', '/edited-pages/top-by-edits/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly top-edited-pages-per-edits and no full-month dates', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for top-edited-pages-per-edits with typo in date', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/2017a/01/01'),
+    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid date', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/2017/21/02'),
+    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid page-type', '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/wrong/2017/01/01'),
+    makeErrorFixture('return 400 for top-edited-pages-per-edits with invalid user-type', '/edited-pages/top-by-edits/en.wikipedia/wrong/all-page-types/2017/01/01'),
+
+    {
+        describe: 'return 200 and results for top-edited-pages-per-edits daily with all-projects filter',
+        aqsEndpoint: '/edited-pages/top-by-edits/all-projects/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('day', []),
+        druidResult: makeTopEditedPagesPerEditsDruidResult('day'),
+        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
 
     {
         describe: 'return 200 and results for top-edited-pages-per-edits daily with uppercase and .org project filter',
-        aqsEndpoint: '/edited-pages/top-by-edits/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
-        expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('day', []),
+        aqsEndpoint: '/edited-pages/top-by-edits/EN.wikipedia.org/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditedPagesPerEditsDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('all-editor-types', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 and results for top-edited-pages-per-edits monthly with only project filter but no hour',
-        aqsEndpoint: '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/monthly/20170101/20170210',
-        expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('month', []),
+        aqsEndpoint: '/edited-pages/top-by-edits/en.wikipedia/all-editor-types/all-page-types/2017/01/all-days',
+        expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('month', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditedPagesPerEditsDruidResult('month'),
-        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('all-editor-types', 'all-page-types', 'monthly')
+        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'monthly')
     },
     {
         describe: 'return 200 with results for top-edited-pages-per-edits with project and editor-type filter',
-        aqsEndpoint: '/edited-pages/top-by-edits/en.wikipedia/anonymous/all-page-types/daily/2017010100/2017010200',
+        aqsEndpoint: '/edited-pages/top-by-edits/en.wikipedia/anonymous/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'anonymous' },
         ]),
         druidResult: makeTopEditedPagesPerEditsDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('anonymous', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('en.wikipedia', 'anonymous', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for top-edited-pages-per-edits with project, editor-type and page-type filter',
-        aqsEndpoint: '/edited-pages/top-by-edits/en.wikipedia/user/non-content/daily/2017010100/2017010200',
+        aqsEndpoint: '/edited-pages/top-by-edits/en.wikipedia/user/non-content/2017/01/01',
         expectedDruidQuery: makeTopEditedPagesPerEditsDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
             { type: 'selector', dimension: 'page_type', value: 'non_content' },
         ]),
         druidResult: makeTopEditedPagesPerEditsDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('user', 'non-content', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerEditsAqsResult('en.wikipedia', 'user', 'non-content', 'daily')
     }
 ];
 
@@ -1198,51 +1209,62 @@ var makeTopEditedPagesPerNetBytesDiffDruidResult = function(granularity) {
     return makeDruidTopResult('page_title', 'net', granularity);
 }
 
-var makeTopEditedPagesPerNetBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('page_title', 'net', granularity, 'en.wikipedia', editorType, pageType);
+var makeTopEditedPagesPerNetBytesDiffAqsResult = function(project, editorType, pageType, granularity) {
+    return makeAqsTopResult('page_title', 'net', granularity, project, editorType, pageType);
 }
 
 var topEditedPagesPerNetBytesDiffFixtures = [
-    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with all-projects filter', '/edited-pages/top-by-net-bytes-difference/all-projects/all-editor-types/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with typo in date', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid date (end before start)', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid granularity', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid page-type', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid user-type', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly top-edited-pages-per-net-bytes-diff and no full-month dates', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with typo in date', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/0a'),
+    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid date', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/21/02'),
+    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid page-type', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/wrong/2017/01/01'),
+    makeErrorFixture('return 400 for top-edited-pages-per-net-bytes-diff with invalid user-type', '/edited-pages/top-by-net-bytes-difference/en.wikipedia/wrong/all-page-types/2017/01/01'),
+
+    {
+        describe: 'return 200 and results for top-edited-pages-per-net-bytes-diff daily with all-projects filter',
+        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/all-projects/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('day', []),
+        druidResult: makeTopEditedPagesPerNetBytesDiffDruidResult('day'),
+        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
 
     {
         describe: 'return 200 and results for top-edited-pages-per-net-bytes-diff daily with uppercase and .org project filter',
-        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
-        expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('day', []),
+        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditedPagesPerNetBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('all-editor-types', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 and results for top-edited-pages-per-net-bytes-diff monthly with only project filter but no hour',
-        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/20170101/20170210',
-        expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('month', []),
+        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/all-days',
+        expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('month', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditedPagesPerNetBytesDiffDruidResult('month'),
-        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('all-editor-types', 'all-page-types', 'monthly')
+        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'monthly')
     },
     {
         describe: 'return 200 with results for top-edited-pages-per-net-bytes-diff with project and editor-type filter',
-        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/en.wikipedia/anonymous/all-page-types/daily/2017010100/2017010200',
+        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/en.wikipedia/anonymous/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'anonymous' },
         ]),
         druidResult: makeTopEditedPagesPerNetBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('anonymous', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('en.wikipedia', 'anonymous', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for top-edited-pages-per-net-bytes-diff with project, editor-type and page-type filter',
-        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/en.wikipedia/user/non-content/daily/2017010100/2017010200',
+        aqsEndpoint: '/edited-pages/top-by-net-bytes-difference/en.wikipedia/user/non-content/2017/01/01',
         expectedDruidQuery: makeTopEditedPagesPerNetBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
             { type: 'selector', dimension: 'page_type', value: 'non_content' },
         ]),
         druidResult: makeTopEditedPagesPerNetBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('user', 'non-content', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerNetBytesDiffAqsResult('en.wikipedia', 'user', 'non-content', 'daily')
     }
 ];
 
@@ -1261,51 +1283,62 @@ var makeTopEditedPagesPerAbsBytesDiffDruidResult = function(granularity) {
     return makeDruidTopResult('page_title', 'abs', granularity);
 }
 
-var makeTopEditedPagesPerAbsBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('page_title', 'abs', granularity, 'en.wikipedia', editorType, pageType);
+var makeTopEditedPagesPerAbsBytesDiffAqsResult = function(project, editorType, pageType, granularity) {
+    return makeAqsTopResult('page_title', 'abs', granularity, project, editorType, pageType);
 }
 
 var topEditedPagesPerAbsBytesDiffFixtures = [
-    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with all-projects filter', '/edited-pages/top-by-absolute-bytes-difference/all-projects/all-editor-types/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with typo in date', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid date (end before start)', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid granularity', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid page-type', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid user-type', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly top-edited-pages-per-absolute-bytes-diff and no full-month dates', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with typo in date', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/0a/01'),
+    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid date (end before start)', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/45'),
+    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid page-type', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/wrong/2017/01/01'),
+    makeErrorFixture('return 400 for top-edited-pages-per-absolute-bytes-diff with invalid user-type', '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/wrong/all-page-types/2017/01/01'),
+
+    {
+        describe: 'return 200 and results for top-edited-pages-per-absolute-bytes-diff daily with all-projects filter',
+        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/all-projects/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('day', []),
+        druidResult: makeTopEditedPagesPerAbsBytesDiffDruidResult('day'),
+        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
 
     {
         describe: 'return 200 and results for top-edited-pages-per-absolute-bytes-diff daily with uppercase and .org project filter',
-        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
-        expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('day', []),
+        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditedPagesPerAbsBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('all-editor-types', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 and results for top-edited-pages-per-absolute-bytes-diff monthly with only project filter but no hour',
-        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/20170101/20170210',
-        expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('month', []),
+        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/all-days',
+        expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('month', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditedPagesPerAbsBytesDiffDruidResult('month'),
-        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('all-editor-types', 'all-page-types', 'monthly')
+        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'monthly')
     },
     {
         describe: 'return 200 with results for top-edited-pages-per-absolute-bytes-diff with project and editor-type filter',
-        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/anonymous/all-page-types/daily/2017010100/2017010200',
+        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/anonymous/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'anonymous' },
         ]),
         druidResult: makeTopEditedPagesPerAbsBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('anonymous', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('en.wikipedia', 'anonymous', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for top-edited-pages-per-absolute-bytes-diff with project, editor-type and page-type filter',
-        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/user/non-content/daily/2017010100/2017010200',
+        aqsEndpoint: '/edited-pages/top-by-absolute-bytes-difference/en.wikipedia/user/non-content/2017/01/01',
         expectedDruidQuery: makeTopEditedPagesPerAbsBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
             { type: 'selector', dimension: 'page_type', value: 'non_content' },
         ]),
         druidResult: makeTopEditedPagesPerAbsBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('user', 'non-content', 'daily')
+        expectedAqsResult: makeTopEditedPagesPerAbsBytesDiffAqsResult('en.wikipedia', 'user', 'non-content', 'daily')
     }
 ];
 
@@ -1321,51 +1354,62 @@ var makeTopEditorsPerEditsDruidResult = function(granularity) {
     return makeDruidTopResult('user_text', 'edits', granularity);
 }
 
-var makeTopEditorsPerEditsAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('user_text', 'edits', granularity, 'en.wikipedia', editorType, pageType);
+var makeTopEditorsPerEditsAqsResult = function(project, editorType, pageType, granularity) {
+    return makeAqsTopResult('user_text', 'edits', granularity, project, editorType, pageType);
 }
 
 var topEditorsPerEditsFixtures = [
-    makeErrorFixture('return 400 for top-editors-per-edits with all-projects filter', '/editors/top-by-edits/all-projects/all-editor-types/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for top-editors-per-edits with typo in date', '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for top-editors-per-edits with invalid date (end before start)', '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for top-editors-per-edits with invalid granularity', '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-editors-per-edits with invalid page-type', '/editors/top-by-edits/en.wikipedia/all-editor-types/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-editors-per-edits with invalid user-type', '/editors/top-by-edits/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly top-editors-per-edits and no full-month dates', '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for top-editors-per-edits with typo in date', '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/201a/01/01'),
+    makeErrorFixture('return 400 for top-editors-per-edits with invalid date', '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/2017/41/02'),
+    makeErrorFixture('return 400 for top-editors-per-edits with invalid page-type', '/editors/top-by-edits/en.wikipedia/all-editor-types/wrong/2017/01/01'),
+    makeErrorFixture('return 400 for top-editors-per-edits with invalid user-type', '/editors/top-by-edits/en.wikipedia/wrong/all-page-types/2017/01/01'),
+
+    {
+        describe: 'return 200 and results for top-editors-per-edits daily with all-projects filter',
+        aqsEndpoint: '/editors/top-by-edits/all-projects/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('day', []),
+        druidResult: makeTopEditorsPerEditsDruidResult('day'),
+        expectedAqsResult: makeTopEditorsPerEditsAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
 
     {
         describe: 'return 200 and results for top-editors-per-edits daily with uppercase and .org project filter',
-        aqsEndpoint: '/editors/top-by-edits/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
-        expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('day', []),
+        aqsEndpoint: '/editors/top-by-edits/EN.wikipedia.org/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditorsPerEditsDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerEditsAqsResult('all-editor-types', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditorsPerEditsAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 and results for top-editors-per-edits monthly with only project filter but no hour',
-        aqsEndpoint: '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/monthly/20170101/20170210',
-        expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('month', []),
+        aqsEndpoint: '/editors/top-by-edits/en.wikipedia/all-editor-types/all-page-types/2017/01/all-days',
+        expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('month', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditorsPerEditsDruidResult('month'),
-        expectedAqsResult: makeTopEditorsPerEditsAqsResult('all-editor-types', 'all-page-types', 'monthly')
+        expectedAqsResult: makeTopEditorsPerEditsAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'monthly')
     },
     {
         describe: 'return 200 with results for top-editors-per-edits with project and editor-type filter',
-        aqsEndpoint: '/editors/top-by-edits/en.wikipedia/anonymous/all-page-types/daily/2017010100/2017010200',
+        aqsEndpoint: '/editors/top-by-edits/en.wikipedia/anonymous/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'anonymous' },
         ]),
         druidResult: makeTopEditorsPerEditsDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerEditsAqsResult('anonymous', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditorsPerEditsAqsResult('en.wikipedia', 'anonymous', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for top-editors-per-edits with project, editor-type and page-type filter',
-        aqsEndpoint: '/editors/top-by-edits/en.wikipedia/user/non-content/daily/2017010100/2017010200',
+        aqsEndpoint: '/editors/top-by-edits/en.wikipedia/user/non-content/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerEditsDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
             { type: 'selector', dimension: 'page_type', value: 'non_content' },
         ]),
         druidResult: makeTopEditorsPerEditsDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerEditsAqsResult('user', 'non-content', 'daily')
+        expectedAqsResult: makeTopEditorsPerEditsAqsResult('en.wikipedia', 'user', 'non-content', 'daily')
     }
 ];
 
@@ -1383,51 +1427,62 @@ var makeTopEditorsPerNetBytesDiffDruidResult = function(granularity) {
     return makeDruidTopResult('user_text', 'net', granularity);
 }
 
-var makeTopEditorsPerNetBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('user_text', 'net', granularity, 'en.wikipedia', editorType, pageType);
+var makeTopEditorsPerNetBytesDiffAqsResult = function(project, editorType, pageType, granularity) {
+    return makeAqsTopResult('user_text', 'net', granularity, project, editorType, pageType);
 }
 
 var topEditorsPerNetBytesDiffFixtures = [
-    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with all-projects filter', '/editors/top-by-net-bytes-difference/all-projects/all-editor-types/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with typo in date', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid date (end before start)', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid granularity', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid page-type', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid user-type', '/editors/top-by-net-bytes-difference/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly top-editors-per-net-bytes-diff and no full-month dates', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with typo in date', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/a1/01'),
+    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid date', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/02/31'),
+    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid page-type', '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/wrong/2017/01/01'),
+    makeErrorFixture('return 400 for top-editors-per-net-bytes-diff with invalid user-type', '/editors/top-by-net-bytes-difference/en.wikipedia/wrong/all-page-types/2017/01/01'),
+
+    {
+        describe: 'return 200 and results for top-editors-per-net-bytes-diff daily with all-projects filter',
+        aqsEndpoint: '/editors/top-by-net-bytes-difference/all-projects/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('day', []),
+        druidResult: makeTopEditorsPerNetBytesDiffDruidResult('day'),
+        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
 
     {
         describe: 'return 200 and results for top-editors-per-net-bytes-diff daily with uppercase and .org project filter',
-        aqsEndpoint: '/editors/top-by-net-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
-        expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('day', []),
+        aqsEndpoint: '/editors/top-by-net-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditorsPerNetBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('all-editor-types', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 and results for top-editors-per-net-bytes-diff monthly with only project filter but no hour',
-        aqsEndpoint: '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/20170101/20170210',
-        expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('month', []),
+        aqsEndpoint: '/editors/top-by-net-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/all-days',
+        expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('month', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditorsPerNetBytesDiffDruidResult('month'),
-        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('all-editor-types', 'all-page-types', 'monthly')
+        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'monthly')
     },
     {
         describe: 'return 200 with results for top-editors-per-net-bytes-diff with project and editor-type filter',
-        aqsEndpoint: '/editors/top-by-net-bytes-difference/en.wikipedia/anonymous/all-page-types/daily/2017010100/2017010200',
+        aqsEndpoint: '/editors/top-by-net-bytes-difference/en.wikipedia/anonymous/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'anonymous' },
         ]),
         druidResult: makeTopEditorsPerNetBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('anonymous', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('en.wikipedia', 'anonymous', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for top-editors-per-net-bytes-diff with project, editor-type and page-type filter',
-        aqsEndpoint: '/editors/top-by-net-bytes-difference/en.wikipedia/user/non-content/daily/2017010100/2017010200',
+        aqsEndpoint: '/editors/top-by-net-bytes-difference/en.wikipedia/user/non-content/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerNetBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
             { type: 'selector', dimension: 'page_type', value: 'non_content' },
         ]),
         druidResult: makeTopEditorsPerNetBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('user', 'non-content', 'daily')
+        expectedAqsResult: makeTopEditorsPerNetBytesDiffAqsResult('en.wikipedia', 'user', 'non-content', 'daily')
     }
 ];
 
@@ -1446,51 +1501,61 @@ var makeTopEditorsPerAbsBytesDiffDruidResult = function(granularity) {
     return makeDruidTopResult('user_text', 'abs', granularity);
 }
 
-var makeTopEditorsPerAbsBytesDiffAqsResult = function(editorType, pageType, granularity) {
-    return makeAqsTopResult('user_text', 'abs', granularity, 'en.wikipedia', editorType, pageType);
+var makeTopEditorsPerAbsBytesDiffAqsResult = function(project, editorType, pageType, granularity) {
+    return makeAqsTopResult('user_text', 'abs', granularity, project, editorType, pageType);
 }
 
 var topEditorsPerAbsBytesDiffFixtures = [
-    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with all-projects filter', '/editors/top-by-absolute-bytes-difference/all-projects/all-editor-types/all-page-types/daily/2017010100/201701000'),
-    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with typo in date', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010100/2017010a00'),
-    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid date (end before start)', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/daily/2017010200/2017010100'),
-    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid granularity', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/wrong/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid page-type', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/wrong/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid user-type', '/editors/top-by-absolute-bytes-difference/en.wikipedia/wrong/all-page-types/daily/2017010100/2017010200'),
-    makeErrorFixture('return 400 for monthly top-editors-per-absolute-bytes-diff and no full-month dates', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/2017010100/2017010200'),
+    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with typo in date', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/a1'),
+    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid date', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/13/01'),
+    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid page-type', '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/wrong/2017/01/01'),
+    makeErrorFixture('return 400 for top-editors-per-absolute-bytes-diff with invalid user-type', '/editors/top-by-absolute-bytes-difference/en.wikipedia/wrong/all-page-types/2017/01/01'),
 
     {
-        describe: 'return 200 and results for top-editors-per-absolute-bytes-diff daily with uppercase and .org project filter',
-        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/daily/2017010100/2017010200',
+        describe: 'return 200 and results for top-editors-per-absolute-bytes-diff daily with all-projects filter',
+        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/all-projects/all-editor-types/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerAbsBytesDiffDruidQuery('day', []),
         druidResult: makeTopEditorsPerAbsBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('all-editor-types', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('all-projects', 'all-editor-types', 'all-page-types', 'daily')
+    },
+    {
+        describe: 'return 200 and results for top-editors-per-absolute-bytes-diff daily with uppercase and .org project filter',
+        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/EN.wikipedia.org/all-editor-types/all-page-types/2017/01/01',
+        expectedDruidQuery: makeTopEditorsPerAbsBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
+        druidResult: makeTopEditorsPerAbsBytesDiffDruidResult('day'),
+        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 and results for top-editors-per-absolute-bytes-diff monthly with only project filter but no hour',
-        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/monthly/20170101/20170210',
-        expectedDruidQuery: makeTopEditorsPerAbsBytesDiffDruidQuery('month', []),
+        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/en.wikipedia/all-editor-types/all-page-types/2017/01/all-days',
+        expectedDruidQuery: makeTopEditorsPerAbsBytesDiffDruidQuery('month', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
+        ]),
         druidResult: makeTopEditorsPerAbsBytesDiffDruidResult('month'),
-        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('all-editor-types', 'all-page-types', 'monthly')
+        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('en.wikipedia', 'all-editor-types', 'all-page-types', 'monthly')
     },
     {
         describe: 'return 200 with results for top-editors-per-absolute-bytes-diff with project and editor-type filter',
-        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/en.wikipedia/anonymous/all-page-types/daily/2017010100/2017010200',
+        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/en.wikipedia/anonymous/all-page-types/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerAbsBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'anonymous' },
         ]),
         druidResult: makeTopEditorsPerAbsBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('anonymous', 'all-page-types', 'daily')
+        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('en.wikipedia', 'anonymous', 'all-page-types', 'daily')
     },
     {
         describe: 'return 200 with results for top-editors-per-absolute-bytes-diff with project, editor-type and page-type filter',
-        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/en.wikipedia/user/non-content/daily/2017010100/2017010200',
+        aqsEndpoint: '/editors/top-by-absolute-bytes-difference/en.wikipedia/user/non-content/2017/01/01',
         expectedDruidQuery: makeTopEditorsPerAbsBytesDiffDruidQuery('day', [
+            { type: 'selector', dimension: 'project', value: 'en.wikipedia' },
             { type: 'selector', dimension: 'user_type', value: 'user' },
             { type: 'selector', dimension: 'page_type', value: 'non_content' },
         ]),
         druidResult: makeTopEditorsPerAbsBytesDiffDruidResult('day'),
-        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('user', 'non-content', 'daily')
+        expectedAqsResult: makeTopEditorsPerAbsBytesDiffAqsResult('en.wikipedia', 'user', 'non-content', 'daily')
     }
 ];
 

@@ -38,7 +38,7 @@ paths:
     # Top revisions based metrics
     # expected values for top-type are 'editors' or 'edited-pages'
     # Expected values for metric are 'edits', 'net-bytes-diff' or 'net-bytes-abs'
-    /revisions/top/{top-type}/{metric}/{project}/{editor-type}/{page-type}/{granularity}/{start}/{end}:
+    /revisions/top/{top-type}/{metric}/{project}/{editor-type}/{page-type}/{year}/{month}/{day}:
         get:
           summary: top 100 top-type per metric, project, editor-type and page-type
           operationId: revisionsTop
