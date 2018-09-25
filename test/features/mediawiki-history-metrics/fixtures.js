@@ -123,7 +123,7 @@ var makeAqsTimeseriesResult = function(measure, granularity, project, editorType
  * Top helpers
  */
 
-var makeDruidTopResult = function(dimension, measure, granularity) {
+var makeDruidTopResult = function(dimension, measure, granularity, ipResult) {
     var result = {
         status: 200,
         body: [
@@ -133,8 +133,9 @@ var makeDruidTopResult = function(dimension, measure, granularity) {
     };
     result.body.map((item, idx) => {
         [...Array(idx + 1).keys()].forEach(ii => {
+            const fakeIp = (ii % 2 == 0) ? '192.168.1.1' : '1:2:3:4:5:6:7:8'
             var res = {};
-            res[dimension] = dimension + ii.toString();
+            res[dimension] = (ipResult) ? fakeIp : ii.toString();
             res[measure] = ii;
             item.result.push(res);
         });
@@ -144,7 +145,7 @@ var makeDruidTopResult = function(dimension, measure, granularity) {
 }
 
 
-var makeAqsTopResult = function(dimension, measure, granularity, project, editorType, pageType) {
+var makeAqsTopResult = function(dimension, measure, granularity, project, editorType, pageType, ipResult) {
     var result = {
         status: 200,
         body: { items: [ {
@@ -166,7 +167,7 @@ var makeAqsTopResult = function(dimension, measure, granularity, project, editor
         item.top = [];
         [...Array(idx + 1).keys()].forEach((ii, iidx) => {
             var res = {};
-            res[dimension] = dimension + ii.toString();
+            res[dimension] = (ipResult) ? 'Anonymous Editor' : ii.toString();
             res[measure] = ii;
             res.rank = iidx + 1;
             item.top.push(res);
@@ -1350,12 +1351,14 @@ var makeTopEditorsPerEditsDruidQuery = function(granularity, additionalFilters) 
   return makeTopRevisionsDruidQuery('user_text', 'edits', granularity, additionalFilters)
 }
 
+// Testing anonymizing IPs
 var makeTopEditorsPerEditsDruidResult = function(granularity) {
-    return makeDruidTopResult('user_text', 'edits', granularity);
+    return makeDruidTopResult('user_text', 'edits', granularity, true);
 }
 
+// Testing anonymizing IPs
 var makeTopEditorsPerEditsAqsResult = function(project, editorType, pageType, granularity) {
-    return makeAqsTopResult('user_text', 'edits', granularity, project, editorType, pageType);
+    return makeAqsTopResult('user_text', 'edits', granularity, project, editorType, pageType, true);
 }
 
 var topEditorsPerEditsFixtures = [

@@ -13,6 +13,7 @@
 const HyperSwitch = require('hyperswitch');
 const HTTPError = HyperSwitch.HTTPError;
 const path = require('path');
+const ipRegex = require('ip-regex');
 
 const aqsUtil = require('../lib/aqsUtil');
 const druidUtil = require('../lib/druidUtil');
@@ -24,6 +25,9 @@ const A2D = schemas.aqs2druid;
 
 // How many results to return in topN queries
 const TOP_THRESHOLD = 100;
+
+// String used to replace user-ips
+const ANONYMOUS_EDITOR = "Anonymous Editor";
 
 const AQS_PARAMS = [
     'project', 'editor-type', 'page-type', 'activity-level',
@@ -221,7 +225,12 @@ function convertDruidResultToAqsResult(druidResult, requestParams, keyFilters, i
             const aqsRes = { timestamp: druidRes.timestamp };
             if (isTop) {
                 // copy the result array to top field adding rank value
+                // and remove IPs in case of editors top-type
                 aqsRes.top = druidRes.result.map((item, idx) => {
+                    if ((requestParams['top-type'] === 'editors') &&
+                            (ipRegex({ exact: true }).test(item[D.dimension.userText]))) {
+                        item[D.dimension.userText] = ANONYMOUS_EDITOR;
+                    }
                     return Object.assign(item, { rank: idx + 1 });
                 });
             } else {
