@@ -26,9 +26,6 @@ const A2D = schemas.aqs2druid;
 // How many results to return in topN queries
 const TOP_THRESHOLD = 100;
 
-// String used to replace user-ips
-const ANONYMOUS_EDITOR = "Anonymous Editor";
-
 const AQS_PARAMS = [
     'project', 'editor-type', 'page-type', 'activity-level',
     'page-title', 'user-text', 'granularity'
@@ -229,7 +226,7 @@ function convertDruidResultToAqsResult(druidResult, requestParams, keyFilters, i
                 aqsRes.top = druidRes.result.map((item, idx) => {
                     if ((requestParams['top-type'] === 'editors') &&
                             (ipRegex({ exact: true }).test(item[D.dimension.userText]))) {
-                        item[D.dimension.userText] = ANONYMOUS_EDITOR;
+                        item[D.dimension.userText] = null;
                     }
                     return Object.assign(item, { rank: idx + 1 });
                 });

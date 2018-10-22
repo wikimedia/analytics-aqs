@@ -167,7 +167,7 @@ var makeAqsTopResult = function(dimension, measure, granularity, project, editor
         item.top = [];
         [...Array(idx + 1).keys()].forEach((ii, iidx) => {
             var res = {};
-            res[dimension] = (ipResult) ? 'Anonymous Editor' : ii.toString();
+            res[dimension] = (ipResult) ? null : ii.toString();
             res[measure] = ii;
             res.rank = iidx + 1;
             item.top.push(res);
