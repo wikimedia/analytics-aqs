@@ -30,14 +30,16 @@ const tables = {
 const tableSchemas = {
     project: {
         table: tables.project,
-        version: 1,
+        version: 2,
         attributes: {
             project: 'string',
             'access-site': 'string',
             granularity: 'string',
             // the hourly timestamp will be stored as YYYYMMDDHH
             timestamp: 'string',
-            devices: 'long'
+            devices: 'long',
+            offset: 'long',
+            underestimate: 'long'
         },
         index: [
             { attribute: 'project', type: 'hash' },
