@@ -74,6 +74,16 @@ describe('unique-devices endpoints', function () {
         });
     });
 
+    // Test should be reversed once we backfill.
+    it('should not include offset and underestimate', function () {
+        return preq.get({
+            uri: server.config.aqsURL + endpointWithHours
+        }).then(function(res) {
+            assert.ok(!('offset' in res.body.items[0]));
+            assert.ok(!('underestimate' in res.body.items[0]));
+        });
+    });
+
     // This test is not working: result was not an int and test was not failing.
     // It must be related to using SQLLite instead of cassandra as a backend
     it('should parse the device column string into an int', function () {
