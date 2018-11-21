@@ -320,6 +320,7 @@ PJVS.prototype.pageviewsForTops = function(hyper, req) {
                     }
                 }
                 delete item.articlesJSON;
+                item.articles.sort((a, b) => a.rank - b.rank);
             });
         }
 

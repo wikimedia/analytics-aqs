@@ -360,20 +360,19 @@ describe('pageviews endpoints', function() {
         });
     });
 
-    it('should return the expected tops data after insertion', function() {
+    it('should return the expected tops data after insertion, in rank order', function() {
         return preq.post({
             uri: server.config.aqsURL + endpoints.top.insert,
             body: {
                 articles: [{
-                        rank: 1,
-                        article: 'o"n"e',
-                        views: 2000
-                    },{
-                        rank: 2,
-                        article: 'two\\',
-                        views: 1000
-                    }
-                ]
+                    rank: 2,
+                    article: 'two\\',
+                    views: 1000
+                },{
+                    rank: 1,
+                    article: 'o"n"e',
+                    views: 2000
+                }]
             },
             headers: { 'content-type': 'application/json' }
 
