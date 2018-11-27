@@ -74,13 +74,12 @@ describe('unique-devices endpoints', function () {
         });
     });
 
-    // Test should be reversed once we backfill.
-    it('should not include offset and underestimate', function () {
+    it('should include offset and underestimate', function () {
         return preq.get({
             uri: server.config.aqsURL + endpointWithHours
         }).then(function(res) {
-            assert.ok(!('offset' in res.body.items[0]));
-            assert.ok(!('underestimate' in res.body.items[0]));
+            assert.ok('offset' in res.body.items[0]);
+            assert.ok('underestimate' in res.body.items[0]);
         });
     });
 
