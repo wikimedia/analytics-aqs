@@ -83,6 +83,8 @@ paths:
                   granularity: daily
                   timestamp: 19700101
                   devices: 0
+                  underestimate: 0
+                  offset: 0
 
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
@@ -125,5 +127,11 @@ definitions:
               # the daily timestamp will be stored as YYYYMMDD
               type: string
             devices:
+              type: integer
+              format: int64
+            offset:
+              type: integer
+              format: int64
+            underestimate:
               type: integer
               format: int64
