@@ -87,9 +87,6 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
                         item.devices = null;
                     }
                 }
-                // Remove once offset and underestimate are backfilled
-                delete item.underestimate;
-                delete item.offset;
             });
         }
         return res;
