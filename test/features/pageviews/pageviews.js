@@ -5,12 +5,14 @@
 
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
-var server = require('../../utils/server.js');
-var aqsUtil  = require('../../../lib/aqsUtil')
+var aqsUtil  = require('../../../lib/aqsUtil');
+const TestRunner = require('../../utils/server');
 
 
 describe('pageviews endpoints', function() {
     this.timeout(20000);
+
+    const baseURL = TestRunner.AQS_URL;
 
 
     // NOTE: this tests using the projects/aqs_default.yaml config, so
@@ -47,31 +49,30 @@ describe('pageviews endpoints', function() {
     // Start server before running tests
     // insert here data that tests assume exists on db to start working
     before('before-suite', function(setupDone) {
-        server.start().then(function() {
-            const dataToInsert = {
-                2015070200: 100,
-                2015072100: 200,
-                2015063000: 300,
-                2015112500: 400,
-                2015121500: 500,
-                2016010200: 600
-            };
 
-            Object.keys(dataToInsert).map(function(date){
-                preq.post({
-                    // the way we have configured the test insert-per-article endpoint
-                    // means views_desktop_spider will be 1007 when we pass /100
-                    uri: server.config.aqsURL + endpoints.article.insertDaily.replace('2015070200', date) + '/' + dataToInsert[date]
-                }).catch(function(e) {
-                    console.log(e);
-                }).then(function() {
-                    delete dataToInsert[date];
+        const dataToInsert = {
+            2015070200: 100,
+            2015072100: 200,
+            2015063000: 300,
+            2015112500: 400,
+            2015121500: 500,
+            2016010200: 600
+        };
 
-                    // Start tests only after data insertion is finished
-                    if(Object.keys(dataToInsert).length === 0){
-                        setupDone();
-                    }
-                });
+        Object.keys(dataToInsert).map(function(date){
+            preq.post({
+                // the way we have configured the test insert-per-article endpoint
+                // means views_desktop_spider will be 1007 when we pass /100
+                uri: baseURL + endpoints.article.insertDaily.replace('2015070200', date) + '/' + dataToInsert[date]
+            }).catch(function(e) {
+                console.log(e);
+            }).then(function() {
+                delete dataToInsert[date];
+
+                // Start tests only after data insertion is finished
+                if(Object.keys(dataToInsert).length === 0){
+                    setupDone();
+                }
             });
         });
     });
@@ -80,7 +81,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when per article parameters are wrong', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.article.daily.replace('20150703', '201507a3')
+            uri: baseURL + endpoints.article.daily.replace('20150703', '201507a3')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -88,7 +89,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the expected per article data after insertion', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.article.daily
+            uri: baseURL + endpoints.article.daily
 
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -98,7 +99,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the expected per article data even if project is uppercase and with org sufix', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.article.daily.replace('en.wikipedia', 'EN.WIKIPEDIA.ORG')
+            uri: baseURL + endpoints.article.daily.replace('en.wikipedia', 'EN.WIKIPEDIA.ORG')
 
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -108,7 +109,7 @@ describe('pageviews endpoints', function() {
 
     it('should return integer zero if view count is null', function () {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.article.dailyNull
+            uri: baseURL + endpoints.article.dailyNull
 
         }).then(function (res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -131,10 +132,10 @@ describe('pageviews endpoints', function() {
         return preq.post({
             // the way we have configured the test insert-per-article endpoint
             // means views_desktop_spider will be 1007 when we pass /100
-            uri: server.config.aqsURL + r(endpoints.article.insertDaily, true) + '/100'
+            uri: baseURL + r(endpoints.article.insertDaily, true) + '/100'
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + r(endpoints.article.daily)
+                uri: baseURL + r(endpoints.article.daily)
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -144,7 +145,7 @@ describe('pageviews endpoints', function() {
 
     it('should return data when start = timestamp = end and YYYYMMDD is used', function() {
         return preq.get({
-            uri: server.config.aqsURL +
+            uri: baseURL +
                     endpoints.article.daily
                         .replace('20150701', '20150702')
                         .replace('20150703', '20150702')
@@ -156,7 +157,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the expected per article monthly data after insertion', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.article.monthly
+            uri: baseURL + endpoints.article.monthly
 
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 2);
@@ -167,7 +168,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the expected monthly data only for full months', function() {
         return preq.get({
-            uri: server.config.aqsURL +
+            uri: baseURL +
                     endpoints.article.monthly
                     .replace('20150601', '20151120')
                     .replace('20150803', '20160103')
@@ -180,7 +181,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when there are no full months in specified date range', function() {
         return preq.get({
-            uri: server.config.aqsURL +
+            uri: baseURL +
                     endpoints.article.monthly
                     .replace('20150601', '20151203')
                     .replace('20150803', '20151220')
@@ -194,7 +195,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when aggregate parameters are wrong', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.project.hourly.replace('1971010100', '20150701000000')
+            uri: baseURL + endpoints.project.hourly.replace('1971010100', '20150701000000')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -202,7 +203,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when start is before end', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.project.hourly.replace('1969010100', '2016070100')
+            uri: baseURL + endpoints.project.hourly.replace('1969010100', '2016070100')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -210,7 +211,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when timestamp is invalid', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.project.hourly.replace('1971010100', '2015022900')
+            uri: baseURL + endpoints.project.hourly.replace('1971010100', '2015022900')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -220,13 +221,13 @@ describe('pageviews endpoints', function() {
         var datesToAdd = 3;
         ['2017010100', '2017010101', '2017010102'].forEach(function (timestamp) {
             preq.post({
-                uri: server.config.aqsURL + endpoints.project.insertHourly
+                uri: baseURL + endpoints.project.insertHourly
                     .replace('1970010100', timestamp) + '/100'
             }).then(function (res) {
                 datesToAdd--;
                 if (datesToAdd === 0) {
                     preq.get({
-                        uri: server.config.aqsURL + endpoints.project.hourly
+                        uri: baseURL + endpoints.project.hourly
                             .replace('1969010100', '2017010100')
                             .replace('1971010100', '2017010102')
                     }).then(function (res) {
@@ -250,13 +251,13 @@ describe('pageviews endpoints', function() {
         var datesToAdd = 3;
         ['2016020100', '2016030100', '2016040100'].forEach(function (timestamp) {
             preq.post({
-                uri: server.config.aqsURL + endpoints.project.insertMonthly
+                uri: baseURL + endpoints.project.insertMonthly
                     .replace('1970010100', timestamp) + '/100'
             }).then(function (res) {
                 datesToAdd--;
                 if (datesToAdd === 0) {
                     preq.get({
-                        uri: server.config.aqsURL + endpoints.project.monthly
+                        uri: baseURL + endpoints.project.monthly
                             .replace('1969010100', '2016020100')
                             .replace('1971010100', '2016040100')
                     }).then(function (res) {
@@ -272,10 +273,10 @@ describe('pageviews endpoints', function() {
     // by the monitoring tests.
     it('should return the expected aggregate data after insertion', function() {
         return preq.post({
-            uri: server.config.aqsURL + endpoints.project.insertHourly + '/0'
+            uri: baseURL + endpoints.project.insertHourly + '/0'
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + endpoints.project.hourly
+                uri: baseURL + endpoints.project.hourly
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -286,7 +287,7 @@ describe('pageviews endpoints', function() {
     it('should return the expected aggregate data after insertion, when querying with www.<<project>>.org', function() {
         // data for this is already inserted in the test above, weird that tests are inter-dependent
         return preq.get({
-            uri: server.config.aqsURL + projectEndpointStrip
+            uri: baseURL + projectEndpointStrip
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 0);
@@ -295,12 +296,12 @@ describe('pageviews endpoints', function() {
 
     it('should return the expected aggregate data after long insertion', function() {
         return preq.post({
-            uri: server.config.aqsURL +
+            uri: baseURL +
                  fix(endpoints.project.insertLong, 'en.wikipedia', '1') +
                  '/0'
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL +
+                uri: baseURL +
                      fix(endpoints.project.hourly, 'en.wikipedia', '1')
             });
         }).then(function(res) {
@@ -311,12 +312,12 @@ describe('pageviews endpoints', function() {
 
     it('should parse the v column string into an int', function() {
         return preq.post({
-            uri: server.config.aqsURL +
+            uri: baseURL +
                  fix(endpoints.project.insertLong, 'en.wikipedia', '3') +
                  '/9007199254740991'
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL +
+                uri: baseURL +
                      fix(endpoints.project.hourly, 'en.wikipedia', '3')
             });
         }).then(function(res) {
@@ -330,7 +331,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when tops parameters are wrong', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.top.all.replace('all-days', 'all-dayz')
+            uri: baseURL + endpoints.top.all.replace('all-days', 'all-dayz')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -338,7 +339,7 @@ describe('pageviews endpoints', function() {
 
     it('Should return 400 when all-year is used for the year parameter', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.top.all.replace('2015', 'all-years')
+            uri: baseURL + endpoints.top.all.replace('2015', 'all-years')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -346,7 +347,7 @@ describe('pageviews endpoints', function() {
 
     it('Should return 400 when all-months is used for the month parameter', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.top.all.replace('01', 'all-months')
+            uri: baseURL + endpoints.top.all.replace('01', 'all-months')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -354,7 +355,7 @@ describe('pageviews endpoints', function() {
 
     it('should return 400 when tops date is invalid', function() {
         return preq.get({
-            uri: server.config.aqsURL + endpoints.top.all.replace('01/all-days', '02/29')
+            uri: baseURL + endpoints.top.all.replace('01/all-days', '02/29')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -362,7 +363,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the expected tops data after insertion, in rank order', function() {
         return preq.post({
-            uri: server.config.aqsURL + endpoints.top.insert,
+            uri: baseURL + endpoints.top.insert,
             body: {
                 articles: [{
                     rank: 2,
@@ -378,7 +379,7 @@ describe('pageviews endpoints', function() {
 
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + endpoints.top.all
+                uri: baseURL + endpoints.top.all
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -399,7 +400,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the correct countries after ceiled value insertion', function () {
         return preq.post({
-            uri: server.config.aqsURL + endpoints.bycountry.insert_ceiled,
+            uri: baseURL + endpoints.bycountry.insert_ceiled,
             body: {
                 countries: [{
                         rank: 1,
@@ -416,7 +417,7 @@ describe('pageviews endpoints', function() {
 
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + endpoints.bycountry.all_ceiled
+                uri: baseURL + endpoints.bycountry.all_ceiled
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -428,7 +429,7 @@ describe('pageviews endpoints', function() {
 
     it('should return the correct countries after interval insertion', function () {
         return preq.post({
-            uri: server.config.aqsURL + endpoints.bycountry.insert_intervals,
+            uri: baseURL + endpoints.bycountry.insert_intervals,
             body: {
                 countries: [{
                         rank: 1,
@@ -449,7 +450,7 @@ describe('pageviews endpoints', function() {
 
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + endpoints.bycountry.all_intervals
+                uri: baseURL + endpoints.bycountry.all_intervals
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);

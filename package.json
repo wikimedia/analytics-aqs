@@ -26,7 +26,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "restbase-mod-table-cassandra": "^0.11.2",
-    "service-runner": "^2.3.0",
+    "service-runner": "2.6.7",
     "hyperswitch": "^0.9.1",
     "ip-regex": "^3.0.0"
   },

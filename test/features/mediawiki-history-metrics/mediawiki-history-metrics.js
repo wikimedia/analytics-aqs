@@ -6,7 +6,7 @@
 var assertBase = require('assert');
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
-var server = require('../../utils/server.js');
+const TestRunner = require('../../utils/server');
 
 /*
   In order to be able to fake a druid endpoint inside AQS,
@@ -22,14 +22,11 @@ var fixtures = require('./fixtures.js');
 describe('mediawiki-history-metrics endpoints', function() {
     this.timeout(20000);
 
-    // Start server before running tests
-    before('before-suite', () => {
-        return server.start();
-    });
+    const baseURL = TestRunner.AQS_URL;
 
     var makeTest = function(fixture) {
         it(fixture.describe, () => {
-            var uri = server.config.aqsURL + fixture.aqsEndpoint;
+            var uri = baseURL + fixture.aqsEndpoint;
             return preq.get({
                 uri: uri
             }).then(res => {

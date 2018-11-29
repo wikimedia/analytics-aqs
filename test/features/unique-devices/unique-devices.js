@@ -5,14 +5,13 @@
 
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
-var server = require('../../utils/server.js');
+const TestRunner = require('../../utils/server');
 
 
 describe('unique-devices endpoints', function () {
     this.timeout(20000);
 
-    //Start server before running tests
-    before(function () { return server.start(); });
+    const baseURL = TestRunner.AQS_URL;
 
     // NOTE: this tests using the projects/aqs_default.yaml config, so
     // it doesn't know about the /metrics root like the prod config does
@@ -28,7 +27,7 @@ describe('unique-devices endpoints', function () {
 
     it('should return 400 when parameters are wrong', function () {
         return preq.get({
-            uri: server.config.aqsURL + endpoint.replace('19710101', '20150701000000')
+            uri: baseURL + endpoint.replace('19710101', '20150701000000')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -36,7 +35,7 @@ describe('unique-devices endpoints', function () {
 
     it('should return 400 when start is before end', function () {
         return preq.get({
-            uri: server.config.aqsURL + endpoint.replace('19690101', '20160701')
+            uri: baseURL + endpoint.replace('19690101', '20160701')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -44,7 +43,7 @@ describe('unique-devices endpoints', function () {
 
     it('should return 400 when timestamp is invalid', function () {
         return preq.get({
-            uri: server.config.aqsURL + endpoint.replace('19710101', '20150229')
+            uri: baseURL + endpoint.replace('19710101', '20150229')
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -54,10 +53,10 @@ describe('unique-devices endpoints', function () {
     // by the monitoring tests.
     it('should return the expected aggregate data after insertion', function () {
         return preq.post({
-            uri: server.config.aqsURL + insertEndpoint + '/0'
+            uri: baseURL + insertEndpoint + '/0'
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL + endpoint
+                uri: baseURL + endpoint
             });
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
@@ -67,7 +66,7 @@ describe('unique-devices endpoints', function () {
 
     it('should return the same data when using timestamps with hours', function () {
         return preq.get({
-            uri: server.config.aqsURL + endpointWithHours
+            uri: baseURL + endpointWithHours
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepStrictEqual(res.body.items[0].devices, 0);
@@ -76,7 +75,7 @@ describe('unique-devices endpoints', function () {
 
     it('should include offset and underestimate', function () {
         return preq.get({
-            uri: server.config.aqsURL + endpointWithHours
+            uri: baseURL + endpointWithHours
         }).then(function(res) {
             assert.ok('offset' in res.body.items[0]);
             assert.ok('underestimate' in res.body.items[0]);
@@ -87,12 +86,12 @@ describe('unique-devices endpoints', function () {
     // It must be related to using SQLLite instead of cassandra as a backend
     it('should parse the device column string into an int', function () {
         return preq.post({
-            uri: server.config.aqsURL +
+            uri: baseURL +
                  fix(insertEndpoint, 'en.wikipedia', '3') +
                  '/9007199254740991'
         }).then(function() {
             return preq.get({
-                uri: server.config.aqsURL +
+                uri: baseURL +
                      fix(endpoint, 'en.wikipedia', '3')
             });
         }).then(function(res) {

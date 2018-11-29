@@ -5,12 +5,11 @@
 
 var assert = require('../../../utils/assert.js');
 var preq   = require('preq');
-var server = require('../../../utils/server.js');
+const TestRunner = require('../../../utils/server');
 
 describe('legacy pagecounts aggregate endpoint', function () {
     this.timeout(20000);
-
-    var baseURL = server.config.aqsURL;
+    const baseURL = TestRunner.AQS_URL;
 
     function URL (project, accessSite, granularity, start, end) {
         return (baseURL + '/legacy/pagecounts/aggregate/' + project + '/' +
@@ -30,8 +29,6 @@ describe('legacy pagecounts aggregate endpoint', function () {
         });
         return Promise.all(promises);
     }
-
-    before(function () { return server.start(); });
     // Note: To avoid that fake data inserted by a test disturbs other tests,
     // we can submit an after() function that stops the server. However,
     // when doing that, the npm test logs are too verbose and break the legibility
