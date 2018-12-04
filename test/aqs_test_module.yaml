@@ -130,7 +130,7 @@ paths:
                               count: '{{request.params.count}}'
                   x-monitor: false
 
-              /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}:
+              /unique-devices/insert/{project}/{access-site}/{granularity}/{timestamp}/{devices}/{offset}/{underestimate}:
                 post:
                   x-request-handler:
                     - put_to_storage:
@@ -145,6 +145,8 @@ paths:
                               granularity: '{{request.params.granularity}}'
                               timestamp: '{{request.params.timestamp}}'
                               devices: '{{request.params.devices}}'
+                              offset: '{{request.params.offset}}'
+                              underestimate: '{{request.params.underestimate}}'
                   x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing

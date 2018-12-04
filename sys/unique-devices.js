@@ -78,15 +78,18 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
 
     // Parse long from string to int
     return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
+        const uniquesNumericValues = ["devices", "underestimate", "offset"];
         if (res.body.items) {
             res.body.items.forEach((item) => {
-                if (item.devices !== null) {
-                    try {
-                        item.devices = parseInt(item.devices, 10);
-                    } catch (e) {
-                        item.devices = null;
+                uniquesNumericValues.forEach((numericValue) => {
+                    if (item[numericValue] !== null) {
+                        try {
+                            item[numericValue] = parseInt(item[numericValue], 10);
+                        } catch (e) {
+                            item[numericValue] = null;
+                        }
                     }
-                }
+                });
             });
         }
         return res;

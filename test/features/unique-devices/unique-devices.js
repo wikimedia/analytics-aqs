@@ -53,7 +53,7 @@ describe('unique-devices endpoints', function () {
     // by the monitoring tests.
     it('should return the expected aggregate data after insertion', function () {
         return preq.post({
-            uri: baseURL + insertEndpoint + '/0'
+            uri: baseURL + insertEndpoint + '/0/0/0'
         }).then(function() {
             return preq.get({
                 uri: baseURL + endpoint
@@ -61,6 +61,8 @@ describe('unique-devices endpoints', function () {
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepStrictEqual(res.body.items[0].devices, 0);
+            assert.deepStrictEqual(res.body.items[0].offset, 0);
+            assert.deepStrictEqual(res.body.items[0].underestimate, 0);
         });
     });
 
@@ -82,13 +84,24 @@ describe('unique-devices endpoints', function () {
         });
     });
 
+    it('should return numeric values as integers', function () {
+        return preq.get({
+            uri: baseURL + endpointWithHours
+        }).then(function(res) {
+            assert.ok(Number.isInteger(res.body.items[0].devices));
+            console.log("wooooo" + res.body.items[0].underestimate)
+            assert.ok(Number.isInteger(res.body.items[0].underestimate));
+            assert.ok(Number.isInteger(res.body.items[0].offset));
+        });
+    });
+
     // This test is not working: result was not an int and test was not failing.
     // It must be related to using SQLLite instead of cassandra as a backend
     it('should parse the device column string into an int', function () {
         return preq.post({
             uri: baseURL +
                  fix(insertEndpoint, 'en.wikipedia', '3') +
-                 '/9007199254740991'
+                 '/9007199254740991/123432423/53452334'
         }).then(function() {
             return preq.get({
                 uri: baseURL +
