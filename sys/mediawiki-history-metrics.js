@@ -26,6 +26,10 @@ const A2D = schemas.aqs2druid;
 // How many results to return in topN queries
 const TOP_THRESHOLD = 100;
 
+// Maximum timespan in seconds for per-page and per-editor endpoints
+// Putting 367 days to mitigate bisextile + leap-second case
+const MAX_SPAN_SECONDS = 367 * 24 * 60 * 60;
+
 const AQS_PARAMS = [
     'project', 'editor-type', 'page-type', 'activity-level',
     'page-title', 'user-text', 'granularity'
@@ -110,6 +114,14 @@ function validateRequestParams(requestParams, opts) {
             requestParams.granularity = 'daily';
         }
     } else {
+        // Add a timespan limitation for per-page and per-user endpoints
+        const pageTitle = requestParams['page-title'];
+        const userText = requestParams['user-text'];
+        if ((pageTitle !== null && pageTitle !== undefined)
+              || (userText !== null && userText !== undefined)) {
+            opts = Object.assign(opts, { maxSpanSeconds: MAX_SPAN_SECONDS });
+        }
+
         aqsUtil.validateStartAndEnd(requestParams, Object.assign(opts, {
             // YYYYMMDD dates are allowed, but need an hour to pass validation
             fakeHour: true,

@@ -123,6 +123,8 @@ paths:
         instance 'User:Jimbo_Wales')and a date range, returns a timeseries of edit counts.
         You can filter by editors-type (all-editor-types, anonymous, group-bot, name-bot, user).
         You can choose between daily and monthly granularity as well.
+        Note: Due to performance of the data-serving backend, this endpoint limits the queryable
+        timespan to one year (whether in daily or monthly granularity).
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
       produces:
         - application/json
@@ -224,6 +226,8 @@ paths:
         Given a Mediawiki project, a user-text and a date range, returns a timeseries of edits
         counts. You can filter by page type (all-page-types, content or non-content). You can
         choose between daily and monthly granularity as well.
+        Note: Due to performance of the data-serving backend, this endpoint limits the queryable
+        timespan to one year (whether in daily or monthly granularity).
         Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
       produces:
         - application/json

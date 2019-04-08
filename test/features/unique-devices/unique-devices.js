@@ -89,7 +89,6 @@ describe('unique-devices endpoints', function () {
             uri: baseURL + endpointWithHours
         }).then(function(res) {
             assert.ok(Number.isInteger(res.body.items[0].devices));
-            console.log("wooooo" + res.body.items[0].underestimate)
             assert.ok(Number.isInteger(res.body.items[0].underestimate));
             assert.ok(Number.isInteger(res.body.items[0].offset));
         });
