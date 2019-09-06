@@ -1,0 +1,162 @@
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: Analytics Mediarequests API
+  description: Analytics Mediarequests API
+  termsofservice: https://github.com/wikimedia/restbase#restbase
+  contact:
+    name: Analytics
+    email: analytics@lists.wikimedia.org
+    url: https://www.mediawiki.org/wiki/Analytics
+  license:
+    name: Apache licence, v2
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /:
+    get:
+      tags:
+        - Media files data
+      summary: List mediarequest API entry points.
+      description: |
+        This is the root of all media files data endpoints.  The list of paths that this returns includes ways to query by file, referer, top media files, etc.  If browsing the interactive documentation, see the specifics for each endpoint below.
+
+        Stability: [unstable](https://www.mediawiki.org/wiki/API_versioning#Stable)
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The queriable sub-items
+          schema:
+            $ref: '#/definitions/listing'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-monitor: false
+
+  /per-file/{referer}/{agent}/{file_path}/{granularity}/{start}/{end}:
+    get:
+      tags:
+        - Mediarequests data
+      summary: Get aggregated mediarequest counts for a media file.
+      description: |
+        Given a file stored in upload.wikimedia.org (the file storage for all media in any wiki) and a date range, returns a daily timeseries of its request counts. The data can be filtered by agent type.
+        Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
+      produces:
+        - application/json
+      parameters:
+        - name: referer
+          in: path
+          description: The place that the request was made from. It can be any Wikimedia project (e.g. de.wikipedia), "all-referers", "internal", "external", "search-engine", "unknown" or "none".
+          type: string
+          required: true
+        - name: agent
+          in: path
+          description: If you want to filter by agent type, use one of user or spider. If you are interested in media requests regardless of agent type, use all-agents
+          type: string
+          enum: ['all-agents', 'user', 'spider']
+          required: true
+        - name: file_path
+          in: path
+          description: 'The upload.wikimedia.org path to the file. It also should be URI-encoded, so that non-URI-safe characters like %, / or ? are accepted. Example: %2Fwiktionary%2Fte%2F4%2F40%2Fpeacocks.JPG'
+          type: string
+          required: true
+        - name: granularity
+          in: path
+          description: The time unit for the response data. As of today, supported values are daily and monthly
+          type: string
+          enum: ['daily', 'monthly']
+          required: true
+        - name: start
+          in: path
+          description: The date of the first day to include, in YYYYMMDD format
+          type: string
+          required: true
+        - name: end
+          in: path
+          description: The date of the last day to include, in YYYYMMDD format
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The list of values
+          schema:
+            $ref: '#/definitions/file'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/mediarequests/per-file/{referer}/{agent}/{file_path}/{granularity}/{start}/{end}
+      x-monitor: true
+      x-amples:
+        - title: Get per file requests
+          request:
+            params:
+              domain: wikimedia.org
+              referer: en.wikipedia
+              file_path: '-'
+              agent: all-agents
+              granularity: daily
+              start: 1970010100
+              end: 1970010100
+          response:
+            status: 200
+            headers:
+              content-type: application/json
+            body:
+              items:
+                - referer: en.wikipedia
+                  file_path: '-'
+                  agent: all-agents
+                  granularity: daily
+                  timestamp: 1970010100
+                  requests: 0
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+
+  listing:
+    description: The result format for listings
+    required:
+      - items
+    properties:
+      items:
+        type: array
+        items:
+          type: string
+
+  file:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            referer:
+              type : string
+            file_path:
+              type: string
+            agent:
+              type: string
+            granularity:
+              type: string
+            timestamp:
+              # the hourly timestamp will be stored as YYYYMMDDHH
+              type: string
+            requests:
+              type: integer
+              format: int64

@@ -36,6 +36,9 @@ paths:
             /bytes-difference:
               x-modules:
                 - path: v1/bytes-difference.yaml
+            /mediarequests:
+              x-modules:
+                - path: v1/mediarequests.yaml
 
   /{api:sys}:
     x-modules:
@@ -50,6 +53,9 @@ paths:
             /pageviews:
               x-modules:
                 - path: sys/pageviews.js
+            /mediarequests:
+              x-modules:
+                - path: sys/mediarequests.js
             /legacy/pagecounts:
               x-modules:
                 - path: sys/legacy/pagecounts.js

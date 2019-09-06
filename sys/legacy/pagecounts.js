@@ -51,6 +51,7 @@ const tableSchemas = {
 LPCS.prototype.pagecountsPerProject = function(hyper, req) {
     const rp = req.params;
 
+    const project = aqsUtil.normalizeProject(rp.project);
     aqsUtil.validateStartAndEnd(rp, {
         zeroHour: rp.granularity !== 'hourly',
         fullMonths: rp.granularity === 'monthly'
@@ -61,7 +62,7 @@ LPCS.prototype.pagecountsPerProject = function(hyper, req) {
         body: {
             table: tables.project,
             attributes: {
-                project: rp.project,
+                project,
                 'access-site': rp['access-site'],
                 granularity: rp.granularity,
                 timestamp: { between: [rp.start, rp.end] }

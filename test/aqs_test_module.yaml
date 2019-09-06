@@ -148,6 +148,23 @@ paths:
                               offset: '{{request.params.offset}}'
                               underestimate: '{{request.params.underestimate}}'
                   x-monitor: false
+              /mediarequests/insert-per-file-mediarequests/{referer}/{file_path}/{granularity}/{timestamp}/{requests}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/mediarequest.per.file/'
+                          body:
+                            table: 'mediarequest.per.file'
+                            attributes:
+                              referer: '{{request.params.referer}}'
+                              file_path: '{{request.params.file_path}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              spider:  '{{request.params.requests}}1'
+                              user:  '{{request.params.requests}}2'
+                  x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing
   /{api:sys}:

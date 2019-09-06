@@ -53,7 +53,7 @@ const tableSchemas = {
 
 UDVS.prototype.uniqueDevices = function(hyper, req) {
     const rp = req.params;
-
+    const project = aqsUtil.normalizeProject(rp.project);
     aqsUtil.validateStartAndEnd(rp, {
         // YYYYMMDD dates are allowed, but need an hour to pass validation
         fakeHour: true,
@@ -67,7 +67,7 @@ UDVS.prototype.uniqueDevices = function(hyper, req) {
         body: {
             table: tables.project,
             attributes: {
-                project: rp.project,
+                project,
                 'access-site': rp['access-site'],
                 granularity: rp.granularity,
                 timestamp: { between: [rp.start, rp.end] },

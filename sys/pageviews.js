@@ -151,7 +151,7 @@ Object.keys(viewCountColumnsForArticleFlat).forEach((k) => {
 
 PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
     const rp = req.params;
-
+    const project = aqsUtil.normalizeProject(rp.project);
     // dates are passed in as YYYYMMDD but we need the HH to match the loaded data
     // which was originally planned at hourly resolution, so we pass "fakeHour"
     // Additionally, for monthly granularity we need to take only full months into account
@@ -166,7 +166,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
         body: {
             table: tables.articleFlat,
             attributes: {
-                project: rp.project,
+                project,
                 article: rp.article.replace(/ /g, '_'),
                 granularity: DAILY,
                 timestamp: { between: [rp.start, rp.end] },
@@ -237,7 +237,7 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 
 PJVS.prototype.pageviewsForProjects = function(hyper, req) {
     const rp = req.params;
-
+    const project = aqsUtil.normalizeProject(rp.project);
     aqsUtil.validateStartAndEnd(rp, {
         fakeHour: (rp.granularity === MONTHLY || rp.granularity === DAILY),
         zeroHour: (rp.granularity === MONTHLY || rp.granularity === DAILY),
@@ -249,7 +249,7 @@ PJVS.prototype.pageviewsForProjects = function(hyper, req) {
         body: {
             table: tables.project_v2,
             attributes: {
-                project: rp.project,
+                project,
                 access: rp.access,
                 agent: rp.agent,
                 granularity: rp.granularity,
@@ -280,6 +280,7 @@ PJVS.prototype.pageviewsForProjects = function(hyper, req) {
 
 PJVS.prototype.pageviewsForTops = function(hyper, req) {
     const rp = req.params;
+    const project = aqsUtil.normalizeProject(rp.project);
 
     aqsUtil.validateYearMonthDay(rp);
 
@@ -288,7 +289,7 @@ PJVS.prototype.pageviewsForTops = function(hyper, req) {
         body: {
             table: tables.tops,
             attributes: {
-                project: rp.project,
+                project,
                 access: rp.access,
                 year: rp.year,
                 month: rp.month,
@@ -330,6 +331,7 @@ PJVS.prototype.pageviewsForTops = function(hyper, req) {
 
 PJVS.prototype.pageviewsByCountry = function(hyper, req) {
     const rp = req.params;
+    const project = aqsUtil.normalizeProject(rp.project);
 
     aqsUtil.validateYearMonth(rp);
 
@@ -338,7 +340,7 @@ PJVS.prototype.pageviewsByCountry = function(hyper, req) {
         body: {
             table: tables.bycountry,
             attributes: {
-                project: rp.project,
+                project,
                 access: rp.access,
                 year: rp.year,
                 month: rp.month

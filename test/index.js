@@ -13,6 +13,7 @@ describe('AQS', function() {
     require('./features/mediawiki-history-metrics/mediawiki-history-metrics');
     require('./features/pageviews/pageviews');
     require('./features/unique-devices/unique-devices');
+    require('./features/mediarequests/mediarequests');
 
     after(function() {
         return runner.stop()

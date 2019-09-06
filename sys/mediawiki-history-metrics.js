@@ -101,8 +101,10 @@ const druidQueriesBlocks = {
 function validateRequestParams(requestParams, opts) {
     opts = opts || {};
 
-    aqsUtil.normalizeProject(requestParams, opts);
-    aqsUtil.normalizePageTitle(requestParams, opts);
+    requestParams.project = aqsUtil.normalizeProject(requestParams.project, opts.noAllProjects);
+    if (requestParams['page-title']) {
+        requestParams['page-title'] = aqsUtil.normalizePageTitle(requestParams['page-title']);
+    }
     if (opts.topQuery) {
         aqsUtil.validateYearMonthDay(requestParams, Object.assign(opts, {
             // Make year-month-day validation generate start/end for druid
