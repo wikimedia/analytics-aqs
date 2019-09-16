@@ -165,6 +165,23 @@ paths:
                               spider:  '{{request.params.requests}}1'
                               user:  '{{request.params.requests}}2'
                   x-monitor: false
+              /mediarequests/insert-aggregate/{referer}/{media_type}/{agent}/{granularity}/{timestamp}/{requests}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/mediarequest.per.referer/'
+                          body:
+                            table: 'mediarequest.per.referer'
+                            attributes:
+                              referer: '{{request.params.referer}}'
+                              media_type: '{{request.params.media_type}}'
+                              agent: '{{request.params.agent}}'
+                              granularity: '{{request.params.granularity}}'
+                              timestamp: '{{request.params.timestamp}}'
+                              requests: '{{request.params.requests}}'
+                  x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing
   /{api:sys}:

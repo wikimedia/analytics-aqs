@@ -3,3 +3,7 @@ paths:
         get:
           summary: query aggregated mediarequests per file
           operationId: mediarequestsForFile
+    /aggregate/{referer}/{media_type}/{agent}/{granularity}/{start}/{end}:
+        get:
+          summary: query aggregated mediarequests per referer
+          operationId: mediarequestsForReferer

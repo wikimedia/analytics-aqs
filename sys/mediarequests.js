@@ -29,7 +29,8 @@ function tableURI(domain, tableName) {
 
 // Datasets are written in singular form unlike metrics
 const tables = {
-    mediarequestPerFile: 'mediarequest.per.file'
+    mediarequestPerFile: 'mediarequest.per.file',
+    mediarequestPerReferer: 'mediarequest.per.referer'
 };
 
 const tableSchemas = {
@@ -52,6 +53,25 @@ const tableSchemas = {
             { attribute: 'timestamp', type: 'range', order: 'asc' },
         ]
     },
+    mediarequestPerReferer: {
+        table: tables.mediarequestPerReferer,
+        version: 1,
+        attributes: {
+            referer: 'string',
+            media_type: 'string',
+            agent: 'string',
+            granularity: 'string',
+            timestamp: 'string',
+            requests: 'long'
+        },
+        index: [
+            { attribute: 'referer', type: 'hash' },
+            { attribute: 'media_type', type: 'hash' },
+            { attribute: 'agent', type: 'hash' },
+            { attribute: 'granularity', type: 'hash' },
+            { attribute: 'timestamp', type: 'range', order: 'asc' },
+        ]
+    }
 };
 
 MediaRequestsService.prototype.mediarequestsForFile = function(hyper, req) {
@@ -78,7 +98,6 @@ MediaRequestsService.prototype.mediarequestsForFile = function(hyper, req) {
                 timestamp: { between: [requestParams.start, requestParams.end] },
             }
         }
-
     }).catch(aqsUtil.notFoundCatcher);
 
     return dataRequest.then(aqsUtil.normalizeRequestParams).then((res) => {
@@ -132,6 +151,40 @@ MediaRequestsService.prototype.mediarequestsForFile = function(hyper, req) {
     });
 };
 
+MediaRequestsService.prototype.mediarequestsForReferer = function(hyper, req) {
+    const requestParams = req.params;
+    const referer = aqsUtil.normalizeReferer(requestParams.referer);
+    aqsUtil.validateStartAndEnd(requestParams, {
+        fakeHour: (requestParams.granularity === MONTHLY || requestParams.granularity === DAILY),
+        zeroHour: (requestParams.granularity === MONTHLY || requestParams.granularity === DAILY),
+        fullMonths: requestParams.granularity === MONTHLY
+    });
+
+    const dataRequest = hyper.get({
+        uri: tableURI(requestParams.domain, tables.mediarequestPerReferer),
+        body: {
+            table: tables.mediarequestPerReferer,
+            attributes: {
+                referer,
+                media_type: requestParams.media_type,
+                agent: requestParams.agent,
+                granularity: requestParams.granularity,
+                timestamp: { between: [requestParams.start, requestParams.end] },
+            }
+        }
+
+    }).catch(aqsUtil.notFoundCatcher);
+
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
+        if (res.body.items) {
+            res.body.items.forEach((item) => {
+                item.requests = item.requests || 0;
+            });
+        }
+        return res;
+    });
+};
+
 module.exports = function(options) {
     const mediaRequestsService = new MediaRequestsService(options);
 
@@ -139,12 +192,18 @@ module.exports = function(options) {
         spec,
         operations: {
             mediarequestsForFile: mediaRequestsService
-                .mediarequestsForFile.bind(mediaRequestsService)
+                .mediarequestsForFile.bind(mediaRequestsService),
+            mediarequestsForReferer: mediaRequestsService
+                .mediarequestsForReferer.bind(mediaRequestsService),
         },
         resources: [
             {
                 uri: `/{domain}/sys/table/${tables.mediarequestPerFile}`,
                 body: tableSchemas.mediarequestPerFile,
+            },
+            {
+                uri: `/{domain}/sys/table/${tables.mediarequestPerReferer}`,
+                body: tableSchemas.mediarequestPerReferer,
             }
         ]
     };
