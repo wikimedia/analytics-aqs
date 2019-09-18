@@ -180,7 +180,7 @@ paths:
               referer: en.wikipedia
               media_type: all-media-types
               agent: all-agents
-              granularity: monthly
+              granularity: daily
               start: 1970010100
               end: 1970010100
           response:
@@ -192,7 +192,7 @@ paths:
                 - referer: en.wikipedia
                   media_type: all-media-types
                   agent: all-agents
-                  granularity: monthly
+                  granularity: daily
                   timestamp: 1970010100
                   requests: 0
 
