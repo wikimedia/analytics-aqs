@@ -62,7 +62,7 @@ const tableSchemas = {
             agent: 'string',
             granularity: 'string',
             timestamp: 'string',
-            requests: 'long'
+            requests: 'int'
         },
         index: [
             { attribute: 'referer', type: 'hash' },
@@ -178,7 +178,7 @@ MediaRequestsService.prototype.mediarequestsForReferer = function(hyper, req) {
     return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
             res.body.items.forEach((item) => {
-                item.requests = item.requests || 0;
+                item.requests = parseInt(item.requests, 10) || 0;
             });
         }
         return res;
