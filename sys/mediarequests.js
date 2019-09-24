@@ -62,7 +62,7 @@ const tableSchemas = {
             agent: 'string',
             granularity: 'string',
             timestamp: 'string',
-            requests: 'int'
+            requests: 'long'
         },
         index: [
             { attribute: 'referer', type: 'hash' },
