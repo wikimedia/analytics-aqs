@@ -7,3 +7,7 @@ paths:
         get:
           summary: query aggregated mediarequests per referer
           operationId: mediarequestsForReferer
+    /top/{referer}/{media_type}/{year}/{month}/{day}:
+        get:
+          summary: query top files by mediarequests
+          operationId: mediarequestsForTops

@@ -26,6 +26,10 @@ describe('mediarequests endpoints', function() {
             monthly: '/mediarequests/aggregate/en.wikipedia/all-media-types/all-agents/monthly/1969010100/1971010100',
             insertMonthly: '/mediarequests/insert-aggregate/en.wikipedia/all-media-types/all-agents/monthly/1970010100',
         },
+        top: {
+            all: '/mediarequests/top/en.wikipedia/all-media-types/2015/01/all-days',
+            insert: '/mediarequests/insert-top/en.wikipedia/all-media-types/2015/01/all-days'
+        },
     }
 
     // Start server before running tests
@@ -210,6 +214,69 @@ describe('mediarequests endpoints', function() {
                         });
                     }
                 });
+            });
+        });
+    })
+
+    describe('tops endpoint', () => {
+
+        it('should return 400 when tops parameters are wrong', function() {
+            return preq.get({
+                uri: baseURL + endpoints.top.all.replace('all-days', 'all-dayz')
+            }).catch(function(res) {
+                assert.deepEqual(res.status, 400);
+            });
+        });
+
+        it('Should return 400 when all-year is used for the year parameter', function() {
+            return preq.get({
+                uri: baseURL + endpoints.top.all.replace('2015', 'all-years')
+            }).catch(function(res) {
+                assert.deepEqual(res.status, 400);
+            });
+        });
+
+        it('Should return 400 when all-months is used for the month parameter', function() {
+            return preq.get({
+                uri: baseURL + endpoints.top.all.replace('01', 'all-months')
+            }).catch(function(res) {
+                assert.deepEqual(res.status, 400);
+            });
+        });
+
+        it('should return 400 when tops date is invalid', function() {
+            return preq.get({
+                uri: baseURL + endpoints.top.all.replace('01/all-days', '02/29')
+            }).catch(function(res) {
+                assert.deepEqual(res.status, 400);
+            });
+        });
+
+        it('should return the expected tops data after insertion, in rank order', function() {
+            return preq.post({
+                uri: baseURL + endpoints.top.insert,
+                body: {
+                    files: [{
+                        rank: 2,
+                        file_path: 'two\\',
+                        requests: 1000
+                    },{
+                        rank: 1,
+                        file_path: 'o"n"e',
+                        requests: 2000
+                    }]
+                },
+                headers: { 'content-type': 'application/json' }
+
+            }).then(function() {
+                return preq.get({
+                    uri: baseURL + endpoints.top.all
+                });
+            }).then(function(res) {
+                assert.deepEqual(res.body.items.length, 1);
+                assert.deepEqual(res.body.items[0].files[0].file_path, 'o"n"e');
+                assert.deepEqual(res.body.items[0].files[1].requests, 1000);
+                assert.deepEqual(res.body.items[0].files[1].file_path, 'two\\');
             });
         });
     })

@@ -182,6 +182,23 @@ paths:
                               timestamp: '{{request.params.timestamp}}'
                               requests: '{{request.params.requests}}'
                   x-monitor: false
+              /mediarequests/insert-top/{referer}/{media_type}/{year}/{month}/{day}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/mediarequest.top.files/'
+                          body:
+                            table: 'mediarequest.top.files'
+                            attributes:
+                              referer: '{{request.params.referer}}'
+                              media_type: '{{request.params.media_type}}'
+                              year: '{{request.params.year}}'
+                              month: '{{request.params.month}}'
+                              day: '{{request.params.day}}'
+                              filesJSON: '{{request.body.files}}'
+                  x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing
   /{api:sys}:
