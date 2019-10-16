@@ -263,7 +263,7 @@ paths:
             body:
               items:
                 - referer: en.wikipedia
-                  access: all-access
+                  media_type: all-media-types
                   year: '1970'
                   month: '01'
                   day: '01'
