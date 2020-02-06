@@ -113,7 +113,7 @@ MediaRequestsService.prototype.mediarequestsForFile = function(hyper, req) {
             table: tables.mediarequestPerFile,
             attributes: {
                 referer,
-                file_path: aqsUtil.normalizePageTitle(requestParams.file_path),
+                file_path: aqsUtil.normalizeFileURI(requestParams.file_path),
                 granularity: DAILY,
                 timestamp: { between: [requestParams.start, requestParams.end] },
             }

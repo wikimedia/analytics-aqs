@@ -92,27 +92,30 @@ describe('mediarequests endpoints', function() {
         });
 
         function r(s, replaceSpaces) {
-            var weirdArticleTitle = 'dash - space : colon % percent / slash';
-            if (replaceSpaces) {
-                weirdArticleTitle = weirdArticleTitle.replace(/ /g, '_');
-            }
+            var weirdArticleTitle = 'dash - space : colon % percent';
+            weirdArticleTitle = weirdArticleTitle.replace(/ /g, '_');
             return s.replace(
-                '/%2Fwiktionary%2Fte%2F4%2F40%2Fpeacocks.JPG/', '/' + encodeURIComponent(weirdArticleTitle) + '/'
+                '/%2Fwiktionary%2Fte%2F4%2F40%2Fpeacocks.JPG/', '/' + encodeURIcomponent(weirdArticleTitle) + '/'
             );
         }
 
         it('should handle per file queries with encoded characters', function() {
+            // Because we're loading through a web request, we have to double url-encode the file
+            // title, otherwise it won't be found.
+            const annoyingFileNameForLoading = '%2Fwikipedia%2Fcommons%2F5%2F53%2FPr%25C3%25A4sidentschaftswahl_in_den_Vereinigten_Staaten.ogv';
+            const insertUrl = `/mediarequests/insert-per-file-mediarequests/en.wikipedia/${annoyingFileNameForLoading}/daily/2015070200/100`;
+            const fileName = '%2Fwikipedia%2Fcommons%2F5%2F53%2FPr%C3%A4sidentschaftswahl_in_den_Vereinigten_Staaten.ogv';
+            const queryUrl = `/mediarequests/per-file/en.wikipedia/spider/${fileName}/daily/20150701/20150703`;
             return preq.post({
                 // the way we have configured the test insert-per-article endpoint
                 // means requests_desktop_spider will be 1007 when we pass /100
-                uri: baseURL + r(endpoints.perFile.insertDaily.replace('{timestamp}', 2015070200), true).replace('{resquests}', 100)
+                uri: baseURL + insertUrl
             }).then(function() {
                 return preq.get({
-                    uri: baseURL + r(endpoints.perFile.daily.replace('{start}', '20150701').replace('{end}', '20150703'))
+                    uri: baseURL + queryUrl
                 });
             }).then(function(res) {
                 assert.deepEqual(res.body.items.length, 1);
-                assert.deepEqual(res.body.items[0].file_path, 'dash_-_space_:_colon_%_percent_/_slash');
             });
         });
 
