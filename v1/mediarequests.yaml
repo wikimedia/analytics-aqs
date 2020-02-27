@@ -97,7 +97,7 @@ paths:
             params:
               domain: wikimedia.org
               referer: en.wikipedia
-              file_path: '%2Ftest.jpg'
+              file_path: '-'
               agent: all-agents
               granularity: daily
               start: 1970010100
@@ -109,7 +109,7 @@ paths:
             body:
               items:
                 - referer: en.wikipedia
-                  file_path: '/test.jpg'
+                  file_path: '-'
                   agent: all-agents
                   granularity: daily
                   timestamp: 1970010100
