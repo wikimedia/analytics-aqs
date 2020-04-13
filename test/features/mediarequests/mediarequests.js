@@ -5,6 +5,7 @@
 
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
+const fs   = require('fs');
 var aqsUtil  = require('../../../lib/aqsUtil');
 const TestRunner = require('../../utils/server');
 
@@ -100,23 +101,23 @@ describe('mediarequests endpoints', function() {
         }
 
         it('should handle per file queries with encoded characters', function() {
-            // Because we're loading through a web request, we have to double url-encode the file
-            // title, otherwise it won't be found.
-            const annoyingFileNameForLoading = '%2Fwikipedia%2Fcommons%2F5%2F53%2FPr%25C3%25A4sidentschaftswahl_in_den_Vereinigten_Staaten.ogv';
-            const insertUrl = `/mediarequests/insert-per-file-mediarequests/en.wikipedia/${annoyingFileNameForLoading}/daily/2015070200/100`;
-            const fileName = '%2Fwikipedia%2Fcommons%2F5%2F53%2FPr%C3%A4sidentschaftswahl_in_den_Vereinigten_Staaten.ogv';
-            const queryUrl = `/mediarequests/per-file/en.wikipedia/spider/${fileName}/daily/20150701/20150703`;
-            return preq.post({
-                // the way we have configured the test insert-per-article endpoint
-                // means requests_desktop_spider will be 1007 when we pass /100
-                uri: baseURL + insertUrl
-            }).then(function() {
-                return preq.get({
-                    uri: baseURL + queryUrl
-                });
-            }).then(function(res) {
-                assert.deepEqual(res.body.items.length, 1);
-            });
+            return Promise.all(fs.readFileSync(__dirname + '/urls_with_punctuation.tsv').toString()
+                .split('\n').slice(1)
+                .map(row => {
+                    const annoyingFileNameForLoading = row.split('\t')[2];
+                    const insertUrl = `/mediarequests/insert-per-file-mediarequests/en.wikipedia/${annoyingFileNameForLoading}/daily/2015070200/100`;
+                    const fileName = encodeURIComponent(row.split('\t')[0]);
+                    const queryUrl = `/mediarequests/per-file/en.wikipedia/spider/${fileName}/daily/20150701/20150703`;
+                    return preq.post({
+                        uri: baseURL + insertUrl
+                    }).then(function() {
+                        return preq.get({
+                            uri: baseURL + queryUrl
+                        });
+                    }).then(function(res) {
+                        assert.deepEqual(res.body.items.length, 1);
+                    });
+                }))
         });
 
         it('should return data when start = timestamp = end and YYYYMMDD is used', function() {
