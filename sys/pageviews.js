@@ -120,22 +120,22 @@ const tableSchemas = {
 
 const viewCountColumnsForArticleFlat = {
     views_all_access_all_agents: 'aa', // views for all-access, all-agents
-    views_all_access_bot: 'ab',        // views for all-access, bot
+    views_all_access_automated: 'ab',  // views for all-access, automated
     views_all_access_spider: 'as',     // views for all-access, spider
     views_all_access_user: 'au',       // views for all-access, user
 
     views_desktop_all_agents: 'da',    // views for desktop, all-agents
-    views_desktop_bot: 'db',           // views for desktop, bot
+    views_desktop_automated: 'db',     // views for desktop, automated
     views_desktop_spider: 'ds',        // views for desktop, spider
     views_desktop_user: 'du',          // views for desktop, user
 
     views_mobile_app_all_agents: 'maa', // views for mobile-app, all-agents
-    views_mobile_app_bot: 'mab',        // views for mobile-app, bot
+    views_mobile_app_automated: 'mab',  // views for mobile-app, automated
     views_mobile_app_spider: 'mas',     // views for mobile-app, spider
     views_mobile_app_user: 'mau',       // views for mobile-app, user
 
     views_mobile_web_all_agents: 'mwa', // views for mobile-web, all-agents
-    views_mobile_web_bot: 'mwb',        // views for mobile-web, bot
+    views_mobile_web_automated: 'mwb',  // views for mobile-web, automated
     views_mobile_web_spider: 'mws',     // views for mobile-web, spider
     views_mobile_web_user: 'mwu'        // views for mobile-web, user
 };

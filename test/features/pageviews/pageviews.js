@@ -62,7 +62,8 @@ describe('pageviews endpoints', function() {
         Object.keys(dataToInsert).map(function(date){
             preq.post({
                 // the way we have configured the test insert-per-article endpoint
-                // means views_desktop_spider will be 1007 when we pass /100
+                // means views_desktop_spider will be 1007 and views_desktop_automated 1006
+                // when we pass /100
                 uri: baseURL + endpoints.article.insertDaily.replace('2015070200', date) + '/' + dataToInsert[date]
             }).catch(function(e) {
                 console.log(e);
@@ -94,6 +95,16 @@ describe('pageviews endpoints', function() {
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 1007);
+        });
+    });
+
+    it('should return the expected per article data after insertion for automated agent-type', function() {
+        return preq.get({
+            uri: baseURL + endpoints.article.daily.replace('spider', 'automated')
+
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].views, 1006);
         });
     });
 

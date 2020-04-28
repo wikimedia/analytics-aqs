@@ -58,9 +58,9 @@ paths:
           required: true
         - name: agent
           in: path
-          description: If you want to filter by agent type, use one of user, bot or spider. If you are interested in pageviews regardless of agent type, use all-agents
+          description: If you want to filter by agent type, use one of user, automated or spider. If you are interested in pageviews regardless of agent type, use all-agents
           type: string
-          enum: ['all-agents', 'user', 'spider', 'bot']
+          enum: ['all-agents', 'automated', 'spider', 'user']
           required: true
         - name: article
           in: path
@@ -147,9 +147,9 @@ paths:
           required: true
         - name: agent
           in: path
-          description: If you want to filter by agent type, use one of user or spider. If you are interested in pageviews regardless of agent type, use all-agents
+          description: If you want to filter by agent type, use one of user, automated or spider. If you are interested in pageviews regardless of agent type, use all-agents
           type: string
-          enum: ['all-agents', 'user', 'spider']
+          enum: ['all-agents', 'automated', 'spider', 'user']
           required: true
         - name: granularity
           in: path
