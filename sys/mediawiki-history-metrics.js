@@ -3,7 +3,7 @@
 /**
  * mediawiki_history_metrics API module
  *
- * This API serves pre-aggregated metrics from Druid
+ * This API serves pre-aggregated metrics from Druid and Cassandra
  *
  * TODO:
  *  - Implement topN endpoints
@@ -12,6 +12,7 @@
 
 const HyperSwitch = require('hyperswitch');
 const HTTPError = HyperSwitch.HTTPError;
+const URI = HyperSwitch.URI;
 const path = require('path');
 const ipRegex = require('ip-regex');
 
@@ -22,6 +23,9 @@ const spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'mediawiki-history-
 const schemas = HyperSwitch.utils.loadSpec(path.join(__dirname, 'mediawiki-history-schemas.yaml'));
 const D = schemas.druid;
 const A2D = schemas.aqs2druid;
+
+
+// Druid metrics
 
 // How many results to return in topN queries
 const TOP_THRESHOLD = 100;
@@ -36,8 +40,8 @@ const AQS_PARAMS = [
 ];
 
 
-// mediawiki_history_metrics Service
-function MHMS(options) {
+// mediawiki_history_metrics Druid Service
+function MHMDS(options) {
     this.options = options;
     this.druid = options.druid;
 }
@@ -274,7 +278,7 @@ ${druidResult.body}```;
 /*
  * Function serving new-edited-pages
  */
-MHMS.prototype.newPagesTimeseries = function(hyper, req) {
+MHMDS.prototype.newPagesTimeseries = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
@@ -314,7 +318,7 @@ MHMS.prototype.newPagesTimeseries = function(hyper, req) {
 /*
  * Function serving newly-registered users
  */
-MHMS.prototype.newlyRegisteredUsersTimeseries = function(hyper, req) {
+MHMDS.prototype.newlyRegisteredUsersTimeseries = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
@@ -351,7 +355,7 @@ MHMS.prototype.newlyRegisteredUsersTimeseries = function(hyper, req) {
  *  - editors global
  *  - edited-pages global
  */
-MHMS.prototype.digestsTimeseries = function(hyper, req) {
+MHMDS.prototype.digestsTimeseries = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
@@ -400,7 +404,7 @@ MHMS.prototype.digestsTimeseries = function(hyper, req) {
  *  - net-bytes-diff global, per-page and per-editor
  *  - abs-bytes-diff global, per-page and per-editor
  */
-MHMS.prototype.revisionsTimeseries = function(hyper, req) {
+MHMDS.prototype.revisionsTimeseries = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
@@ -452,7 +456,7 @@ MHMS.prototype.revisionsTimeseries = function(hyper, req) {
  *  - Top editors by edits, net-bytes-diff or abs-bytes-diff
  *  - Top edited-pages by edits, net-bytes-diff or abs-bytes-diff
  */
-MHMS.prototype.revisionsTop = function(hyper, req) {
+MHMDS.prototype.revisionsTop = function(hyper, req) {
 
     // Validate request parameters in place
     const rp = req.params;
@@ -510,17 +514,92 @@ MHMS.prototype.revisionsTop = function(hyper, req) {
 };
 
 
+// Cassandra metrics
+
+// mediawiki_history_metrics Cassandra Service
+function MHMCS(options) {
+    this.options = options;
+}
+
+function tableURI(domain, tableName) {
+    return new URI([domain, 'sys', 'table', tableName, '']);
+}
+
+const tables = {
+    bycountry: 'editors.bycountry'
+};
+
+const tableSchemas = {
+    bycountry: {
+        table: tables.bycountry,
+        version: 1,
+        attributes: {
+            project: 'string',
+            'activity-level': 'string',
+            year: 'string',
+            month: 'string',
+            countriesJSON: 'json'
+        },
+        index: [
+            { attribute: 'project', type: 'hash' },
+            { attribute: 'activity-level', type: 'hash' },
+            { attribute: 'year', type: 'hash' },
+            { attribute: 'month', type: 'hash' }
+        ]
+    }
+};
+
+MHMCS.prototype.editorsByCountry = function(hyper, req) {
+    const rp = req.params;
+    const project = aqsUtil.normalizeProject(rp.project, true);
+
+    aqsUtil.validateYearMonth(rp);
+
+    const dataRequest = hyper.get({
+        uri: tableURI(rp.domain, tables.bycountry),
+        body: {
+            table: tables.bycountry,
+            attributes: {
+                project,
+                'activity-level': rp['activity-level'],
+                year: rp.year,
+                month: rp.month,
+            }
+        }
+    }).catch(aqsUtil.notFoundCatcher);
+
+    return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
+        if (res.body.items) {
+            res.body.items.forEach((item) => {
+                item.countries = item.countriesJSON;
+                delete item.countriesJSON;
+            });
+        }
+        return res;
+    });
+};
+
+
 module.exports = function(options) {
-    const mhms = new MHMS(options);
+    const mhmds = new MHMDS(options);
+    const mhmcs = new MHMCS(options);
 
     return {
         spec,
         operations: {
-            newPagesTimeseries: mhms.newPagesTimeseries.bind(mhms),
-            newlyRegisteredUsersTimeseries: mhms.newlyRegisteredUsersTimeseries.bind(mhms),
-            digestsTimeseries: mhms.digestsTimeseries.bind(mhms),
-            revisionsTimeseries: mhms.revisionsTimeseries.bind(mhms),
-            revisionsTop: mhms.revisionsTop.bind(mhms)
-        }
+            newPagesTimeseries: mhmds.newPagesTimeseries.bind(mhmds),
+            newlyRegisteredUsersTimeseries: mhmds.newlyRegisteredUsersTimeseries.bind(mhmds),
+            digestsTimeseries: mhmds.digestsTimeseries.bind(mhmds),
+            revisionsTimeseries: mhmds.revisionsTimeseries.bind(mhmds),
+            revisionsTop: mhmds.revisionsTop.bind(mhmds),
+            editorsByCountry: mhmcs.editorsByCountry.bind(mhmcs)
+        },
+        resources: [
+            {
+                // editors by country table
+                uri: `/{domain}/sys/table/${tables.bycountry}`,
+                body: tableSchemas.bycountry
+            }
+        ]
     };
 };

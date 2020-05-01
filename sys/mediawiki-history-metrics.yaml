@@ -6,6 +6,11 @@ paths:
           summary: query new-pages per project, editor-type and page-type
           operationId: newPagesTimeseries
 
+    /editors/by-country/{project}/{activity-level}/{year}/{month}:
+        get:
+          summary: query editor counts by country per project and activity-level
+          operationId: editorsByCountry
+
     /registered-users/new/{project}/{granularity}/{start}/{end}:
         get:
           summary: query newly-registered-users per project

@@ -199,6 +199,22 @@ paths:
                               day: '{{request.params.day}}'
                               filesJSON: '{{request.body.files}}'
                   x-monitor: false
+              /editors/insert-by-country/{project}/{activity-level}/{year}/{month}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/editors.bycountry/'
+                          body:
+                            table: 'editors.bycountry'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              'activity-level': '{{request.params.activity-level}}'
+                              year: '{{request.params.year}}'
+                              month: '{{request.params.month}}'
+                              countriesJSON: '{{request.body.countries}}'
+                  x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing
   /{api:sys}:
