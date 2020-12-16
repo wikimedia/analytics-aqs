@@ -8,6 +8,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 const TestRunner = require('../../utils/server');
 var aqsUtil  = require('../../../lib/aqsUtil');
+const MediawikiHistoryMetrics  = require('../../../sys/mediawiki-history-metrics');
 
 /*
   In order to be able to fake a druid endpoint inside AQS,
@@ -131,5 +132,29 @@ describe('mediawiki-history-metrics endpoints', function() {
             assert.deepEqual(countries[2].country, 'PPA');
             assert.deepEqual(countries[2]['editors-ceil'], 30);
         });
+    })
+
+    it('should make requests to druid with a 10s timeout', (done) => {
+        const newPagesTimeseries = MediawikiHistoryMetrics({druid: {
+            query_path: '/analytics.wikimedia.org/sys/fake-druid/druid/v2',
+            datasources: {
+                mediawiki_history: 'mediawiki_history_reduced'
+            }
+        }}).operations.newPagesTimeseries;
+        const params = {
+            project: "all-projects",
+            'editor-type': "all-editor-types",
+            'page-type': "all-page-types",
+            granularity: "monthly",
+            start: "2018110100",
+            end: "2018120100"
+        };
+        const hyperSwitchMock = {
+            post (req) {
+                assert.deepEqual(req.timeout, 10000);
+                done();
+            }
+        };
+        newPagesTimeseries(hyperSwitchMock, {params});
     })
 });
