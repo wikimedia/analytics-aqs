@@ -15,3 +15,7 @@ paths:
         get:
           summary: query top countries by pageviews
           operationId: pageviewsByCountry
+    /top-per-country/{country}/{access}/{year}/{month}/{day}:
+        get:
+          summary: query top pageviews per country
+          operationId: pageviewsPerCountry

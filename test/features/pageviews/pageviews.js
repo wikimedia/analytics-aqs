@@ -40,6 +40,10 @@ describe('pageviews endpoints', function() {
             insert_intervals: '/pageviews/insert-top-by-country/en.wikipedia/all-access/2015/02',
             all_ceiled: '/pageviews/top-by-country/en.wikipedia/all-access/2015/01',
             insert_ceiled: '/pageviews/insert-top-by-country/en.wikipedia/all-access/2015/01'
+        },
+        percountry: {
+            all: '/pageviews/top-per-country/US/mobile-web/2021/01/01',
+            insert: '/pageviews/insert-top-per-country/US/mobile-web/2021/01/01'
         }
     }
     var projectEndpointStrip = '/pageviews/aggregate/www.en.wikipedia.org/all-access/all-agents/hourly/1969010100/1971010100';
@@ -483,5 +487,51 @@ describe('pageviews endpoints', function() {
             assert.deepEqual(res.body.items[0].countries[1].country, 'Kingdom of OOOOOOOOOOH');
             assert.deepEqual(res.body.items[0].countries[2].views, '10000-99999');
         });
-    })
+    });
+
+    // Per country test
+
+    it('should return 400 when per country date is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.percountry.all.replace('01/01', '01/00')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return the expected per country data after insertion', function() {
+        return preq.post({
+            uri: baseURL + endpoints.percountry.insert,
+            body: {
+                articles: [
+                    {
+                        rank: 1,
+                        article: 'o"n"e',
+                        project: 'fr.wikipedia',
+                        views_ceil: 1400
+                    }, {
+                        rank: 2,
+                        article: 'two\\',
+                        project: 'en.wikipedia',
+                        views_ceil: 1100
+                    }
+                ]
+            },
+            headers: { 'content-type': 'application/json' }
+        }).then(function() {
+            return preq.get({
+                uri: baseURL + endpoints.percountry.all
+            });
+        }).then(function(res) {
+            assert.deepEqual(res.body.items.length, 1);
+            assert.deepEqual(res.body.items[0].articles[0].article, 'o"n"e');
+            assert.deepEqual(res.body.items[0].articles[0].project, 'fr.wikipedia');
+            assert.deepEqual(res.body.items[0].articles[1].views_ceil, 1100);
+            assert.deepEqual(res.body.items[0].articles[1].article, 'two\\');
+        });
+    });
+
 });

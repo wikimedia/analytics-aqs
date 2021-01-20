@@ -354,6 +354,62 @@ paths:
                       views: '100-999'
                       rank: 1
 
+  /top-per-country/{country}/{access}/{year}/{month}/{day}:
+    get:
+      tags:
+        - Pageviews data
+      summary: Get the most viewed articles for a country.
+      description: |
+        Lists the 1000 most viewed articles for a given country and date, across all projects.
+        You can filter by access method.
+        Because of privacy reasons, pageview counts are given in a bounded format and are not reported for certain countries.
+        Furthermore, articles visited by 1000 unique individuals or fewer on the given date will be excluded from the returned data.
+        Also, views produced by agents categorized as bots or web crawlers will be excluded from all calculations.
+        Stability: [experimental](https://www.mediawiki.org/wiki/API_versioning#Experimental)
+      produces:
+        - application/json
+      parameters:
+        - name: country
+          in: path
+          description: The ISO 3166-1 alpha-2 code of a country for which to retrieve top articles, like FR or IN.
+          type: string
+          required: true
+        - name: access
+          in: path
+          description: The method of access to these articles. Use all-access for all methods.
+          type: string
+          enum: ['all-access', 'desktop', 'mobile-app', 'mobile-web']
+          required: true
+        - name: year
+          in: path
+          description: The year for which to retrieve top articles, in YYYY format.
+          type: string
+          required: true
+        - name: month
+          in: path
+          description: The month for which to retrieve top articles, in MM format.
+          type: string
+          required: true
+        - name: day
+          in: path
+          description: The day for which to retrieve top articles, in DD format.
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The list of top articles by pageviews in the country.
+          schema:
+            $ref: '#/definitions/per-country'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/pageviews/top-per-country/{country}/{access}/{year}/{month}/{day}
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
@@ -476,5 +532,36 @@ definitions:
                   country:
                     type: string
                   views:
+                    type: integer
+                    format: int64
+
+  per-country:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            country:
+              type: string
+            access:
+              type : string
+            year:
+              type: string
+            month:
+              type: string
+            day:
+              type: string
+            articles:
+              type: array
+              items:
+                properties:
+                  rank:
+                    type: integer
+                    format: int32
+                  article:
+                    type: string
+                  project:
+                    type: string
+                  views_ceil:
                     type: integer
                     format: int64
