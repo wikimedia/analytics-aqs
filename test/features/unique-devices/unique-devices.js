@@ -25,28 +25,37 @@ describe('unique-devices endpoints', function () {
 
     // Test Endpoint
 
-    it('should return 400 when parameters are wrong', function () {
-        return preq.get({
-            uri: baseURL + endpoint.replace('19710101', '20150701000000')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when parameters are wrong', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoint.replace('19710101', '20150701000000')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when start is before end', function () {
-        return preq.get({
-            uri: baseURL + endpoint.replace('19690101', '20160701')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when start is before end', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoint.replace('19690101', '20160701')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when timestamp is invalid', function () {
-        return preq.get({
-            uri: baseURL + endpoint.replace('19710101', '20150229')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when timestamp is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoint.replace('19710101', '20150229')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     // WARNING: the data created in this test is used exactly as created

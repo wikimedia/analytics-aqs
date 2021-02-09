@@ -48,8 +48,10 @@ describe('mediarequests endpoints', function() {
 
         Object.keys(dataToInsert).map(function(date){
             preq.post({
-                uri: baseURL + endpoints.perFile.insertDaily.replace('{timestamp}', date).replace('{requests}', dataToInsert[date])
-            }).catch(function(e) {
+                uri: baseURL +
+                    endpoints.perFile.insertDaily
+                        .replace('{timestamp}', date)
+                        .replace('{requests}', dataToInsert[date])
             }).then(function() {
                 delete dataToInsert[date];
 
@@ -63,17 +65,25 @@ describe('mediarequests endpoints', function() {
 
     describe('per file endpoint', () => {
         it('should return 400 when per file parameters are wrong', function() {
-            return preq.get({
-                uri: baseURL + endpoints.perFile.daily.replace('{start}', '201507a3').replace('{end}', '20150723')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+            return assert.fails(
+                preq.get({
+                    uri: baseURL +
+                        endpoints.perFile.daily
+                            .replace('{start}', '201507a3')
+                            .replace('{end}', '20150723')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
         it('should return the expected per file data after insertion', function() {
             return preq.get({
-                uri: baseURL + endpoints.perFile.daily.replace('{start}', '20150701').replace('{end}', '20150703')
-
+                uri: baseURL +
+                    endpoints.perFile.daily
+                        .replace('{start}', '20150701')
+                        .replace('{end}', '20150703')
             }).then(function(res) {
                 assert.deepEqual(res.body.items.length, 1);
                 assert.deepEqual(res.body.items[0].requests, 1001);
@@ -82,10 +92,11 @@ describe('mediarequests endpoints', function() {
 
         it('should return the expected all agent types per file data after insertion', function() {
             return preq.get({
-                uri: baseURL + endpoints.perFile.daily.replace('{start}', '20150701')
-                    .replace('{end}', '20150703')
-                    .replace('spider', 'all-agents')
-
+                uri: baseURL +
+                    endpoints.perFile.daily
+                        .replace('{start}', '20150701')
+                        .replace('{end}', '20150703')
+                        .replace('spider', 'all-agents')
             }).then(function(res) {
                 assert.deepEqual(res.body.items.length, 1);
                 assert.deepEqual(res.body.items[0].requests, 2003);
@@ -134,8 +145,10 @@ describe('mediarequests endpoints', function() {
 
         it('should return the expected per file monthly data after insertion', function() {
             return preq.get({
-                uri: baseURL + endpoints.perFile.monthly.replace('{start}', '20150601').replace('{end}', '20150803')
-
+                uri: baseURL +
+                    endpoints.perFile.monthly
+                        .replace('{start}', '20150601')
+                        .replace('{end}', '20150803')
             }).then(function(res) {
                 assert.deepEqual(res.body.items.length, 2);
                 assert.deepEqual(res.body.items[0].requests, 3001);
@@ -147,9 +160,8 @@ describe('mediarequests endpoints', function() {
             return preq.get({
                 uri: baseURL +
                         endpoints.perFile.monthly
-                        .replace('{start}', '20151120')
-                        .replace('{end}', '20160103')
-
+                            .replace('{start}', '20151120')
+                            .replace('{end}', '20160103')
             }).then(function(res) {
                 assert.deepEqual(res.body.items.length, 1);
                 assert.deepEqual(res.body.items[0].requests, 5001);
@@ -157,41 +169,52 @@ describe('mediarequests endpoints', function() {
         });
 
         it('should return 400 when there are no full months in specified date range', function() {
-            return preq.get({
-                uri: baseURL +
+            return assert.fails(
+                preq.get({
+                    uri: baseURL +
                         endpoints.perFile.monthly
-                        .replace('{start}', '20151203')
-                        .replace('{end}', '20151220')
-
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+                            .replace('{start}', '20151203')
+                            .replace('{end}', '20151220')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
     });
 
     describe('per referer aggregate endpoint', () => {
         it('should return 400 when aggregate parameters are wrong', function() {
-            return preq.get({
-                uri: baseURL + endpoints.referer.monthly.replace('1971010100', '20150701000000')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.referer.monthly.replace('1971010100', '20150701000000')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
         it('should return 400 when start is before end', function() {
-            return preq.get({
-                uri: baseURL + endpoints.referer.monthly.replace('1969010100', '2016070100')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.referer.monthly.replace('1969010100', '2016070100')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
         it('should return 400 when timestamp is invalid', function() {
-            return preq.get({
-                uri: baseURL + endpoints.referer.monthly.replace('1971010100', '2015022900')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.referer.monthly.replace('1971010100', '2015022900')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
         it('should return multiple hours inside a day', function () {
@@ -223,37 +246,48 @@ describe('mediarequests endpoints', function() {
     })
 
     describe('tops endpoint', () => {
-
         it('should return 400 when tops parameters are wrong', function() {
-            return preq.get({
-                uri: baseURL + endpoints.top.all.replace('all-days', 'all-dayz')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.top.all.replace('all-days', 'all-dayz')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
-        it('Should return 400 when all-year is used for the year parameter', function() {
-            return preq.get({
-                uri: baseURL + endpoints.top.all.replace('2015', 'all-years')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+        it('should return 400 when all-year is used for the year parameter', function() {
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.top.all.replace('2015', 'all-years')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
-        it('Should return 400 when all-months is used for the month parameter', function() {
-            return preq.get({
-                uri: baseURL + endpoints.top.all.replace('01', 'all-months')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+        it('should return 400 when all-months is used for the month parameter', function() {
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.top.all.replace('01', 'all-months')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
         it('should return 400 when tops date is invalid', function() {
-            return preq.get({
-                uri: baseURL + endpoints.top.all.replace('01/all-days', '02/29')
-            }).catch(function(res) {
-                assert.deepEqual(res.status, 400);
-            });
+            return assert.fails(
+                preq.get({
+                    uri: baseURL + endpoints.top.all.replace('01/all-days', '02/29')
+                }),
+                function(res) {
+                    assert.deepEqual(res.status, 400);
+                }
+            );
         });
 
         it('should return the expected tops data after insertion, in rank order', function() {
@@ -271,7 +305,6 @@ describe('mediarequests endpoints', function() {
                     }]
                 },
                 headers: { 'content-type': 'application/json' }
-
             }).then(function() {
                 return preq.get({
                     uri: baseURL + endpoints.top.all
@@ -284,6 +317,4 @@ describe('mediarequests endpoints', function() {
             });
         });
     })
-
-
 })

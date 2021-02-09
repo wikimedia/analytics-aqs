@@ -65,8 +65,6 @@ describe('pageviews endpoints', function() {
                 // means views_desktop_spider will be 1007 and views_desktop_automated 1006
                 // when we pass /100
                 uri: baseURL + endpoints.article.insertDaily.replace('2015070200', date) + '/' + dataToInsert[date]
-            }).catch(function(e) {
-                console.log(e);
             }).then(function() {
                 delete dataToInsert[date];
 
@@ -81,17 +79,19 @@ describe('pageviews endpoints', function() {
     // Test Article Endpoint
 
     it('should return 400 when per article parameters are wrong', function() {
-        return preq.get({
-            uri: baseURL + endpoints.article.daily.replace('20150703', '201507a3')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.article.daily.replace('20150703', '201507a3')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return the expected per article data after insertion', function() {
         return preq.get({
             uri: baseURL + endpoints.article.daily
-
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 1007);
@@ -101,7 +101,6 @@ describe('pageviews endpoints', function() {
     it('should return the expected per article data after insertion for automated agent-type', function() {
         return preq.get({
             uri: baseURL + endpoints.article.daily.replace('spider', 'automated')
-
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 1006);
@@ -111,7 +110,6 @@ describe('pageviews endpoints', function() {
     it('should return the expected per article data even if project is uppercase and with org sufix', function() {
         return preq.get({
             uri: baseURL + endpoints.article.daily.replace('en.wikipedia', 'EN.WIKIPEDIA.ORG')
-
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 1007);
@@ -121,7 +119,6 @@ describe('pageviews endpoints', function() {
     it('should return integer zero if view count is null', function () {
         return preq.get({
             uri: baseURL + endpoints.article.dailyNull
-
         }).then(function (res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 0);
@@ -133,7 +130,6 @@ describe('pageviews endpoints', function() {
         if (replaceSpaces) {
             weirdArticleTitle = weirdArticleTitle.replace(/ /g, '_');
         }
-
         return s.replace(
             '/one/', '/' + encodeURIComponent(weirdArticleTitle) + '/'
         );
@@ -169,7 +165,6 @@ describe('pageviews endpoints', function() {
     it('should return the expected per article monthly data after insertion', function() {
         return preq.get({
             uri: baseURL + endpoints.article.monthly
-
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 2);
             assert.deepEqual(res.body.items[0].views, 3007);
@@ -181,9 +176,8 @@ describe('pageviews endpoints', function() {
         return preq.get({
             uri: baseURL +
                     endpoints.article.monthly
-                    .replace('20150601', '20151120')
-                    .replace('20150803', '20160103')
-
+                        .replace('20150601', '20151120')
+                        .replace('20150803', '20160103')
         }).then(function(res) {
             assert.deepEqual(res.body.items.length, 1);
             assert.deepEqual(res.body.items[0].views, 5007);
@@ -191,41 +185,52 @@ describe('pageviews endpoints', function() {
     });
 
     it('should return 400 when there are no full months in specified date range', function() {
-        return preq.get({
-            uri: baseURL +
+        return assert.fails(
+            preq.get({
+                uri: baseURL +
                     endpoints.article.monthly
-                    .replace('20150601', '20151203')
-                    .replace('20150803', '20151220')
-
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+                        .replace('20150601', '20151203')
+                        .replace('20150803', '20151220')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     // Test Project Endpoint
 
     it('should return 400 when aggregate parameters are wrong', function() {
-        return preq.get({
-            uri: baseURL + endpoints.project.hourly.replace('1971010100', '20150701000000')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.project.hourly.replace('1971010100', '20150701000000')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return 400 when start is before end', function() {
-        return preq.get({
-            uri: baseURL + endpoints.project.hourly.replace('1969010100', '2016070100')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.project.hourly.replace('1969010100', '2016070100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return 400 when timestamp is invalid', function() {
-        return preq.get({
-            uri: baseURL + endpoints.project.hourly.replace('1971010100', '2015022900')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.project.hourly.replace('1971010100', '2015022900')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return multiple hours inside a day', function () {
@@ -337,39 +342,50 @@ describe('pageviews endpoints', function() {
         });
     });
 
-
     // Test Top Endpoint
 
     it('should return 400 when tops parameters are wrong', function() {
-        return preq.get({
-            uri: baseURL + endpoints.top.all.replace('all-days', 'all-dayz')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.top.all.replace('all-days', 'all-dayz')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('Should return 400 when all-year is used for the year parameter', function() {
-        return preq.get({
-            uri: baseURL + endpoints.top.all.replace('2015', 'all-years')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when all-year is used for the year parameter', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.top.all.replace('2015', 'all-years')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('Should return 400 when all-months is used for the month parameter', function() {
-        return preq.get({
-            uri: baseURL + endpoints.top.all.replace('01', 'all-months')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when all-months is used for the month parameter', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.top.all.replace('01', 'all-months')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return 400 when tops date is invalid', function() {
-        return preq.get({
-            uri: baseURL + endpoints.top.all.replace('01/all-days', '02/29')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.top.all.replace('01/all-days', '02/29')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return the expected tops data after insertion, in rank order', function() {
@@ -387,7 +403,6 @@ describe('pageviews endpoints', function() {
                 }]
             },
             headers: { 'content-type': 'application/json' }
-
         }).then(function() {
             return preq.get({
                 uri: baseURL + endpoints.top.all
@@ -425,7 +440,6 @@ describe('pageviews endpoints', function() {
                 ]
             },
             headers: { 'content-type': 'application/json' }
-
         }).then(function() {
             return preq.get({
                 uri: baseURL + endpoints.bycountry.all_ceiled
@@ -458,7 +472,6 @@ describe('pageviews endpoints', function() {
                 ]
             },
             headers: { 'content-type': 'application/json' }
-
         }).then(function() {
             return preq.get({
                 uri: baseURL + endpoints.bycountry.all_intervals

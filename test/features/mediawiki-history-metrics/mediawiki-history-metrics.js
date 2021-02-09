@@ -61,50 +61,92 @@ describe('mediawiki-history-metrics endpoints', function() {
         }
     }
 
-    it('should return 400 when bycountry parameters are wrong', function() {
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('en.wikipedia', 'w\'eird')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('5..99-edits', '3..47-edits')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('2020', 'xyzw')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('05', '50')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when bycountry project parameter is wrong', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('en.wikipedia', 'w\'eird')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when bycountry parameters are all aggregators', function() {
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('en.wikipedia', 'all-projects')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('5..99-edits', 'all-activity-levels')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('2020', 'all-years')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
-        return preq.get({
-            uri: baseURL + endpoints.bycountry.monthly.replace('05', 'all-months')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when bycountry activity level parameter is wrong', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('5..99-edits', '3..47-edits')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return 400 when bycountry year parameter is wrong', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('2020', 'xyzw')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return 400 when bycountry month parameter is wrong', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('05', '50')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return 400 when bycountry project parameter is an all-aggregator', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('en.wikipedia', 'all-projects')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return 400 when bycountry activity level parameter is an all-aggregator', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('5..99-edits', 'all-activity-levels')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return 400 when bycountry year parameter is an all-aggregator', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('2020', 'all-years')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
+    });
+
+    it('should return 400 when bycountry month parameter is an all-aggregator', function() {
+        return assert.fails(
+            preq.get({
+                uri: baseURL + endpoints.bycountry.monthly.replace('05', 'all-months')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
     it('should return the expected data after bycountry insertion', function () {

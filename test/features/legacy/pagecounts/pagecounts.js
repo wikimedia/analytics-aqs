@@ -182,59 +182,80 @@ describe('legacy pagecounts aggregate endpoint', function () {
         });
     });
 
-    it('should return 404 when range has no data', function () {
-        preq.get({
-            uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010100', '2017013100')
-        }).catch(function (res) {
-            assert.deepEqual(res.status, 404);
-        });
+    it('should return 404 when range has no data', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010100', '2017013100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 404);
+            }
+        );
     });
 
-    it('should return 404 when project is invalid', function () {
-        preq.get({
-            uri: URL('invalid-project', 'all-sites', 'daily', '2017010100', '2017013100')
-        }).catch(function (res) {
-            assert.deepEqual(res.status, 404);
-        });
+    it('should return 404 when project is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('invalid-project', 'all-sites', 'daily', '2017010100', '2017013100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 404);
+            }
+        );
     });
 
-    it('should return 400 when access site is invalid', function () {
-        preq.get({
-            uri: URL('ar.wikipedia', 'invalid-access-site', 'daily', '2017010100', '2017013100')
-        }).catch(function (res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when access site is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('ar.wikipedia', 'invalid-access-site', 'daily', '2017010100', '2017013100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when granularity is invalid', function () {
-        preq.get({
-            uri: URL('ar.wikipedia', 'all-sites', 'invalid-granularity', '2017010100', '2017013100')
-        }).catch(function (res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when granularity is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('ar.wikipedia', 'all-sites', 'invalid-granularity', '2017010100', '2017013100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when start timestamp is invalid', function () {
-        preq.get({
-            uri: URL('ar.wikipedia', 'all-sites', 'daily', 'invalid-timestamp', '2017013100')
-        }).catch(function (res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when start timestamp is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('ar.wikipedia', 'all-sites', 'daily', 'invalid-timestamp', '2017013100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when end timestamp is invalid', function () {
-        preq.get({
-            uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010100', 'invalid-timestamp')
-        }).catch(function (res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when end timestamp is invalid', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010100', 'invalid-timestamp')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 
-    it('should return 400 when end timestamp is smaller than start timestamp', function () {
-        preq.get({
-            uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010200', '2017010100')
-        }).catch(function(res) {
-            assert.deepEqual(res.status, 400);
-        });
+    it('should return 400 when end timestamp is smaller than start timestamp', function() {
+        return assert.fails(
+            preq.get({
+                uri: URL('ar.wikipedia', 'all-sites', 'daily', '2017010200', '2017010100')
+            }),
+            function(res) {
+                assert.deepEqual(res.status, 400);
+            }
+        );
     });
 });
