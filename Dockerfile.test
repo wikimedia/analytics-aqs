@@ -1,0 +1,10 @@
+FROM docker-registry.wikimedia.org/buster-nodejs10-devel
+USER "root"
+ENV DEBIAN_FRONTEND="noninteractive"
+RUN apt-get update && apt-get install -y nodejs git build-essential npm
+RUN mkdir /srv/service && chown 65534:65534 /srv/service/
+USER nobody
+WORKDIR /srv/service
+ENV HOME="/srv/service"
+COPY --chown=65534:65534 [".", "."]
+RUN npm install
