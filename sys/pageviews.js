@@ -164,10 +164,20 @@ const viewCountColumnsForArticleFlat = {
 // view count column in the dictionary above, using its short name.
 // The short name saves space because cassandra stores the column name with
 // each record.
-Object.keys(viewCountColumnsForArticleFlat).forEach((k) => {
-    tableSchemas.articleFlat.attributes[viewCountColumnsForArticleFlat[k]] = 'int';
+Object.values(viewCountColumnsForArticleFlat).forEach((v) => {
+    tableSchemas.articleFlat.attributes[v] = 'int';
 });
 
+function viewKeyForArticleFlat(access, agent) {
+    const ret = ['views', access, agent].join('_');
+    return viewCountColumnsForArticleFlat[ret.replace(/-/g, '_')];
+}
+
+function removeDenormalizedColumnsForArticleFlat(item) {
+    Object.values(viewCountColumnsForArticleFlat).forEach((v) => {
+        delete item[v];
+    });
+}
 
 PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
     const rp = req.params;
@@ -195,17 +205,6 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 
     }).catch(aqsUtil.notFoundCatcher);
 
-    function viewKey(access, agent) {
-        const ret = ['views', access, agent].join('_');
-        return viewCountColumnsForArticleFlat[ret.replace(/-/g, '_')];
-    }
-
-    function removeDenormalizedColumns(item) {
-        Object.keys(viewCountColumnsForArticleFlat).forEach((k) => {
-            delete item[viewCountColumnsForArticleFlat[k]];
-        });
-    }
-
     return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
             const monthViews = {};
@@ -216,12 +215,12 @@ PJVS.prototype.pageviewsForArticleFlat = function(hyper, req) {
 
                 item.access = rp.access;
                 item.agent = rp.agent;
-                item.views = item[viewKey(rp.access, rp.agent)];
+                item.views = item[viewKeyForArticleFlat(rp.access, rp.agent)];
                 // map null to zero for view counts, we store null in cassandra for efficiency
                 if (item.views === null) {
                     item.views = 0;
                 }
-                removeDenormalizedColumns(item);
+                removeDenormalizedColumnsForArticleFlat(item);
 
                 if (aggregateMonthly) {
                     if (!Object.prototype.hasOwnProperty.call(monthViews, yearAndMonth)) {
