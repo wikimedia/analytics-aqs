@@ -9,7 +9,7 @@ CREATE TABLE "local_group_default_T_pageviews_per_project_v2".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -36,7 +36,7 @@ CREATE TABLE "local_group_default_T_pageviews_per_project_v2".data (
     PRIMARY KEY (("_domain", project, access, agent, granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -59,7 +59,7 @@ CREATE TABLE "local_group_default_T_mediarequest_top_files".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -85,7 +85,7 @@ CREATE TABLE "local_group_default_T_mediarequest_top_files".data (
     PRIMARY KEY (("_domain", referer, media_type, year, month, day), "_tid")
 ) WITH CLUSTERING ORDER BY ("_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -108,7 +108,7 @@ CREATE TABLE "local_group_default_T_lgc_pagecounts_per_project".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -133,7 +133,7 @@ CREATE TABLE "local_group_default_T_lgc_pagecounts_per_project".data (
     PRIMARY KEY (("_domain", project, "access-site", granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -156,7 +156,7 @@ CREATE TABLE "local_group_default_T_mediarequest_per_file".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -182,7 +182,7 @@ CREATE TABLE "local_group_default_T_mediarequest_per_file".data (
     PRIMARY KEY (("_domain", referer, file_path, granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'chunk_length_kb': '256', 'sstable_compression': 'org.apache.cassandra.io.compress.DeflateCompressor'}
@@ -205,7 +205,7 @@ CREATE TABLE "local_group_default_T_top_pageviews".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -232,7 +232,7 @@ CREATE TABLE "local_group_default_T_top_pageviews".data (
     PRIMARY KEY (("_domain", project, access, year, month, day), "_tid")
 ) WITH CLUSTERING ORDER BY ("_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -255,7 +255,7 @@ CREATE TABLE "local_group_default_T_top_percountry".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -281,7 +281,7 @@ CREATE TABLE "local_group_default_T_top_percountry".data (
     PRIMARY KEY (("_domain", country, access, year, month, day), "_tid")
 ) WITH CLUSTERING ORDER BY ("_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -304,7 +304,7 @@ CREATE TABLE "local_group_default_T_editors_bycountry".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -329,7 +329,7 @@ CREATE TABLE "local_group_default_T_editors_bycountry".data (
     PRIMARY KEY (("_domain", project, "activity-level", year, month), "_tid")
 ) WITH CLUSTERING ORDER BY ("_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -354,7 +354,7 @@ CREATE TABLE "local_group_default_T_mediarequest_per_referer".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -380,7 +380,7 @@ CREATE TABLE "local_group_default_T_mediarequest_per_referer".data (
     PRIMARY KEY (("_domain", referer, media_type, agent, granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -403,7 +403,7 @@ CREATE TABLE "local_group_default_T_unique_devices".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -430,7 +430,7 @@ CREATE TABLE "local_group_default_T_unique_devices".data (
     PRIMARY KEY (("_domain", project, "access-site", granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -453,7 +453,7 @@ CREATE TABLE "local_group_default_T_pageviews_per_article_flat".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -493,7 +493,7 @@ CREATE TABLE "local_group_default_T_pageviews_per_article_flat".data (
     PRIMARY KEY (("_domain", project, article, granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'chunk_length_kb': '256', 'sstable_compression': 'org.apache.cassandra.io.compress.DeflateCompressor'}
@@ -516,7 +516,7 @@ CREATE TABLE "local_group_default_T_top_bycountry".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -541,7 +541,7 @@ CREATE TABLE "local_group_default_T_top_bycountry".data (
     PRIMARY KEY (("_domain", project, access, year, month), "_tid")
 ) WITH CLUSTERING ORDER BY ("_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -564,7 +564,7 @@ CREATE TABLE "local_group_default_T_pageviews_per_project".meta (
     PRIMARY KEY (key, tid)
 ) WITH CLUSTERING ORDER BY (tid DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
@@ -591,7 +591,7 @@ CREATE TABLE "local_group_default_T_pageviews_per_project".data (
     PRIMARY KEY (("_domain", project, access, agent, granularity), timestamp, "_tid")
 ) WITH CLUSTERING ORDER BY (timestamp ASC, "_tid" DESC)
     AND bloom_filter_fp_chance = 0.1
-    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND caching = {'keys':'ALL', 'rows_per_partition':'NONE'}
     AND comment = ''
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
