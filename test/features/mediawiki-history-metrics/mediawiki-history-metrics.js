@@ -176,6 +176,33 @@ describe('mediawiki-history-metrics endpoints', function() {
         });
     })
 
+    it('should not return data for countries in the deny list', function () {
+        return preq.post({
+            uri: baseURL + endpoints.bycountry.insert_monthly,
+            body: {
+                countries: [
+                    {country: 'US', 'editors-ceil': 10},
+                    {country: 'ES', 'editors-ceil': 20},
+                    {country: 'ER', 'editors-ceil': 30},
+                    {country: 'AE', 'editors-ceil': 10},
+                    {country: 'FR', 'editors-ceil': 20},
+                    {country: 'DE', 'editors-ceil': 30}
+                ]
+            },
+            headers: { 'content-type': 'application/json' }
+        }).then(function() {
+            return preq.get({
+                uri: baseURL + endpoints.bycountry.monthly
+            });
+        }).then(function(res) {
+            const remainingCountries = ['US', 'ES', 'FR', 'DE'];
+            assert.deepEqual(
+                res.body.items[0].countries.map(c => c.country), 
+                remainingCountries
+            );
+        });
+    });
+
     it('should make requests to druid with a 10s timeout', (done) => {
         const newPagesTimeseries = MediawikiHistoryMetrics({druid: {
             query_path: '/analytics.wikimedia.org/sys/fake-druid/druid/v2',

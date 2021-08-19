@@ -571,7 +571,8 @@ MHMCS.prototype.editorsByCountry = function(hyper, req) {
     return dataRequest.then(aqsUtil.normalizeResponse).then((res) => {
         if (res.body.items) {
             res.body.items.forEach((item) => {
-                item.countries = item.countriesJSON;
+                const validatedCountriesJSON = aqsUtil.purgeDeniedCountries(item.countriesJSON);
+                item.countries = validatedCountriesJSON;
                 delete item.countriesJSON;
             });
         }
