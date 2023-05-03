@@ -14,6 +14,7 @@ describe('AQS', function() {
     require('./features/pageviews/pageviews');
     require('./features/unique-devices/unique-devices');
     require('./features/mediarequests/mediarequests');
+    require('./features/knowledge-gap/knowledge-gap')
 
     after(function() {
         return runner.stop()

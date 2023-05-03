@@ -217,6 +217,7 @@ paths:
                               day: '{{request.params.day}}'
                               filesJSON: '{{request.body.files}}'
                   x-monitor: false
+
               /editors/insert-by-country/{project}/{activity-level}/{year}/{month}:
                 post:
                   x-request-handler:
@@ -232,6 +233,24 @@ paths:
                               year: '{{request.params.year}}'
                               month: '{{request.params.month}}'
                               countriesJSON: '{{request.body.countries}}'
+                  x-monitor: false
+
+              /knowledge-gap/insert-per-category/{project}/{content_gap}/{category}/{metric}/{dt}/{value}:
+                post:
+                  x-request-handler:
+                    - put_to_storage:
+                        request:
+                          method: 'put'
+                          uri: '/{domain}/sys/table/knowledge.gap.by.category/'
+                          body:
+                            table: 'knowledge.gap.by.category'
+                            attributes:
+                              project: '{{request.params.project}}'
+                              content_gap: '{{request.params.content_gap}}'
+                              category: '{{request.params.category}}'
+                              metric: '{{request.params.metric}}'
+                              dt: '{{request.params.dt}}'
+                              value: '{{request.params.value}}'
                   x-monitor: false
 
   # Fake internal endpoint simulating a druid cluster for testing

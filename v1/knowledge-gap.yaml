@@ -1,0 +1,79 @@
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: Test
+  description: Test
+  termsofservice: https://github.com/wikimedia/restbase#restbase
+  contact:
+    name: Test
+    email: analytics@lists.wikimedia.org
+    url: https://www.mediawiki.org/wiki/Analytics
+  license:
+    name: Apache licence, v2
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /per-category/{project}/{content_gap}/{category}/{start}/{end}:
+    get:
+      tags:
+        - Content gap by category data
+      summary: Get content gap data for a category with given metrics
+      description: |
+        I'll Write this up later
+      produces:
+        - application/json
+      parameters:
+        - name: project
+          in: path
+          description: The wikipedia database
+          type: string
+          required: true
+        - name: content_gap
+          in: path
+          description: The content gap super catergory - eg Gender, Sexuality etc
+          type: string
+          # enum: ["fill in content gaps"]
+          required: true
+        - name: category
+          in: path
+          description: Specific category within content gap data to filter for
+          type: string
+          required: true
+        - name: start
+          in: path
+          description: Date to begin data retrieval
+          type: string
+          required: true
+        - name: end
+          in: path
+          description: Date to end data retrieval
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The content gap data for a given category
+          schema:
+            $ref: '#/definitions/knowledge-gap'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/knowledge-gap/per-category/{project}/{content_gap}/{category}/{start}/{end}
+      x-monitor: false
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string

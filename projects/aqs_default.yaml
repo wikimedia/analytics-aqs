@@ -39,6 +39,9 @@ paths:
             /mediarequests:
               x-modules:
                 - path: v1/mediarequests.yaml
+            /knowledge-gap:
+              x-modules:
+                - path: v1/knowledge-gap.yaml
 
   /{api:sys}:
     x-modules:
@@ -67,4 +70,7 @@ paths:
                 - path: sys/mediawiki-history-metrics.js
                   options:
                     druid: '{{options.druid}}'
+            /knowledge-gap:
+              x-modules:
+                - path: sys/knowledge-gap.js
         options: '{{options}}'
