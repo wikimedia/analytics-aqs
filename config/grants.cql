@@ -24,4 +24,6 @@ GRANT ALL ON KEYSPACE "local_group_default_T_top_bycountry" to aqs;
 GRANT ALL ON TABLE "local_group_default_T_top_bycountry".data TO aqs;
 GRANT ALL ON KEYSPACE "local_group_default_T_pageviews_per_project" to aqs;
 GRANT ALL ON TABLE "local_group_default_T_pageviews_per_project".data TO aqs;
+GRANT ALL ON KEYSPACE "local_group_default_T_knowledge_gap_by_category" to aqs;
+GRANT ALL ON TABLE "local_group_default_T_knowledge_gap_by_category".data TO aqs;
 GRANT SELECT, MODIFY ON ALL TO aqsloader;

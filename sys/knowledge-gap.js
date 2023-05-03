@@ -46,7 +46,7 @@ const tableSchemas = {
             { attribute: 'project', type: 'hash' },
             { attribute: 'content_gap', type: 'hash' },
             { attribute: 'category', type: 'hash' },
-            { attribute: 'metric', type: 'hash' },
+            // { attribute: 'metric', type: 'hash' },
             { attribute: 'dt', type: 'range', order: 'asc' },
         ]
     },
