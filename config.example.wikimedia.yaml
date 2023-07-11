@@ -24,6 +24,9 @@ aqs_project: &aqs_project
 # Swagger spec root.
 spec: &spec_root
   title: "The Analytics Query Service root"
+  # Ensure compatibility with RESTBase response headers.
+  x-request-filters:
+    - path: lib/response_header_filters.js
   paths:
     /{domain:analytics.wikimedia.org}: *aqs_project
 
