@@ -26,7 +26,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "restbase-mod-table-cassandra": "^0.11.2",
-    "service-runner": "2.7.3",
+    "service-runner": "3.1.0",
     "hyperswitch": "^0.9.1",
     "ip-regex": "^3.0.0"
   },
@@ -54,8 +54,8 @@
     "node": ">=10"
   },
   "deploy": {
-    "node": "10.4.0",
-    "target": "debian",
+    "node": "10.24.1",
+    "target": "debian:bullseye",
     "dependencies": {
       "_all": []
     }
