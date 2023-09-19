@@ -534,4 +534,31 @@ describe('pageviews endpoints', function() {
         });
     });
 
+    it('should have an etag header', function() {
+        return preq.post({
+            uri: baseURL + endpoints.percountry.insert,
+            body: {
+                articles: [
+                    {
+                        rank: 1,
+                        article: 'o"n"e',
+                        project: 'fr.wikipedia',
+                        views_ceil: 1400
+                    }, {
+                        rank: 2,
+                        article: 'two\\',
+                        project: 'en.wikipedia',
+                        views_ceil: 1100
+                    }
+                ]
+            },
+            headers: { 'content-type': 'application/json' }
+        }).then(function() {
+            return preq.get({
+                uri: baseURL + endpoints.percountry.all
+            });
+        }).then(function(res) {
+            assert.deepEqual(res.headers['etag'], '"d3cb5cb553f2bf319129a2fdb008bd7f935a6c93"');
+        });
+    });
 });
